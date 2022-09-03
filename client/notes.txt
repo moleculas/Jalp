@@ -1,0 +1,142 @@
+Settings inicials color: settingsConfig.js i a themesConfig.js
+Generador de paletes de colors: https://material.io/resources/color/#!/?view.left=0&view.right=1
+
+Els default settings s'agafen de qualsevol lloc:
+
+ sx={{
+       backgroundColor: 'background.default',
+    }}
+
+Les dades corresponen a: 
+E:\source\REACT-2\Admin-proyecto1\Client-Proyecto1\src\app\configs\themesConfig.js
+
+//docs
+https://date-fns.org/v2.29.1/docs/
+https://date-fns.org/v2.29.1/docs/format
+https://tailwindcss.com/docs/installation
+https://react-hook-form.com/
+https://fullcalendar.io/docs/react
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+
+//actualitzar menú item
+
+  useEffect(() => {
+    if (remainingTasks) {
+      const objetoNavigation = {
+        id: 'apps.tasks',
+        icon: 'heroicons-outline:check-circle',
+        subtitle: remainingTasks + " tareas faltan por completar",
+        title: 'Tareas',
+        type: 'item',
+        url: "/apps/tasks"
+      }
+      dispatch(updateNavigationItem('apps.tasks', objetoNavigation))
+    };
+  }, [remainingTasks]);
+
+  //scroll page
+     scroll={isMobile ? 'normal' : 'page'} normal, page, content
+
+ // responsive query ocultar-mostrar
+ <div className="mr-8 mt-8 hidden md:flex">
+
+ //tipografia
+  <Typography className="username text-14 whitespace-nowrap font-medium">
+{user.data.displayName}
+ </Typography>
+ <Typography className="email text-13 whitespace-nowrap font-medium" color="text.secondary">
+  {user.data.email}
+ </Typography>
+
+ //mig titol
+
+ <Typography className="text-2xl font-extrabold tracking-tight leading-none">
+                        {selectedItemAEditar ? 'Actualizar archivo' : 'Subir archivo'}
+                    </Typography>
+
+
+//estils
+
+const Root = styled('div')(({ theme }) => ({
+  '& .FusePageSimple-header': {},
+
+  '&.scroll-normalScroll': {
+    '& .preview-wrapper': {
+      overflow: 'auto',
+    },
+
+    '& .preview-component': {
+      minHeight: 'auto',
+    },
+  },
+  '&.scroll-pageScroll': {
+    '& .preview-component': {
+      minHeight: '0',
+      overflow: 'auto',
+      '& .FusePageSimple-root': {
+        minHeight: 'auto',
+      },
+      '& .FusePageCarded-root': {
+        minHeight: 'auto',
+      },
+    },
+  },
+  '&.scroll-contentScroll': {
+    '& .preview-component': {
+      minHeight: '0',
+    },
+  },
+}));
+
+
+//centrar en mig i retorna lading
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <FuseLoading />
+      </div>
+    );
+  }
+
+  //contenidor
+         <div className="flex flex-col flex-1 w-full mx-auto px-24 pt-24 sm:p-40">
+          <div className="flex flex-col shrink-0 sm:flex-row items-center justify-between space-y-16 sm:space-y-0">
+          </div>
+          </div>
+
+// perque rightsidebaropen vagi per sobre del content eliminar les props a la pàgina general:
+
+     // rightSidebarOpen={true}
+     // rightSidebarOnClose={() => setRightSidebarOpen(false)}
+
+// controller useForm doble onchange
+<Controller
+                    control={control}
+                    name={`unidades-${item.nombre}`}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        className="w-2/3"
+                        label='Unidades'
+                        placeholder="Unidades"
+                        id={`unidades-${item.nombre}`}
+                        error={!!errors[`unidades-${item.nombre}`]}
+                        helperText={errors[`unidades-${item.nombre}`]?.message}
+                        variant="outlined"
+                        fullWidth
+                        onChange={e => {
+                          onChangeFirst(e);
+                          field.onChange(e);
+                        }}
+                      />
+                    )}
+                  />
+
+//responsive
+
+Breakpoint prefix	Minimum width	CSS
+sm	640px	@media (min-width: 640px) { ... }
+md	768px	@media (min-width: 768px) { ... }
+lg	1024px	@media (min-width: 1024px) { ... }
+xl	1280px	@media (min-width: 1280px) { ... }
+2xl	1536px	@media (min-width: 1536px) { ... }

@@ -1,0 +1,14 @@
+Compte Google: jalpgestion@gmail.com / JalpGest5566@
+
+Sendinblue:
+jalpgestion@gmail.com
+JalpGest5566@
+Recordar omplir totes les dades per activar compte!
+https://my.sendinblue.com/dashboard
+
+API
+sender-mail-node
+key: -
+
+
+
