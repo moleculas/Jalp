@@ -23,9 +23,7 @@ import UserPass from './UserPass';
 const StyledSwipeableDrawer = styled(SwipeableDrawer)(({ theme }) => ({
     '& .MuiDrawer-paper': {
         backgroundColor: theme.palette.background,
-        width: 640,
-        height: 'calc(100% - 64px)',
-        top: 64,
+        width: 640,       
         borderLeft: '1px solid rgb(226, 232, 240)',
         borderTop: '1px solid rgb(226, 232, 240)',
     },
@@ -68,6 +66,18 @@ function UserPanel(props) {
             disableSwipeToOpen
             BackdropProps={{ invisible: true }}
             elevation={0}
+            sx={{
+                '& .MuiDrawer-paper': {
+                    height: {
+                        sm: '100%',
+                        md: 'calc(100% - 64px)'
+                    },
+                    top: {
+                        sm: 0,
+                        md: 64
+                    },
+                },
+            }}
         >
             <IconButton className="m-4 absolute top-0 right-0 z-999" onClick={handleClose} size="large">
                 <FuseSvgIcon color="action">heroicons-outline:x</FuseSvgIcon>

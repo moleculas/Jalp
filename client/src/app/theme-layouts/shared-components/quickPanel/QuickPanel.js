@@ -28,8 +28,6 @@ const StyledSwipeableDrawer = styled(SwipeableDrawer)(({ theme }) => ({
   '& .MuiDrawer-paper': {
     backgroundColor: theme.palette.background,
     width: 280,
-    height: 'calc(100% - 64px)',
-    top: 64,
     borderLeft: '1px solid rgb(226, 232, 240)',
     borderTop: '1px solid rgb(226, 232, 240)',
   },
@@ -53,6 +51,18 @@ function QuickPanel(props) {
       BackdropProps={{ invisible: true }}
       disableSwipeToOpen
       elevation={0}
+      sx={{
+        '& .MuiDrawer-paper': {
+            height: {
+                sm: '100%',
+                md: 'calc(100% - 64px)'
+            },
+            top: {
+                sm: 0,
+                md: 64
+            },
+        },
+    }}
     >
       <FuseScrollbars>
         <ListSubheader component="div">Hoy</ListSubheader>

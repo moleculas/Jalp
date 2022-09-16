@@ -6,9 +6,7 @@ const GestionUsuariosPage = lazy(() => import('./GestionUsuariosPage'));
 const GestionUsuariosConfig = {
     settings: {
         layout: {
-            config: {
-                containerWidth: '100%',
-            },
+            config: {},
         },
     },
     auth: authRoles.admin,

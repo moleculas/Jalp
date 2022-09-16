@@ -7,6 +7,7 @@ import { es } from 'date-fns/locale';
 
 //importacion acciones
 import { setMesActual } from 'app/redux/produccion/inicioSlice';
+import { setSemanasAnyo } from 'app/redux/produccion/produccionSlice';
 
 function SelectorMes(props) {
     const dispatch = useDispatch();
@@ -18,7 +19,7 @@ function SelectorMes(props) {
     useEffect(() => {
         const d = new Date();
         const anyo = d.getFullYear();
-        setMaxDate(new Date(anyo + '-12'))
+        setMaxDate(new Date(anyo + '-12'));
     }, []);
 
     //funciones
@@ -27,6 +28,7 @@ function SelectorMes(props) {
         const elMes = format(new Date(val), 'MMMM/yyyy', { locale: es })
         dispatch(setMesActual(elMes));
         setValue(val);
+        dispatch(setSemanasAnyo(null));
     };
 
     return (
@@ -35,8 +37,9 @@ function SelectorMes(props) {
             label="Mes a gestionar"
             minDate={new Date('2022-1')}
             maxDate={maxDate}
-            value={value}            
-            onChange={(newValue) => {
+            value={value}
+            onChange={(e) => { }}
+            onYearChange={(newValue) => {
                 handleChangeSelectorMes(newValue);
             }}
             inputProps={{ style: { textTransform: "capitalize" } }}

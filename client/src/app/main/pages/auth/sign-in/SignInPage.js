@@ -159,7 +159,7 @@ function SignInPage() {
       </Paper>
       <Box
         className="relative hidden md:flex flex-auto items-center justify-center h-full p-64 lg:px-112 overflow-hidden"
-        sx={{ backgroundColor: '#085394' }}
+        sx={{ backgroundColor: 'primary.main' }}
       >
         <svg
           className="absolute inset-0 pointer-events-none"
@@ -171,7 +171,7 @@ function SignInPage() {
         >
           <Box
             component="g"
-            sx={{ color: '#359bfe' }}
+            sx={{ color: 'primary.light' }}
             className="opacity-20"
             fill="none"
             stroke="currentColor"
@@ -184,7 +184,7 @@ function SignInPage() {
         <Box
           component="svg"
           className="absolute -top-64 -right-64 opacity-20"
-          sx={{ color: '#359bfe' }}
+          sx={{ color: 'primary.light' }}
           viewBox="0 0 220 192"
           width="220px"
           height="192px"
@@ -209,7 +209,7 @@ function SignInPage() {
             <div>Gestión</div>
             <div>Integral de Producción</div>
           </div>
-          <div className="mt-24 text-lg tracking-tight leading-6 text-gray-100">
+          <div className="mt-24 text-lg tracking-tight leading-6 text-gray-400">
             Aplicación para la administración y gestión de producción en fábrica de palets y embalajes de madera.
           </div>
         </div>

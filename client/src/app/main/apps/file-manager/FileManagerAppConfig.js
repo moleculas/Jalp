@@ -5,9 +5,7 @@ const FileManagerApp = lazy(() => import('./FileManagerApp'));
 const FileManagerAppConfig = {
   settings: {
     layout: {
-      config: {
-        containerWidth: '100%',
-      },
+      config: {},
     },
   },
   routes: [

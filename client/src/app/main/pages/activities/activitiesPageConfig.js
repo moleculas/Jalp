@@ -5,9 +5,7 @@ const ActivitiesPage = lazy(() => import('./ActivitiesPage'));
 const activitiesPageConfig = {
   settings: {
     layout: {
-      config: {
-        containerWidth: '100%',
-      },
+      config: {},
     },
   },
   routes: [

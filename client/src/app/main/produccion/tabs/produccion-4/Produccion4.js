@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import ListadoCubicajeTacos from './ListadoCubicajeTacos';
 import FormulasCubicajeTacos from './FormulasCubicajeTacos';
 
-function CubicajeTacos() {
+function Produccion4() {
     const container = {
         show: {
             transition: {
@@ -11,33 +11,23 @@ function CubicajeTacos() {
         },
     };
 
-    const item1 = {
-        hidden: { opacity: 0, y: 20 },
-        show: { opacity: 1, y: 0 },
-    };
-
-    const item2 = {
-        hidden: { opacity: 0, y: 20 },
-        show: { opacity: 1, y: 0, transition: { delay: 0.4 } },
-    };
-
     return (
         <>
             <motion.div
-                className="grid grid-cols-1 sm:grid-cols-2 gap-24 p-24"
+                className="grid grid-cols-1 md:grid-cols-2 gap-24 p-24"
                 variants={container}
                 initial="hidden"
                 animate="show"
             >
-                <motion.div variants={item1} >
+                <div >
                     <ListadoCubicajeTacos />
-                </motion.div>
-                <motion.div variants={item2} >
+                </div>
+                <div  >
                     <FormulasCubicajeTacos />
-                </motion.div>
+                </div>
             </motion.div>
         </>
     );
 }
 
-export default CubicajeTacos;
+export default Produccion4;

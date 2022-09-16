@@ -1,4 +1,4 @@
-import FusePageCarded from '@fuse/core/FusePageCarded';
+import FusePageSimple from '@fuse/core/FusePageSimple';
 import withReducer from 'app/redux/withReducer';
 import { useRef } from 'react';
 import { styled } from '@mui/material/styles';
@@ -8,13 +8,13 @@ import ProduccionHeader from './ProduccionHeader';
 import ProduccionContent from './ProduccionContent';
 import ProduccionSidebarContenedor from './ProduccionSidebarContenedor';
 
-const Root = styled(FusePageCarded)(({ theme }) => ({
-  '& .FusePageCarded-header': {
+const Root = styled(FusePageSimple)(({ theme }) => ({
+  '& .FusePageSimple-header': {
     backgroundColor: theme.palette.background.paper,
     boxShadow: `inset 0 0 0 1px  ${theme.palette.divider}`,
   },
-  '& .FusePageCarded-content': {
-    backgroundColor: '#f1f5f9'
+  '& .FusePageSimple-content': {
+    backgroundColor: theme.palette.background.default,   
   },
 }));
 

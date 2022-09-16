@@ -2,7 +2,6 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
-import { lighten } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import Typography from '@mui/material/Typography';
@@ -15,13 +14,14 @@ import Checkbox from '@mui/material/Checkbox';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import _ from '@lodash';
+import { motion } from 'framer-motion';
 
 //importacion acciones
 import {
     selectEscandallo,
     getEscandallo,
     setOpenFormEscandallo
-} from 'app/redux/produccion/produccionSlice';
+} from 'app/redux/produccion/escandalloSlice';
 
 const rows = [
     {
@@ -57,6 +57,10 @@ function ListadoCubicajeTacos() {
     const [openPalets, setOpenPalets] = useState(true);
     const [height, setHeight] = useState(getHeight());
     const [varsEscandallo, setVarsEscandallo] = useState(null);
+    const item1 = {
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0, transition: { delay: 0.1 } },
+    };
 
     //useEffect
 
@@ -89,14 +93,17 @@ function ListadoCubicajeTacos() {
         escandallo.arrayPatinDerecho.forEach((patin) => {
             arrayPatinDerecho.push(patin.cubico);
         });
+        arrayPatinDerecho.push(escandallo.mermaPatinDerecho.cubico);
         let arrayPatinIzquierdo = [];
         escandallo.arrayPatinIzquierdo.forEach((patin) => {
             arrayPatinIzquierdo.push(patin.cubico);
         });
+        arrayPatinIzquierdo.push(escandallo.mermaPatinIzquierdo.cubico);
         let arrayPatinCentral = [];
         escandallo.arrayPatinCentral.forEach((patin) => {
             arrayPatinCentral.push(patin.cubico);
         });
+        arrayPatinCentral.push(escandallo.mermaPatinCentral.cubico);
         let arrayPalets = [];
         escandallo.arrayPalets.forEach((palet) => {
             arrayPalets.push(palet.cubico);
@@ -112,14 +119,15 @@ function ListadoCubicajeTacos() {
     };
 
     const calculoCasillas = (posicion) => {
-        let sumatorioPd, sumatorioPc, sumatorioPa, sumatorioPl, sumatorioTotal;
+        let sumatorioPd, sumatorioPi, sumatorioPc, sumatorioPa, sumatorioPl, sumatorioTotal;
         switch (posicion) {
             case 'pd':
                 sumatorioPd = varsEscandallo.arrayPatinDerecho.reduce((a, b) => a + b, 0);
                 return sumatorioPd > 0 ? `${_.round(sumatorioPd, 4)} m³` : null;
                 break;
             case 'pi':
-                return varsEscandallo.arrayPatinIzquierdo[0] > 0 ? `${varsEscandallo.arrayPatinIzquierdo[0]} m³` : null;
+                sumatorioPi = varsEscandallo.arrayPatinIzquierdo.reduce((a, b) => a + b, 0);
+                return sumatorioPi > 0 ? `${_.round(sumatorioPi, 4)} m³` : null;
                 break;
             case 'pc':
                 sumatorioPc = varsEscandallo.arrayPatinCentral.reduce((a, b) => a + b, 0);
@@ -162,7 +170,22 @@ function ListadoCubicajeTacos() {
             if (!event.target.checked) {
                 objetoEscandallo[nameSplt[0]][nameSplt[1]] = 0;
             } else {
-                objetoEscandallo[nameSplt[0]][nameSplt[1]] = escandallo[nameSplt[0]][nameSplt[1]].cubico;
+                if (nameSplt[2]) {
+                    switch (nameSplt[0]) {
+                        case "arrayPatinDerecho":
+                            objetoEscandallo[nameSplt[0]][nameSplt[1]] = escandallo.mermaPatinDerecho.cubico;
+                            break;
+                        case "arrayPatinIzquierdo":
+                            objetoEscandallo[nameSplt[0]][nameSplt[1]] = escandallo.mermaPatinIzquierdo.cubico;
+                            break;
+                        case "arrayPatinCentral":
+                            objetoEscandallo[nameSplt[0]][nameSplt[1]] = escandallo.mermaPatinCentral.cubico;
+                            break;
+                        default:
+                    };
+                } else {
+                    objetoEscandallo[nameSplt[0]][nameSplt[1]] = escandallo[nameSplt[0]][nameSplt[1]].cubico;
+                };
             };
         } else {
             switch (nameSplt[0]) {
@@ -173,17 +196,30 @@ function ListadoCubicajeTacos() {
                         });
                     } else {
                         objetoEscandallo.arrayPatinDerecho.forEach((patin, index) => {
-                            arrayTraspaso.push(escandallo['arrayPatinDerecho'][index].cubico);
+                            if (index + 1 < escandallo['arrayPatinDerecho'].length) {
+                                arrayTraspaso.push(escandallo['arrayPatinDerecho'][index].cubico);
+                            } else {
+                                arrayTraspaso.push(escandallo.mermaPatinDerecho.cubico);
+                            };
                         });
                     };
                     objetoEscandallo.arrayPatinDerecho = arrayTraspaso;
                     break;
                 case 'patinIzquierdo':
                     if (!event.target.checked) {
-                        objetoEscandallo['arrayPatinIzquierdo'][0] = 0;
+                        objetoEscandallo.arrayPatinIzquierdo.forEach((patin) => {
+                            arrayTraspaso.push(0);
+                        });
                     } else {
-                        objetoEscandallo['arrayPatinIzquierdo'][0] = escandallo['arrayPatinIzquierdo'][0].cubico;
+                        objetoEscandallo.arrayPatinIzquierdo.forEach((patin, index) => {
+                            if (index + 1 < escandallo['arrayPatinIzquierdo'].length) {
+                                arrayTraspaso.push(escandallo['arrayPatinIzquierdo'][index].cubico);
+                            } else {
+                                arrayTraspaso.push(escandallo.mermaPatinIzquierdo.cubico);
+                            };
+                        });
                     };
+                    objetoEscandallo.arrayPatinIzquierdo = arrayTraspaso;
                     break;
                 case 'patinCentral':
                     if (!event.target.checked) {
@@ -192,7 +228,11 @@ function ListadoCubicajeTacos() {
                         });
                     } else {
                         objetoEscandallo.arrayPatinCentral.forEach((patin, index) => {
-                            arrayTraspaso.push(escandallo['arrayPatinCentral'][index].cubico);
+                            if (index + 1 < escandallo['arrayPatinCentral'].length) {
+                                arrayTraspaso.push(escandallo['arrayPatinCentral'][index].cubico);
+                            } else {
+                                arrayTraspaso.push(escandallo.mermaPatinCentral.cubico);
+                            };
                         });
                     };
                     objetoEscandallo.arrayPatinCentral = arrayTraspaso;
@@ -247,8 +287,8 @@ function ListadoCubicajeTacos() {
     };
 
     return (
-        <div className="flex flex-wrap w-full p-12 h-full">
-            <div className="flex flex-col sm:flex-row flex-1 items-start px-12 justify-between mb-32">
+        <div className="flex flex-wrap w-full p-12">
+            <div className="flex flex-col sm:flex-row flex-1 items-center px-12 justify-between mb-24 space-y-16 sm:space-y-0">
                 <div>
                     <Typography className="text-2xl font-extrabold tracking-tight leading-tight">
                         Escandallo LX Pino
@@ -267,9 +307,11 @@ function ListadoCubicajeTacos() {
                     <span className="mx-8">Editar datos</span>
                 </Button>
             </div>
-            <div className="w-full flex flex-col">
+            <motion.div variants={item1} className="w-full flex flex-col">
                 <TableContainer component={Paper} className="rounded-2xl" sx={{
-                    maxHeight: height - 390 
+                    maxHeight: {
+                        md: height - 390,
+                    }
                 }}>
                     <Table stickyHeader className="w-full" aria-labelledby="tableTitle">
                         <TableHead>
@@ -278,7 +320,7 @@ function ListadoCubicajeTacos() {
                                     <Table>
                                         <TableBody>
                                             {/* <TableRow className="h-36" sx={{ backgroundColor: (theme) => lighten(theme.palette.background.default, 0.4) }}> */}
-                                            <TableRow className="h-36 bg-white">  
+                                            <TableRow className="h-36 bg-white">
                                                 <TableCell
                                                     padding="none"
                                                     className="w-64"
@@ -478,6 +520,35 @@ function ListadoCubicajeTacos() {
                                                                         );
                                                                     })}
                                                                     <TableRow
+                                                                        className="h-36"
+                                                                        hover
+                                                                        key={'aPD' + (varsEscandallo.arrayPatinDerecho.length - 1)}
+                                                                        padding="none"
+                                                                    >
+                                                                        <TableCell className="w-64 flex flex-row items-center justify-center p-6 ml-24">
+                                                                            <Checkbox
+                                                                                color="primary"
+                                                                                size="small"
+                                                                                name={'arrayPatinDerecho-' + (varsEscandallo.arrayPatinDerecho.length - 1) + '-merma'}
+                                                                                checked={retornaChecked('arrayPatinDerecho-' + (varsEscandallo.arrayPatinDerecho.length - 1))}
+                                                                                onChange={handleCheckin}
+                                                                            />
+                                                                        </TableCell>
+                                                                        <TableCell
+                                                                            sx={{ color: !varsEscandallo.arrayPatinDerecho[varsEscandallo.arrayPatinDerecho.length - 1] && 'text.disabled' }}
+                                                                            className="p-4"
+                                                                            component="th"
+                                                                            scope="row"
+                                                                        >
+                                                                            Merma patín derecho
+                                                                        </TableCell>
+                                                                        <TableCell className="p-4" component="th" scope="row">
+                                                                        </TableCell>
+                                                                        <TableCell className="p-4" component="th" scope="row">
+                                                                            {varsEscandallo.arrayPatinDerecho[varsEscandallo.arrayPatinDerecho.length - 1] ? `${varsEscandallo.arrayPatinDerecho[varsEscandallo.arrayPatinDerecho.length - 1]} m³` : null}
+                                                                        </TableCell>
+                                                                    </TableRow>
+                                                                    <TableRow
                                                                         hover
                                                                         className="h-36"
                                                                     >
@@ -539,6 +610,35 @@ function ListadoCubicajeTacos() {
                                                                         );
                                                                     })}
                                                                     <TableRow
+                                                                        className="h-36"
+                                                                        hover
+                                                                        key={'aPI' + (varsEscandallo.arrayPatinIzquierdo.length - 1)}
+                                                                        padding="none"
+                                                                    >
+                                                                        <TableCell className="w-64 flex flex-row items-center justify-center p-6 ml-24">
+                                                                            <Checkbox
+                                                                                color="primary"
+                                                                                size="small"
+                                                                                name={'arrayPatinIzquierdo-' + (varsEscandallo.arrayPatinIzquierdo.length - 1) + '-merma'}
+                                                                                checked={retornaChecked('arrayPatinIzquierdo-' + (varsEscandallo.arrayPatinIzquierdo.length - 1))}
+                                                                                onChange={handleCheckin}
+                                                                            />
+                                                                        </TableCell>
+                                                                        <TableCell
+                                                                            sx={{ color: !varsEscandallo.arrayPatinIzquierdo[varsEscandallo.arrayPatinIzquierdo.length - 1] && 'text.disabled' }}
+                                                                            className="p-4"
+                                                                            component="th"
+                                                                            scope="row"
+                                                                        >
+                                                                            Merma patín izquierdo
+                                                                        </TableCell>
+                                                                        <TableCell className="p-4" component="th" scope="row">
+                                                                        </TableCell>
+                                                                        <TableCell className="p-4" component="th" scope="row">
+                                                                            {varsEscandallo.arrayPatinIzquierdo[varsEscandallo.arrayPatinIzquierdo.length - 1] ? `${varsEscandallo.arrayPatinIzquierdo[varsEscandallo.arrayPatinIzquierdo.length - 1]} m³` : null}
+                                                                        </TableCell>
+                                                                    </TableRow>
+                                                                    <TableRow
                                                                         hover
                                                                         className="h-36"
                                                                     >
@@ -599,6 +699,35 @@ function ListadoCubicajeTacos() {
                                                                             </TableRow>
                                                                         );
                                                                     })}
+                                                                    <TableRow
+                                                                        className="h-36"
+                                                                        hover
+                                                                        key={'aPC' + (varsEscandallo.arrayPatinCentral.length - 1)}
+                                                                        padding="none"
+                                                                    >
+                                                                        <TableCell className="w-64 flex flex-row items-center justify-center p-6 ml-24">
+                                                                            <Checkbox
+                                                                                color="primary"
+                                                                                size="small"
+                                                                                name={'arrayPatinCentral-' + (varsEscandallo.arrayPatinCentral.length - 1) + '-merma'}
+                                                                                checked={retornaChecked('arrayPatinCentral-' + (varsEscandallo.arrayPatinCentral.length - 1))}
+                                                                                onChange={handleCheckin}
+                                                                            />
+                                                                        </TableCell>
+                                                                        <TableCell
+                                                                            sx={{ color: !varsEscandallo.arrayPatinCentral[varsEscandallo.arrayPatinCentral.length - 1] && 'text.disabled' }}
+                                                                            className="p-4"
+                                                                            component="th"
+                                                                            scope="row"
+                                                                        >
+                                                                            Merma patín central
+                                                                        </TableCell>
+                                                                        <TableCell className="p-4" component="th" scope="row">
+                                                                        </TableCell>
+                                                                        <TableCell className="p-4" component="th" scope="row">
+                                                                            {varsEscandallo.arrayPatinCentral[varsEscandallo.arrayPatinCentral.length - 1] ? `${varsEscandallo.arrayPatinCentral[varsEscandallo.arrayPatinCentral.length - 1]} m³` : null}
+                                                                        </TableCell>
+                                                                    </TableRow>
                                                                 </TableBody>
                                                             </Table>
                                                         </Collapse>
@@ -680,7 +809,7 @@ function ListadoCubicajeTacos() {
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </div>
+            </motion.div>
         </div>
     );
 }

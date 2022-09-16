@@ -13,6 +13,8 @@ import tasksRoutes from "./routes/tasks.routes";
 import filesRoutes from "./routes/files.routes";
 import actividadRoutes from "./routes/actividad.routes";
 import escandalloRoutes from "./routes/escandallo.routes";
+import produccionRoutes from "./routes/produccion.routes";
+import objetivosRoutes from "./routes/objetivos.routes";
 
 const app = express();
 
@@ -42,5 +44,7 @@ app.use('/api/tasks', tasksRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/actividad', actividadRoutes);
 app.use('/api/escandallo', escandalloRoutes);
+app.use('/api/produccion', produccionRoutes);
+app.use('/api/objetivos', objetivosRoutes);
 
 export { app };

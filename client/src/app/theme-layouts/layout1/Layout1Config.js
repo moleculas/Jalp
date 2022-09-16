@@ -2,8 +2,8 @@ const config = {
   title: 'Layout 1 - Vertical',
   defaults: {
     mode: 'container',
-    //containerWidth: 1570,
-    containerWidth: 1640,
+    //containerWidth: 1640,
+    containerWidth: '6640', //parche fullwidth todas las views
     navbar: {
       display: true,
       style: 'style-1',

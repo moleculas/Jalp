@@ -17,6 +17,7 @@ https://tailwindcss.com/docs/installation
 https://react-hook-form.com/
 https://fullcalendar.io/docs/react
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+https://www.material-react-table.com/docs
 
 //actualitzar menú item
 
@@ -58,34 +59,36 @@ https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Comm
 //estils
 
 const Root = styled('div')(({ theme }) => ({
-  '& .FusePageSimple-header': {},
-
-  '&.scroll-normalScroll': {
-    '& .preview-wrapper': {
-      overflow: 'auto',
+    '& .customInput': {
+        backgroundColor: `${grey[100]} !important`,
+        '&:hover, &:focus': {
+            backgroundColor: `${grey[200]} !important`,
+        },
+        borderRadius: 0,
+        paddingBottom: 15,
+        height: 30,
+        borderBottom: `1px solid ${grey[300]}`
     },
-
-    '& .preview-component': {
-      minHeight: 'auto',
+    '& .customCasilla': {
+        cursor: 'default',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        paddingLeft: 16,
+        paddingRigth: 16,
+        height: 40,
+        borderBottom: `1px solid ${grey[300]}`
     },
-  },
-  '&.scroll-pageScroll': {
-    '& .preview-component': {
-      minHeight: '0',
-      overflow: 'auto',
-      '& .FusePageSimple-root': {
-        minHeight: 'auto',
-      },
-      '& .FusePageCarded-root': {
-        minHeight: 'auto',
-      },
+    '& .customCasilla': {
+        cursor: 'default',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        paddingLeft: 16,
+        paddingRigth: 16,
+        height: 40,
+        borderBottom: `1px solid ${grey[300]}`
     },
-  },
-  '&.scroll-contentScroll': {
-    '& .preview-component': {
-      minHeight: '0',
-    },
-  },
 }));
 
 
@@ -140,3 +143,49 @@ md	768px	@media (min-width: 768px) { ... }
 lg	1024px	@media (min-width: 1024px) { ... }
 xl	1280px	@media (min-width: 1280px) { ... }
 2xl	1536px	@media (min-width: 1536px) { ... }
+
+//estilizar TextField
+<TextField
+                                        {...field}
+                                        label="Saldo inicial"
+                                        placeholder="Saldo inicial"
+                                        id="saldoInicialMod1"
+                                        error={!!errors['saldoInicialMod1']}
+                                        helperText={errors['saldoInicialMod1']?.message}
+                                        variant="filled"
+                                        fullWidth
+                                        onChange={e => {
+                                            field.onChange(e);
+                                            //handleChangeForm(e);
+                                        }}
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <FuseSvgIcon size={18}>material-solid:euro</FuseSvgIcon>
+                                                </InputAdornment>
+                                            ),
+                                            sx: {
+                                                backgroundColor: cyan[100],                                            
+                                                "&:hover": {
+                                                    backgroundColor: cyan[50],
+                                                },
+                                                '&.Mui-focused': {
+                                                    backgroundColor: cyan[50],
+                                                  },
+                                                  '&.MuiInputLabel': {
+                                                    color: 'green',
+                                                  },  
+                                            },
+                                            
+                                        }}
+                                    />
+//useTheme fàcil
+import { useTheme } from '@mui/material/styles';
+
+function GraficoProduccion1(props) {
+    const theme = useTheme();
+
+//placeholder input font size
+ "& input::placeholder": {
+            fontSize: "13px"
+          },
