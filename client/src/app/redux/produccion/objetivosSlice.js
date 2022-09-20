@@ -27,8 +27,7 @@ export const updateObjetivos = createAsyncThunk(
         formData.append("datos", JSON.stringify(losDatos));
         try {
             const response = await axios.post('/objetivos/actualizar', formData);
-            const data = await response.data;
-            dispatch(setObjetivos(null));
+            const data = await response.data;            
             dispatch(showMessage({ message: data.message, variant: "success" }));
         } catch (err) {
             dispatch(showMessage({ message: err.response.data.message, variant: "error" }));

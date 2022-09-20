@@ -112,7 +112,7 @@ function ObjetivosForm() {
             };
         });
         dispatch(updateObjetivos(modificadosActualizar)).then(({ payload }) => {
-            dispatch(setOpenFormEscandallo(false))
+            dispatch(getObjetivos());
         });
     };
 
@@ -136,16 +136,18 @@ function ObjetivosForm() {
                 <Paper className="flex flex-col flex-auto shadow rounded-2xl overflow-hidden px-36 py-24">
                     {objetivosControllers.map((objetivo, index) => {
                         return (
-                            <div className="flex items-center justify-between py-12 w-full" key={`item-${index}`}>
+                            <div className="flex flex-col md:flex-row items-center justify-between py-12 w-full" key={`item-${index}`}>
+                               <div className="w-full md:w-1/3 mb-16 md:mb-0">
                                 <Typography color="text.primary">{objetivo.producto}</Typography>
-                                <div className="flex space-x-16 w-2/3">
+                                </div>
+                                <div className="flex space-x-16 w-full md:w-2/3">
                                     <Controller
                                         control={control}
                                         name={`palets-${objetivo.producto}`}
                                         render={({ field }) => (
                                             <TextField
                                                 {...field}
-                                                className="w-2/3"
+                                                className="w-full md:w-2/3"
                                                 label='Palets'
                                                 placeholder="Palets"
                                                 id={`palets-${objetivo.producto}`}
@@ -166,7 +168,7 @@ function ObjetivosForm() {
                                         render={({ field }) => (
                                             <TextField
                                                 {...field}
-                                                className="w-2/3"
+                                                className="w-full md:w-2/3"
                                                 label='Saldo'
                                                 placeholder="Saldo"
                                                 id={`saldo-${objetivo.producto}`}

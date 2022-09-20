@@ -40,7 +40,7 @@ import {
     getObjetivos
 } from 'app/redux/produccion/objetivosSlice';
 
-function Produccion1Mod3(props) {
+function Produccion3Mod2(props) {
     const { leftSidebarToggle } = props;
     const dispatch = useDispatch();
     const semanasAnyo = useSelector(selectSemanasAnyo);
@@ -72,7 +72,7 @@ function Produccion1Mod3(props) {
     const [semanasCorrespondientesPeriodo, setSemanasCorrespondientesPeriodo] = useState(null);
     const [periodo, setPeriodo] = useState(1);
     const [objetivosProducto, setObjetivosProducto] = useState(null);
-    const referencia = 2;
+    const referencia = 7;
     const producto = {
         producto: PRODUCTOS[referencia].producto,
         familia: PRODUCTOS[referencia].familia,
@@ -81,7 +81,7 @@ function Produccion1Mod3(props) {
         serie: PRODUCTOS[referencia].serie
     };
     const { mes, anyo } = dispatch(decMesActual());
-    
+
     //useEffect   
 
     useEffect(() => {
@@ -101,7 +101,7 @@ function Produccion1Mod3(props) {
     useEffect(() => {
         if (!semanasCorrespondientesPeriodo) {
             setSemanasCorrespondientesPeriodo(dispatch(calculoSemanasPeriodo(1)));
-        } else {   
+        } else {           
             const periodo = semanasCorrespondientesPeriodo.map(({ numeroSemana, mes }) => ({
                 producto: producto.producto,
                 familia: producto.familia,
@@ -200,7 +200,7 @@ function Produccion1Mod3(props) {
                                     producto={producto}
                                     semanas={semanasCorrespondientesPeriodo}
                                     objetivos={objetivosProducto}
-                                    mes={mes}    
+                                    mes={mes}                                   
                                 />
                             </motion.div>
                             <motion.div variants={item2}>
@@ -217,20 +217,16 @@ function Produccion1Mod3(props) {
                         <motion.div variants={item3}>
                             <PanelProduccion1
                                 columnas={[
-                                    { nombre: 'Periodo', tipo: 'texto' },
-                                    { nombre: 'Arias', tipo: 'input' },
-                                    { nombre: 'Masova', tipo: 'input' },
-                                    { nombre: 'Faucher', tipo: 'input' },
-                                    { nombre: 'Losan', tipo: 'input' },
-                                    { nombre: 'MP U.F', tipo: 'texto' },
-                                    { nombre: 'Palets', tipo: 'input' },//primero input
+                                    { nombre: 'Periodo', tipo: 'texto' },                                  
+                                    { nombre: 'Masova', tipo: 'input' }, 
+                                    { nombre: 'Palets', tipo: 'texto' },//primero input
                                     { nombre: 'Saldo', tipo: 'texto' },
                                 ]}
                                 semanas={semanasCorrespondientesPeriodo}
                                 datosTabla={datosProduccionTabla}
                                 datosPalet={datosProduccionPalet}
                                 producto={producto}
-                                mes={mes}    
+                                mes={mes}   
                             />
                         </motion.div>
                     </div>
@@ -240,4 +236,4 @@ function Produccion1Mod3(props) {
     );
 }
 
-export default Produccion1Mod3;
+export default Produccion3Mod2;

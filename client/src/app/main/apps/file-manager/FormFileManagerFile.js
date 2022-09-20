@@ -16,7 +16,6 @@ import Card from '@mui/material/Card';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { SUPPORTED_FORMATS, RUTA_SERVER } from 'constantes';
 
 //importación acciones
 import {
@@ -33,6 +32,7 @@ import { selectUser } from 'app/redux/userSlice';
 import { getFile } from 'app/logica/gestionArchivos';
 
 //constantes
+import { SUPPORTED_FORMATS, RUTA_SERVER } from 'constantes';
 const FILE_SIZE = 50000000; //50MB
 
 /**

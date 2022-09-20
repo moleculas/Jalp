@@ -16,9 +16,12 @@ function ProduccionContent(props) {
   //useEffect
 
   useEffect(() => {
-    tabValue === 0 && navigate("produccion-1/mod-1");
-    tabValue === 1 && navigate("produccion-4");
-    tabValue === 2 && navigate("objetivos");
+    tabValue === 0 && navigate("produccion-0");
+    tabValue === 1 && navigate("produccion-1/mod-1");
+    tabValue === 2 && navigate("produccion-2/mod-1");
+    tabValue === 3 && navigate("produccion-3/mod-1");
+    tabValue === 4 && navigate("produccion-4");
+    tabValue === 5 && navigate("objetivos");
   }, [tabValue]);
 
   //funciones
@@ -51,7 +54,22 @@ function ProduccionContent(props) {
           <Tab
             className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
             disableRipple
-            label="Palets 1070, 1140, 1003"
+            label="Inicio datos"
+          />
+          <Tab
+            className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
+            disableRipple
+            label="Producción Palets"
+          />
+          <Tab
+            className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
+            disableRipple
+            label="Producción Tacos"
+          />
+          <Tab
+            className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
+            disableRipple
+            label="Producción Patines"
           />
           <Tab
             className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"

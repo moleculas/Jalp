@@ -8,13 +8,15 @@ import { selectItemById } from 'app/redux/file-manager/itemsSlice';
 import ItemIcon from './ItemIcon';
 import format from 'date-fns/format';
 import { es } from 'date-fns/locale';
-import { RUTA_SERVER } from "constantes";
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import { closeDialog, openDialog } from 'app/redux/fuse/dialogSlice';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
+
+//constantes
+import { RUTA_SERVER } from "constantes";
 
 //importaciones acciones
 import { downloadFile } from 'app/logica/gestionArchivos';

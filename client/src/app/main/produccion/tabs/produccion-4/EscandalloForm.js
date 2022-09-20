@@ -102,7 +102,6 @@ const EscandalloForm = (props) => {
         break;
       case 'mermaPatinCentral':
         arrayEscandallo[arrayEscandallo.findIndex(el => (el.subFamilia === "patin central" && !el.nombre))].modificado = true;
-        nombreTexto = "Merma patín central";
         break;
       default:
         arrayEscandallo[arrayEscandallo.findIndex(el => el.nombre === stringModificado)].modificado = true;
@@ -166,16 +165,18 @@ const EscandalloForm = (props) => {
           {escandalloControllers.map((item, index) => {
             if (item.nombre) {
               return (
-                <div className="flex items-center justify-between py-12 w-full" key={`item-${index}`}>
-                  <Typography color="text.primary">{item.nombre}</Typography>
-                  <div className="flex space-x-16 w-2/3">
+                <div className="flex flex-col md:flex-row items-center justify-between py-12 w-full" key={`item-${index}`}>
+                  <div className="w-full md:w-1/3 mb-16 md:mb-0">
+                    <Typography color="text.primary">{item.nombre}</Typography>
+                  </div>
+                  <div className="flex space-x-16 w-full md:w-2/3">
                     <Controller
                       control={control}
                       name={`unidades-${item.nombre}`}
                       render={({ field }) => (
                         <TextField
                           {...field}
-                          className="w-2/3"
+                          className="w-full md:w-2/3"
                           label='Unidades'
                           placeholder="Unidades"
                           id={`unidades-${item.nombre}`}
@@ -196,7 +197,7 @@ const EscandalloForm = (props) => {
                       render={({ field }) => (
                         <TextField
                           {...field}
-                          className="w-2/3"
+                          className="w-full md:w-2/3"
                           label='Cúbico'
                           placeholder="Cúbico"
                           id={`cubico-${item.nombre}`}
@@ -233,9 +234,11 @@ const EscandalloForm = (props) => {
                 default:
               };
               return (
-                <div className="flex items-center justify-between py-12 w-full" key={`item-${index}`}>
-                  <Typography color="text.primary">{nombreTexto}</Typography>
-                  <div className="w-2/3">
+                <div className="flex flex-col md:flex-row items-center justify-between py-12 w-full" key={`item-${index}`}>
+                  <div className="w-full md:w-1/3 mb-16 md:mb-0">
+                    <Typography color="text.primary">{nombreTexto}</Typography>
+                  </div>
+                  <div className="w-full md:w-2/3">
                     <Controller
                       control={control}
                       name={`cubico-${nombre}`}

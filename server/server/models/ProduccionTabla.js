@@ -28,6 +28,9 @@ const ProduccionTablaSchema = new mongoose.Schema(
         milieu: {
             type: Number
         }, 
+        milieu_sala: {
+            type: Number
+        },
         arias: {
             type: Number
         },       
@@ -38,6 +41,21 @@ const ProduccionTablaSchema = new mongoose.Schema(
             type: Number
         }, 
         faucher: {
+            type: Number
+        },
+        llorente: {
+            type: Number
+        },
+        p_marcos: {
+            type: Number
+        },
+        roncal: {
+            type: Number
+        },
+        alonso: {
+            type: Number
+        },
+        ramon: {
             type: Number
         },
         mp_u_f: {

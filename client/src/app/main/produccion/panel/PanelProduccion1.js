@@ -8,7 +8,7 @@ import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import Typography from '@mui/material/Typography';
 
 //importacion acciones
-import { generarPropsTabla, decMesActual } from 'app/logica/produccion/logicaProduccion';
+import { generarPropsTabla } from 'app/logica/produccion/logicaProduccion';
 import {
     selectDatosProduccionInicial,
     selectDatosProduccionSaldo,
@@ -17,12 +17,13 @@ import {
 import { showMessage } from 'app/redux/fuse/messageSlice';
 
 function PanelProduccion1(props) {
-    const { columnas, semanas, mesActual, datosTabla, datosPalet, producto } = props;
+    const { columnas, semanas, datosTabla, datosPalet, producto, mes } = props;
     const dispatch = useDispatch();
     const datosProduccionInicial = useSelector(selectDatosProduccionInicial);
     const datosProduccionSaldo = useSelector(selectDatosProduccionSaldo);
     const [tableColumns, setTableColumns] = useState(null);
     const [tableData, setTableData] = useState(null);
+    const [calculoTabla, setCalculoTabla] = useState(false);
 
     //useEffect  
 
@@ -33,59 +34,79 @@ function PanelProduccion1(props) {
     }, []);
 
     useEffect(() => {
-        if (tableColumns) {
+        if (tableColumns && datosTabla && datosProduccionInicial) {
             setTableData(null);
-            generarDatos();
+            generarDatos(true);
         };
-    }, [tableColumns, datosTabla]);
+    }, [tableColumns, datosProduccionInicial]);
 
     useEffect(() => {
-        if (tableColumns && tableData && datosProduccionInicial && datosProduccionSaldo) {
-            calculosTabla(tableData);
+        if (calculoTabla) {
+            generarDatos(false);
+            setCalculoTabla(false);
         };
-    }, [datosProduccionInicial]);
+    }, [datosTabla]);
 
     //funciones
 
-    const calculosTabla = (tabla) => {
-        const { mes } = dispatch(decMesActual());
+    const calculosTabla = (tabla, mensaje) => {
         let sumatorioSaldoInicial = (datosProduccionInicial.stockInicial / producto.unidades) + datosProduccionSaldo.saldoInicial;
         let sumatorioSaldo = 0;
         let objetoFila = null;
         const arrayTabla = [];
         tabla.map((fila, index) => {
+            let sumatorioEntradasVariables = 0;
+            let mp_u_f = 0;
             if (semanas[index].mes === mes) {
                 objetoFila = { ...fila };
-                objetoFila.mp_u_f = Number(objetoFila.serfocat) + Number(objetoFila.masova) + Number(objetoFila.faucher) + Number(objetoFila.sala);
-                objetoFila.saldo = Number(sumatorioSaldoInicial) + sumatorioSaldo + Number(objetoFila.mp_u_f) - Number(objetoFila.palets);
+                for (const key in fila) {
+                    if (key !== "periodo" && key !== "mp_u_f" && key !== "palets" && key !== "saldo") {
+                        sumatorioEntradasVariables += Number(fila[key]);
+                    };
+                };
+                mp_u_f = sumatorioEntradasVariables;
+                if (fila.mp_u_f) {
+                    objetoFila.mp_u_f = mp_u_f;
+                };
+                objetoFila.saldo = Number(sumatorioSaldoInicial) + sumatorioSaldo + mp_u_f - Number(objetoFila.palets);
                 sumatorioSaldo = objetoFila.saldo - sumatorioSaldoInicial;
                 arrayTabla.push(objetoFila);
             };
         });
-        const datosTablaUpdate = arrayTabla.map(({ serfocat, masova, faucher, sala, mp_u_f, saldo }, index) => ({
-            _id: datosTabla[index]._id,
-            serfocat,
-            masova,
-            faucher,
-            sala,
-            mp_u_f,
-            saldo
-        }));
-        const datosPaletUpdate = arrayTabla.map(({ palets }, index) => ({
-            _id: datosPalet[index]._id,
-            palets
-        }));
-        setTableData(arrayTabla);
-        dispatch(updateProduccionTabla({ datosTabla: datosTablaUpdate, datosPalet: datosPaletUpdate }));
+        setCalculoTabla(true);
+        actualizarTabla(arrayTabla, mensaje);
+    };
+
+    const actualizarTabla = (arrayTabla, mensaje) => {
+        const datosTablaUpdate = [];
+        const datosPaletUpdate = [];
+        arrayTabla.map((fila, index) => {
+            let objetoTablaUpdate = {};
+            let objetoPaletUpdate = {};
+            for (const key in fila) {
+                if (key === "palets") {
+                    objetoPaletUpdate = { ...objetoPaletUpdate, palets: fila[key] };
+                } else {
+                    if (key !== "periodo") {
+                        objetoTablaUpdate = { ...objetoTablaUpdate, [key]: fila[key] };
+                    };
+                };
+            };
+            datosTablaUpdate.push({ _id: datosTabla[index]._id, ...objetoTablaUpdate });
+            datosPaletUpdate.push({ _id: datosPalet[index]._id, ...objetoPaletUpdate });
+        });
+        dispatch(updateProduccionTabla({ datosTabla: datosTablaUpdate, datosPalet: datosPaletUpdate, mensaje }));
     };
 
     const generarColumnas = (columnas) => {
         const arrayColumnas = [];
         let objeto = {};
+        let accessorKey;
         columnas.map((columna, index) => {
+            accessorKey = _.deburr(columna.nombre).replaceAll(/[ .]/g, "_").toLowerCase();
             objeto = {
                 header: columna.nombre,
-                accessorKey: _.deburr(columna.nombre).replaceAll(/[ .]/g, "_").toLowerCase(),
+                accessorKey,
                 muiTableBodyCellEditTextFieldProps: {
                     type: index !== 0 && 'number',
                 },
@@ -117,23 +138,63 @@ function PanelProduccion1(props) {
         setTableColumns(arrayColumnas);
     };
 
-    const generarDatos = () => {
+    const generarDatos = (actualizando) => {
         const arrayDatos = [];
+        let sumatorioSaldoInicial = (datosProduccionInicial.stockInicial / producto.unidades) + datosProduccionSaldo.saldoInicial;
+        let sumatorioSaldo = 0;
         semanas.map((semana, indexS) => {
             let objeto = {};
+            let saldo = 0;
+            let palets = 0;
+            let mp_u_f = 0;
+            let sumatorioEntradasVariables = 0;
             tableColumns.map((columna, indexT) => {
-                if (indexT === 0) {
-                    objeto = { ...objeto, [columna[Object.keys(columna)[1]]]: `Sem: ${semana.numeroSemana} - ${semana.nombre}` };
-                } else {
-                    if (columna.accessorKey === "palets") {
-                        objeto = {
-                            ...objeto,
-                            [columna[Object.keys(columna)[1]]]: datosPalet[indexS][columna[Object.keys(columna)[1]]] ? datosPalet[indexS][columna[Object.keys(columna)[1]]] : 0
-                        };
+                let dato = 0;
+                if (semanas[indexS].mes === mes) {
+                    if (indexT === 0) {
+                        objeto = { ...objeto, [columna[Object.keys(columna)[1]]]: `Sem: ${semana.numeroSemana} - ${semana.nombre}` };
                     } else {
+                        if (columna.accessorKey !== "mp_u_f" && columna.accessorKey !== "palets" && columna.accessorKey !== "saldo") {
+                            datosTabla[indexS][columna[Object.keys(columna)[1]]] && (dato = datosTabla[indexS][columna[Object.keys(columna)[1]]]);
+                            sumatorioEntradasVariables += dato;
+                            objeto = {
+                                ...objeto,
+                                [columna[Object.keys(columna)[1]]]: dato
+                            };
+                        };
+                        if (columna.accessorKey === "mp_u_f") {
+                            mp_u_f = sumatorioEntradasVariables;
+                            objeto = {
+                                ...objeto,
+                                [columna[Object.keys(columna)[1]]]: mp_u_f
+                            };
+                        };
+                        if (columna.accessorKey === "palets") {
+                            if (datosPalet[indexS][columna[Object.keys(columna)[1]]]) {
+                                palets = datosPalet[indexS][columna[Object.keys(columna)[1]]];
+                            };
+                            objeto = {
+                                ...objeto,
+                                [columna[Object.keys(columna)[1]]]: palets
+                            };
+                        };
+                        if (columna.accessorKey === "saldo") {
+                            saldo = sumatorioSaldoInicial + sumatorioSaldo + mp_u_f - palets;
+                            sumatorioSaldo = saldo - sumatorioSaldoInicial;
+                            objeto = {
+                                ...objeto,
+                                [columna[Object.keys(columna)[1]]]: saldo
+                            };
+                        };
+                    };
+                } else {
+                    if (indexT === 0) {
+                        objeto = { ...objeto, [columna[Object.keys(columna)[1]]]: `Sem: ${semana.numeroSemana} - ${semana.nombre}` };
+                    } else {
+                        datosTabla[indexS][columna[Object.keys(columna)[1]]] && (dato = datosTabla[indexS][columna[Object.keys(columna)[1]]]);
                         objeto = {
                             ...objeto,
-                            [columna[Object.keys(columna)[1]]]: datosTabla[indexS][columna[Object.keys(columna)[1]]] ? datosTabla[indexS][columna[Object.keys(columna)[1]]] : 0
+                            [columna[Object.keys(columna)[1]]]: dato
                         };
                     };
                 };
@@ -141,6 +202,7 @@ function PanelProduccion1(props) {
             arrayDatos.push(objeto);
         });
         setTableData(arrayDatos);
+        actualizando && (actualizarTabla(arrayDatos, false));
     };
 
     const handleSaveRow = ({ exitEditingMode, row, values }) => {
@@ -155,14 +217,38 @@ function PanelProduccion1(props) {
         exitEditingMode();
     };
 
-    const retornaSx = (periodo) => {
+    const retornaPeriodo = (periodo) => {
         const periodoSplt = _.split(periodo, '/');
         const mes1 = periodoSplt[1];
-        const mes2 = mesActual.slice(0, 3);
+        const mes2 = mes.slice(0, 3);
+        return { mes1, mes2 }
+    };
+
+    const retornaClick = (periodo, event) => {
+        const { mes1, mes2 } = retornaPeriodo(periodo);
+        if (mes1 === mes2) {
+            if (datosProduccionInicial.stockInicial === 0 || datosProduccionSaldo.saldoInicial === 0) {
+                let mensaje;
+                if (datosProduccionInicial.stockInicial === 0 && datosProduccionSaldo.saldoInicial !== 0) {
+                    mensaje = "Falta rellenar los datos Stock inicial";
+                } else if (datosProduccionInicial.stockInicial !== 0 && datosProduccionSaldo.saldoInicial === 0) {
+                    mensaje = "Falta rellenar los datos Saldo inicial";
+                } else {
+                    mensaje = "Falta rellenar los datos Stock inicial y Saldo inicial";
+                };
+                dispatch(showMessage({ message: mensaje, variant: "warning" }));
+                event.preventDefault();
+                event.stopPropagation();
+            };
+        };
+    };
+
+    const retornaSx = (periodo) => {
+        const { mes1, mes2 } = retornaPeriodo(periodo);
         let sxRetornar = null;
         if (mes1 === mes2) {
             sxRetornar = {
-                backgroundColor: '#f1efef'
+                backgroundColor: 'white'
             }
         } else {
             sxRetornar = {
@@ -189,24 +275,11 @@ function PanelProduccion1(props) {
                 onEditingRowSave={handleSaveRow}
                 muiTableBodyRowProps={({ row }) => ({
                     onClickCapture: (event) => {
-                        if (datosProduccionInicial.stockInicial === 0 || datosProduccionSaldo.saldoInicial === 0) {
-                            let mensaje;
-                            if (datosProduccionInicial.stockInicial === 0 && datosProduccionSaldo.saldoInicial !== 0) {
-                                mensaje = "Falta rellenar los datos Stock inicial";
-                            } else if (datosProduccionInicial.stockInicial !== 0 && datosProduccionSaldo.saldoInicial === 0) {
-                                mensaje = "Falta rellenar los datos Saldo inicial";
-                            } else {
-                                mensaje = "Falta rellenar los datos Stock inicial y Saldo inicial";
-                            };
-                            dispatch(showMessage({ message: mensaje, variant: "warning" }));
-                            event.preventDefault();
-                            event.stopPropagation();
-                        };
+                        retornaClick(row.getValue('periodo'), event);
                     },
                     sx: semanas.length > 5 ? retornaSx(row.getValue('periodo')) : { backgroundColor: 'white' }
                 })}
             />
-            {/* {console.log(tableColumns)} */}
         </TableContainer>
     );
 }

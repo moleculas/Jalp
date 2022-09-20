@@ -66,13 +66,12 @@ const UserPass = (props) => {
                 className="relative w-full h-60 sm:h-92 px-32 sm:px-48"
                 sx={{
                     backgroundColor: 'background.default',
-                    //boxShadow: 'inset 0px 7px 3px -4px rgba(0,0,0,0.1)',
                 }}
             >
             </Box>
-            <div className="relative flex flex-col flex-auto items-center px-24 sm:px-48">
+            <div className="relative flex flex-col flex-auto items-center px-48 pt-24 md:pt-0">
                 <div className="w-full">
-                    <div className="flex flex-auto items-end -mt-64">
+                    <div className="flex flex-col sm:flex-row flex-1 space-y-16 md:space-y-0 items-center md:items-end -mt-64">
                         <Avatar
                             sx={{
                                 borderWidth: 4,

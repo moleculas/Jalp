@@ -10,7 +10,7 @@ import InputBase from '@mui/material/InputBase';
 import Paper from '@mui/material/Paper';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import Toolbar from '@mui/material/Toolbar';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import ContactAvatar from '../ContactAvatar';
 import { ChatAppContext } from '../ChatApp';
@@ -122,7 +122,6 @@ function Chat(props) {
   const datosChatEnUso = useSelector(selectDatosChatEnUso);
   const estadoUsuarioChat = useSelector(selectEstadoUsuarioChat);
   const chats = useSelector(selectChats);
-  const navigate = useNavigate();
 
   //useEffect
 

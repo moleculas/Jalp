@@ -28,7 +28,6 @@ function FormulasCubicajeTacos() {
     };
     const [resultadoCalculosPalets, setResultadoCalculosPalets] = useState({ '135x72': 0, '103x72': 0, '103x94': 0 });
     const [resultadoCalculosM3, setResultadoCalculosM3] = useState({ '135x72': 0, '103x72': 0, '103x94': 0, 'total': 0 });
-    const [bufferOnChange, setBufferOnChange] = useState(null);
     const [tableData1, setTableData1] = useState([
         {
             'm-135x72': 0,
@@ -187,64 +186,59 @@ function FormulasCubicajeTacos() {
         }
     ];
 
-    const handleChangeForm = () => {
-        let objetoACambiar = {};
-        let totalM3;
-        const celdaSplt = _.split(bufferOnChange.celda, '_');
-        const celda = celdaSplt[1];
-        switch (celda) {
-            case 'm-135x72':
-                objetoACambiar = { ...resultadoCalculosPalets };
-                objetoACambiar['135x72'] = _.round((bufferOnChange.valor / escandallo.varPatinCentral), 2);
-                setResultadoCalculosPalets(objetoACambiar);
-                break;
-            case 'm-103x72':
-                objetoACambiar = { ...resultadoCalculosPalets };
-                objetoACambiar['103x72'] = _.round((bufferOnChange.valor / escandallo.varPatinDerecho), 2);
-                setResultadoCalculosPalets(objetoACambiar);
-                break;
-            case 'm-103x94':
-                objetoACambiar = { ...resultadoCalculosPalets };
-                objetoACambiar['103x94'] = _.round((bufferOnChange.valor / escandallo.varPatinIzquierdo), 2);
-                setResultadoCalculosPalets(objetoACambiar);
-                break;
-            case 'p-135x72':
-                objetoACambiar = { ...resultadoCalculosM3 };
-                objetoACambiar['135x72'] = _.round((bufferOnChange.valor * escandallo.varPatinCentral), 2);
-                totalM3 = objetoACambiar['135x72'] + objetoACambiar['103x72'] + objetoACambiar['103x94'];
-                objetoACambiar['total'] = _.round(totalM3, 2);
-                setResultadoCalculosM3(objetoACambiar);
-                break;
-            case 'p-103x72':
-                objetoACambiar = { ...resultadoCalculosM3 };
-                objetoACambiar['103x72'] = _.round((bufferOnChange.valor * escandallo.varPatinDerecho), 2);
-                totalM3 = objetoACambiar['135x72'] + objetoACambiar['103x72'] + objetoACambiar['103x94'];
-                objetoACambiar['total'] = _.round(totalM3, 2);
-                setResultadoCalculosM3(objetoACambiar);
-                break;
-            case 'p-103x94':
-                objetoACambiar = { ...resultadoCalculosM3 };
-                objetoACambiar['103x94'] = _.round((bufferOnChange.valor * escandallo.varPatinIzquierdo), 2);
-                totalM3 = objetoACambiar['135x72'] + objetoACambiar['103x72'] + objetoACambiar['103x94'];
-                objetoACambiar['total'] = _.round(totalM3, 2);
-                setResultadoCalculosM3(objetoACambiar);
-                break;
-            default:
+    const handleChangeForm1 = (tabla) => {
+        const filaTabla = tabla[0];
+        let objetoACambiar = { ...resultadoCalculosPalets };
+        for (const key in filaTabla) {
+            switch (key) {
+                case 'm-135x72':
+                    objetoACambiar['135x72'] = _.round((filaTabla[key] / escandallo.varPatinCentral), 2);
+                    break;
+                case 'm-103x72':
+                    objetoACambiar['103x72'] = _.round((filaTabla[key] / escandallo.varPatinDerecho), 2);
+                    break;
+                case 'm-103x94':
+                    objetoACambiar['103x94'] = _.round((filaTabla[key] / escandallo.varPatinIzquierdo), 2);
+                    break;
+                default:
+            };
         };
-        setBufferOnChange(null);
+        setResultadoCalculosPalets(objetoACambiar);
+    };
+
+    const handleChangeForm2 = (tabla) => {
+        const filaTabla = tabla[0];
+        let objetoACambiar = { ...resultadoCalculosM3 };
+        for (const key in filaTabla) {
+            switch (key) {
+                case 'p-135x72':
+                    objetoACambiar['135x72'] = _.round((filaTabla[key] * escandallo.varPatinCentral), 2);
+                    break;
+                case 'p-103x72':
+                    objetoACambiar['103x72'] = _.round((filaTabla[key] * escandallo.varPatinDerecho), 2);
+                    break;
+                case 'p-103x94':
+                    objetoACambiar['103x94'] = _.round((filaTabla[key] * escandallo.varPatinIzquierdo), 2);
+                    break;
+                default:
+            };
+        };
+        const totalM3 = objetoACambiar['135x72'] + objetoACambiar['103x72'] + objetoACambiar['103x94'];
+        objetoACambiar['total'] = _.round(totalM3, 2);
+        setResultadoCalculosM3(objetoACambiar);
     };
 
     const handleSaveRow1 = ({ exitEditingMode, row, values }) => {
         tableData1[row.index] = values;
         setTableData1([...tableData1]);
-        handleChangeForm();
+        handleChangeForm1(tableData1);
         exitEditingMode();
     };
 
     const handleSaveRow2 = ({ exitEditingMode, row, values }) => {
         tableData2[row.index] = values;
         setTableData2([...tableData2]);
-        handleChangeForm();
+        handleChangeForm2(tableData2);
         exitEditingMode();
     };
 
@@ -264,16 +258,10 @@ function FormulasCubicajeTacos() {
                     </div>
                 </div>
             </div>
-
             <div className="w-full flex flex-col">
                 <motion.div variants={item2}>
                     <TableContainer component={Paper} className="rounded-2xl">
                         <MaterialReactTable
-                            muiTableBodyCellEditTextFieldProps={({ cell }) => ({
-                                onChange: (event) => {
-                                    setBufferOnChange({ celda: cell.id, valor: event.target.value });
-                                },
-                            })}
                             {...dispatch(generarPropsTabla(false, false, 'Palets realizables con m³', 'Fórmula cálculo datos', null, null))}
                             columns={tableColumns1}
                             data={tableData1}
@@ -286,20 +274,14 @@ function FormulasCubicajeTacos() {
                 <motion.div variants={item3}>
                     <TableContainer component={Paper} className="rounded-2xl">
                         <MaterialReactTable
-                            muiTableBodyCellEditTextFieldProps={({ cell }) => ({
-                                onChange: (event) => {
-                                    setBufferOnChange({ celda: cell.id, valor: event.target.value });
-                                },
-                            })}
                             {...dispatch(generarPropsTabla(false, false, 'm³ necesarios para realizar palets³', 'Fórmula cálculo datos', null, null))}
                             columns={tableColumns2}
                             data={tableData2}
-                            onEditingRowSave={handleSaveRow2}                           
+                            onEditingRowSave={handleSaveRow2}
                         />
                     </TableContainer>
                 </motion.div>
             </div>
-
         </div>
     );
 }

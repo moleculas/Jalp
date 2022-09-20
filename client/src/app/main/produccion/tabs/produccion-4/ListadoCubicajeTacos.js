@@ -155,7 +155,8 @@ function ListadoCubicajeTacos() {
                 sumatorioPd = varsEscandallo.arrayPatinDerecho.reduce((a, b) => a + b, 0);
                 sumatorioPc = varsEscandallo.arrayPatinCentral.reduce((a, b) => a + b, 0);
                 sumatorioPl = varsEscandallo.arrayPalets.reduce((a, b) => a + b, 0);
-                sumatorioTotal = sumatorioPa + sumatorioPd + sumatorioPc + sumatorioPl + varsEscandallo.arrayPatinIzquierdo[0]
+                sumatorioPi = varsEscandallo.arrayPatinIzquierdo.reduce((a, b) => a + b, 0);
+                sumatorioTotal = sumatorioPa + sumatorioPd + sumatorioPc + sumatorioPl + sumatorioPi;
                 return sumatorioTotal > 0 ? `${_.round(sumatorioTotal, 4)} m³` : null;
                 break;
             default:
@@ -288,7 +289,7 @@ function ListadoCubicajeTacos() {
 
     return (
         <div className="flex flex-wrap w-full p-12">
-            <div className="flex flex-col sm:flex-row flex-1 items-center px-12 justify-between mb-24 space-y-16 sm:space-y-0">
+            <div className="flex flex-col sm:flex-row flex-1 items-start px-12 justify-between mb-24 space-y-16 sm:space-y-0">
                 <div>
                     <Typography className="text-2xl font-extrabold tracking-tight leading-tight">
                         Escandallo LX Pino
@@ -298,7 +299,7 @@ function ListadoCubicajeTacos() {
                     </div>
                 </div>
                 <Button
-                    className="mx-8 whitespace-nowrap"
+                    className="md:mx-8 whitespace-nowrap"
                     variant="contained"
                     color="secondary"
                     onClick={() => dispatch(setOpenFormEscandallo(true))}

@@ -28,13 +28,12 @@ const UserView = () => {
                 className="relative w-full h-60 sm:h-92 px-32 sm:px-48"
                 sx={{
                     backgroundColor: 'background.default',
-                   // boxShadow: 'inset 0px 7px 3px -4px rgba(0,0,0,0.1)',
                 }}
             >
             </Box>
-            <div className="relative flex flex-col flex-auto items-center p-24 pt-0 sm:p-48 sm:pt-0">
-                <div className="w-full max-w-3xl">
-                    <div className="flex flex-auto items-end -mt-64">
+            <div className="relative flex flex-col flex-auto items-center px-48 pt-24 md:pt-0">
+                <div className="w-full">
+                    <div className="flex flex-col sm:flex-row flex-1 space-y-16 md:space-y-0 items-center md:items-end -mt-64">
                         <Avatar
                             sx={{
                                 borderWidth: 4,
@@ -69,7 +68,7 @@ const UserView = () => {
                             </Button>
                         </div>
                     </div>
-                    <Typography className="mt-12 text-4xl font-bold truncate">{user.data.displayName}</Typography>
+                    <Typography className="mt-12 text-2xl md:text-4xl font-bold truncate">{user.data.displayName}</Typography>
                     <div className="flex flex-wrap items-center mt-8">
                         {user.role.map((role, index) => (
                             <Chip

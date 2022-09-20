@@ -28,7 +28,7 @@ function ObjetivosHistorico() {
         };
     }, [objetivos]);
 
-    //funciones   
+    //funciones  
 
     if (!objetivos) {
         return null
@@ -47,7 +47,7 @@ function ObjetivosHistorico() {
                 </div>
             </div>
             <motion.div variants={item1} className="w-full flex flex-col">
-                <Timeline                    
+                <Timeline
                     position="right"
                     sx={{
                         '& .MuiTimelineItem-root:before': {

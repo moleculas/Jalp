@@ -21,7 +21,6 @@ export const getEscandallo = createAsyncThunk(
 export const updateEscandallo = createAsyncThunk(
   'produccionSeccion/escandallo/updateEscandallo',
   async (objetoEscandallo, { getState, dispatch }) => {
-    dispatch(setEscandallo(null));
     const formData = new FormData();
     const losDatos = {
       objetoEscandallo

@@ -3,6 +3,94 @@ import ProduccionInicial from "../models/ProduccionInicial";
 import ProduccionPalet from "../models/ProduccionPalet";
 import ProduccionSaldo from "../models/ProduccionSaldo";
 
+export const getProduccionInicial = async (req, res) => {
+    const { mes, anyo, productos } = JSON.parse(req.body.datos);
+    try {
+        const objetoProduccion = { inicial: [], saldo: [] };
+        let id = "";
+        for (let i = 0; i < productos.length; i++) {
+            const produccionInicial = await ProduccionInicial.findOne(
+                {
+                    mes,
+                    anyo,
+                    producto: productos[i].producto,
+                },
+                {
+                    createdAt: 0,
+                    updatedAt: 0
+                }
+            );
+            let newProduccionInicial;
+            if (!produccionInicial) {
+                newProduccionInicial = new ProduccionInicial({
+                    producto: productos[i].producto,
+                    familia: productos[i].familia,
+                    mes,
+                    anyo
+                });
+                await newProduccionInicial.save();
+            };
+            const produccionSaldo = await ProduccionSaldo.findOne(
+                {
+                    mes,
+                    anyo,
+                    producto: { $in: productos[i].serie }
+                },
+                {
+                    createdAt: 0,
+                    updatedAt: 0,
+                }
+            );
+            let newProduccionSaldo;
+            if (!produccionSaldo) {
+                newProduccionSaldo = new ProduccionSaldo({
+                    producto: productos[i].serie,
+                    familia: productos[i].familia,
+                    mes,
+                    anyo
+                });
+                await newProduccionSaldo.save();
+            };
+            if (produccionInicial) {
+                objetoProduccion.inicial.push(produccionInicial);
+            } else {
+                const newProduccionInicialARetornar = {
+                    _id: newProduccionInicial._id,
+                    mes: newProduccionInicial.mes,
+                    anyo: newProduccionInicial.anyo,
+                    stockInicial: newProduccionInicial.stockInicial,
+                    producto: newProduccionInicial.producto,
+                    familia: newProduccionInicial.familia,
+                };
+                objetoProduccion.inicial.push(newProduccionInicialARetornar);
+            };
+            if (produccionSaldo) {
+                if (id !== produccionSaldo._id.toString()) {
+                    objetoProduccion.saldo.push(produccionSaldo);
+                };
+                id = produccionSaldo._id.toString();
+            } else {
+                if (id !== newProduccionSaldo._id.toString()) {
+                    const newProduccionSaldoARetornar = {
+                        _id: newProduccionSaldo._id,
+                        mes: newProduccionSaldo.mes,
+                        anyo: newProduccionSaldo.anyo,
+                        saldoInicial: newProduccionSaldo.saldoInicial,
+                        producto: newProduccionSaldo.producto,
+                        familia: newProduccionSaldo.familia,
+                    };
+                    objetoProduccion.saldo.push(newProduccionSaldoARetornar);
+                };
+                id = newProduccionSaldo._id.toString();
+            };
+        };
+        return res.json(objetoProduccion);
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: error.message });
+    };
+};
+
 export const getProduccion = async (req, res) => {
     const { periodo, mes, anyo, producto, serie } = JSON.parse(req.body.datos);
     try {
@@ -32,20 +120,49 @@ export const getProduccion = async (req, res) => {
                     anyo: periodo[i].anyo
                 });
                 await newProduccionTabla.save();
-                const newProduccionPalet = new ProduccionPalet({
-                    semana: periodo[i].semana,
-                    mes: periodo[i].mes,
-                    anyo: periodo[i].anyo
-                });
-                await newProduccionPalet.save();
-                if (mesIterado !== periodo[i].mes) {
-                    const newProduccionInicial = new ProduccionInicial({
-                        producto: periodo[i].producto,
-                        familia: periodo[i].familia,
+                const produccionPalet = await ProduccionPalet.findOne(
+                    {
+                        semana: semanas[i],
+                        anyo
+                    },
+                    {
+                        createdAt: 0,
+                        updatedAt: 0,
+                    }
+                );
+                let newProduccionPalet;
+                if (!produccionPalet) {
+                    newProduccionPalet = new ProduccionPalet({
+                        semana: periodo[i].semana,
                         mes: periodo[i].mes,
                         anyo: periodo[i].anyo
                     });
-                    await newProduccionInicial.save();
+                    await newProduccionPalet.save();
+                };               
+                if (mesIterado !== periodo[i].mes) {
+                    const produccionInicial = await ProduccionInicial.findOne(
+                        {
+                            mes: periodo[i].mes,
+                            anyo: periodo[i].anyo,
+                            producto: periodo[i].producto,
+                        },
+                        {
+                            createdAt: 0,
+                            updatedAt: 0,
+                            familia: 0,
+                            producto: 0
+                        }
+                    );
+                    let newProduccionInicial;
+                    if (!produccionInicial) {
+                        newProduccionInicial = new ProduccionInicial({
+                            producto: periodo[i].producto,
+                            familia: periodo[i].familia,
+                            mes: periodo[i].mes,
+                            anyo: periodo[i].anyo
+                        });
+                        await newProduccionInicial.save();
+                    };
                     const produccionSaldo = await ProduccionSaldo.findOne(
                         {
                             mes: periodo[i].mes,
@@ -63,19 +180,24 @@ export const getProduccion = async (req, res) => {
                         newProduccionSaldo = new ProduccionSaldo({
                             producto: serie,
                             mes: periodo[i].mes,
-                            anyo: periodo[i].anyo
+                            anyo: periodo[i].anyo,
+                            familia: periodo[i].familia,
                         });
                         await newProduccionSaldo.save();
-                    };
+                    };                    
                     mesIterado = periodo[i].mes;
                     if (mesIterado === mes) {
-                        const newProduccionInicialARetornar = {
-                            _id: newProduccionInicial._id,
-                            mes: newProduccionInicial.mes,
-                            anyo: newProduccionInicial.anyo,
-                            stockInicial: newProduccionInicial.stockInicial                            
+                        if (produccionInicial) {
+                            objetoProduccion.inicial = produccionInicial;
+                        } else {
+                            const newProduccionInicialARetornar = {
+                                _id: newProduccionInicial._id,
+                                mes: newProduccionInicial.mes,
+                                anyo: newProduccionInicial.anyo,
+                                stockInicial: newProduccionInicial.stockInicial
+                            };
+                            objetoProduccion.inicial = newProduccionInicialARetornar;
                         };
-                        objetoProduccion.inicial = newProduccionInicialARetornar;
                         if (produccionSaldo) {
                             objetoProduccion.saldo = produccionSaldo;
                         } else {
@@ -86,30 +208,33 @@ export const getProduccion = async (req, res) => {
                                 saldoInicial: newProduccionSaldo.saldoInicial
                             };
                             objetoProduccion.saldo = newProduccionSaldoARetornar;
-                        };
+                        };                       
                     };
+                };
+                if (produccionPalet) {
+                    objetoProduccion.palet.push(produccionPalet);
+                } else {
+                    const newProduccionPaletARetornar = {
+                        _id: newProduccionPalet._id,
+                        semana: newProduccionPalet.semana,
+                        mes: newProduccionPalet.mes,
+                        anyo: newProduccionPalet.anyo
+                    };
+                    objetoProduccion.palet.push(newProduccionPaletARetornar);
                 };
                 const newProduccionTablaARetornar = {
                     _id: newProduccionTabla._id,
                     semana: newProduccionTabla.semana,
                     mes: newProduccionTabla.mes,
                     anyo: newProduccionTabla.anyo
-                };
-                const newProduccionPaletARetornar = {
-                    _id: newProduccionPalet._id,
-                    semana: newProduccionPalet.semana,
-                    mes: newProduccionPalet.mes,
-                    anyo: newProduccionPalet.anyo
-                };
+                };                
                 objetoProduccion.tabla.push(newProduccionTablaARetornar);
-                objetoProduccion.palet.push(newProduccionPaletARetornar);
             } else {
                 objetoProduccion.tabla.push(produccionTabla);
                 const produccionPalet = await ProduccionPalet.findOne(
                     {
                         semana: semanas[i],
-                        anyo,
-                        producto
+                        anyo
                     },
                     {
                         createdAt: 0,
@@ -143,7 +268,8 @@ export const getProduccion = async (req, res) => {
                         {
                             createdAt: 0,
                             updatedAt: 0,
-                            producto: 0
+                            producto: 0,
+                            familia: 0,
                         }
                     );
                     objetoProduccion.saldo = produccionSaldo;

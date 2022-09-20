@@ -14,7 +14,7 @@ const Root = styled(FusePageSimple)(({ theme }) => ({
     boxShadow: `inset 0 0 0 1px  ${theme.palette.divider}`,
   },
   '& .FusePageSimple-content': {
-    backgroundColor: theme.palette.background.default,   
+    backgroundColor: theme.palette.background.default,
   },
 }));
 
@@ -28,7 +28,7 @@ function Produccion(props) {
       content={<ProduccionContent />}
       ref={pageLayout}
       rightSidebarContent={<ProduccionSidebarContenedor />}
-      rightSidebarWidth={640}
+      rightSidebarWidth={isMobile ? 400 : 640}
       scroll={isMobile ? 'normal' : 'content'}
     />
   );

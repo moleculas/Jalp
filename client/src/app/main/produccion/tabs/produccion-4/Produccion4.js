@@ -19,10 +19,10 @@ function Produccion4() {
                 initial="hidden"
                 animate="show"
             >
-                <div >
+                <div>
                     <ListadoCubicajeTacos />
                 </div>
-                <div  >
+                <div>
                     <FormulasCubicajeTacos />
                 </div>
             </motion.div>

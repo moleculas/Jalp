@@ -6,6 +6,10 @@ const ProduccionSaldoSchema = new mongoose.Schema(
             type: [String],
             required: true,
         },
+        familia: {
+            type: String,
+            enum: ['patin', 'palet', 'taco'],
+        },
         semana: {
             type: Number,
         },

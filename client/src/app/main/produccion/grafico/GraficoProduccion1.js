@@ -11,11 +11,17 @@ import _ from '@lodash';
 import clsx from 'clsx';
 
 function GraficoProduccion1(props) {
-    const { datosTabla, datosPalet, producto, semanas, objetivos } = props;
+    const { datosTabla, datosPalet, producto, semanas, objetivos, mes } = props;
     const theme = useTheme();
     const [tabValue, setTabValue] = useState(0);
     let titleTabs;
     if (producto.familia === "palet") {
+        titleTabs = ["Saldo", "Palets"];
+    };
+    if (producto.familia === "taco") {
+        titleTabs = ["Saldo", "Palets"];
+    };
+    if (producto.familia === "patin") {
         titleTabs = ["Saldo", "Palets"];
     };
     const [datosGrafico, setDatosGrafico] = useState(null);
@@ -31,40 +37,42 @@ function GraficoProduccion1(props) {
     const generaDatosGrafico = () => {
         const objetoDatosGrafico = { series: [], amount: [], labels: [], chartOptions: [], proporcion: [] };
         for (let i = 0; i < 2; i++) {
-            const array = [{ name: titleTabs[i], data: [] }];
+            const arraySeries = [{ name: titleTabs[i], data: [] }];
             const arrayLabels = [];
             let sumatorioPalets = 0;
             let sumatorioSaldo = 0;
             let objetoProporcion;
             datosTabla.map((semana, index) => {
-                if (i === 0) {
-                    if (semana.saldo) {
-                        array[0].data.push(semana.saldo);
-                        sumatorioSaldo = semana.saldo;
-                        objetoDatosGrafico.amount[i] = sumatorioSaldo;
-                    } else {
-                        array[0].data.push(0);
-                        sumatorioSaldo += 0;
-                        objetoDatosGrafico.amount[i] = sumatorioSaldo;
+                if (semanas[index].mes === mes) {
+                    if (i === 0) {
+                        if (semana.saldo) {
+                            arraySeries[0].data.push(semana.saldo);
+                            sumatorioSaldo = semana.saldo;
+                            objetoDatosGrafico.amount[i] = sumatorioSaldo;
+                        } else {
+                            arraySeries[0].data.push(0);
+                            sumatorioSaldo += 0;
+                            objetoDatosGrafico.amount[i] = sumatorioSaldo;
+                        };
+                        const etiqueta = semanas.find(o => o.numeroSemana === semana.semana);
+                        arrayLabels.push(etiqueta.nombre);
                     };
-                    const etiqueta = semanas.find(o => o.numeroSemana === semana.semana);
-                    arrayLabels.push(etiqueta.nombre);
-                };
-                if (i === 1) {
-                    if (datosPalet[index].palets) {
-                        array[0].data.push(datosPalet[index].palets);
-                        sumatorioPalets += datosPalet[index].palets;
-                        objetoDatosGrafico.amount[i] = sumatorioPalets;
-                    } else {
-                        array[0].data.push(0);
-                        sumatorioPalets += 0;
-                        objetoDatosGrafico.amount[i] = sumatorioPalets;
+                    if (i === 1) {
+                        if (datosPalet[index].palets) {
+                            arraySeries[0].data.push(datosPalet[index].palets);
+                            sumatorioPalets += datosPalet[index].palets;
+                            objetoDatosGrafico.amount[i] = sumatorioPalets;
+                        } else {
+                            arraySeries[0].data.push(0);
+                            sumatorioPalets += 0;
+                            objetoDatosGrafico.amount[i] = sumatorioPalets;
+                        };
+                        const etiqueta = semanas.find(o => o.numeroSemana === semana.semana);
+                        arrayLabels.push(etiqueta.nombre);
                     };
-                    const etiqueta = semanas.find(o => o.numeroSemana === semana.semana);
-                    arrayLabels.push(etiqueta.nombre);
                 };
             });
-            objetoDatosGrafico.series[i] = array;
+            objetoDatosGrafico.series[i] = arraySeries;
             objetoDatosGrafico.labels[i] = arrayLabels;
             objetoDatosGrafico.chartOptions[i] = {
                 chart: {
@@ -147,7 +155,6 @@ function GraficoProduccion1(props) {
                         Gráfico producción
                     </Typography>
                     <div className="ml-8 -mb-4">
-                        {/* <Chip size="small" className="font-medium text-sm px-6" label=" 1 mes" /> */}
                         <Tabs
                             value={tabValue}
                             onChange={(ev, value) => setTabValue(value)}

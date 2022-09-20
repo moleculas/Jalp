@@ -13,8 +13,7 @@ import {
 
 const StyledSwipeableDrawer = styled(SwipeableDrawer)(({ theme }) => ({
     '& .MuiDrawer-paper': {
-        backgroundColor: theme.palette.background,
-        width: 640,
+        backgroundColor: theme.palette.background,        
         borderLeft: '1px solid rgb(226, 232, 240)',
     },
 }));
@@ -43,6 +42,10 @@ function ProduccionSidebarContenedor(props) {
                             sm: 0,
                             md: 165
                         },
+                        width: {
+                            sm: '100%',
+                            md: 640
+                        }
                     },
                 }}
             >

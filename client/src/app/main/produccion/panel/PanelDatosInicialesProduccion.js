@@ -1,6 +1,6 @@
 import Paper from '@mui/material/Paper';
 import { useDispatch } from 'react-redux';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import _ from '@lodash';
 import MaterialReactTable from 'material-react-table';
 import TableContainer from '@mui/material/TableContainer';
@@ -9,41 +9,67 @@ import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 
 //importacion acciones
 import { generarPropsTabla } from 'app/logica/produccion/logicaProduccion';
-import { updateProduccionInicial } from 'app/redux/produccion/produccionSlice';
+import { updateProduccionInicial, getProduccionInicial } from 'app/redux/produccion/produccionSlice';
 
-function PanelInicialProduccion1(props) {
-    const { mesActual, datosInicial, datosSaldo, producto } = props;
+function PanelDatosInicialesProduccion(props) {
+    const { datos, familia, productos, mes, anyo } = props;
     const dispatch = useDispatch();
-    const [tableData, setTableData] = useState([
-        {
-            stockInicial: datosInicial.stockInicial,
-            unidades: producto.unidades,
-            stock: datosInicial.stockInicial / producto.unidades,
-            saldoInicial: datosSaldo.saldoInicial,
-        }
-    ]);
+    const [tableData, setTableData] = useState(null);
 
     //useEffect  
 
+    useEffect(() => {
+        if (datos) {
+            generarDatos();
+        };
+    }, [datos]);
+
     //funciones
 
-    const calculosTabla = (tabla) => {
+    const generarDatos = () => {
+        const arrayDatos = [];
+        let objetoDatos;
+        datos.inicial.map((producto) => {
+            const unidades = productos[productos.findIndex(prod => prod.producto === producto.producto)].unidades;
+            objetoDatos = {
+                producto: producto.producto,
+                stockInicial: producto.stockInicial,
+                unidades,
+                stock: producto.stockInicial / unidades,
+                saldoInicial: datos.saldo[0].saldoInicial,
+            };
+            arrayDatos.push(objetoDatos);
+        });
+        setTableData(arrayDatos);
+    };
+
+    const calculosTabla = (tabla, indice) => {
         const arrayTabla = [];
         let objetoFila = null;
+        let objetoActualizar = {};
         tabla.map((fila, index) => {
             objetoFila = { ...fila };
-            objetoFila.stockInicial = Number(objetoFila.stock * objetoFila.unidades);
+            if (index === indice) {
+                objetoFila.stockInicial = Number(objetoFila.stock * objetoFila.unidades);
+                objetoActualizar.stockInicial = objetoFila.stockInicial;
+                objetoActualizar.saldoInicial = Number(objetoFila.saldoInicial);
+                objetoActualizar.producto = objetoFila.producto;
+            };
             arrayTabla.push(objetoFila);
         });
-        const datosInicialUpdate = {
-            idInicial: datosInicial._id,
-            idSaldo: datosSaldo._id,
-            stockInicial: arrayTabla[0].stockInicial,
-            saldoInicial: arrayTabla[0].saldoInicial,
-            mensaje: false
-        };
         setTableData(arrayTabla);
-        dispatch(updateProduccionInicial(datosInicialUpdate));
+        const idInicial = datos.inicial[datos.inicial.findIndex(dato => dato.producto === objetoActualizar.producto)]._id;
+        const idSaldo = datos.saldo[0]._id;
+        const datosInicialUpdate = {
+            idInicial,
+            idSaldo,
+            stockInicial: objetoActualizar.stockInicial,
+            saldoInicial: objetoActualizar.saldoInicial,
+            mensaje: true
+        };
+        dispatch(updateProduccionInicial(datosInicialUpdate)).then(() => {
+            dispatch(getProduccionInicial({ mes, anyo, productos }));
+        });
     };
 
     const handleSaveRow = ({ exitEditingMode, row, values }) => {
@@ -54,7 +80,7 @@ function PanelInicialProduccion1(props) {
         };
         const tabla = [...tableData];
         tabla[row.index] = values;
-        calculosTabla(tabla);
+        calculosTabla(tabla, row.index);
         exitEditingMode();
     };
 
@@ -67,18 +93,34 @@ function PanelInicialProduccion1(props) {
         };
     };
 
+    if (!tableData) {
+        return null
+    };
+
     return (
         <TableContainer component={Paper} className="rounded-2xl relative flex flex-col flex-auto w-full overflow-hidden">
             <MaterialReactTable
-                {...dispatch(generarPropsTabla(false, false, 'Datos iniciales producción ', '', null, _.capitalize(mesActual).replaceAll("/", " ")))}
+                {...dispatch(generarPropsTabla(false, false, 'Datos iniciales producción ', 'Configuración datos Stock y Saldo para cáculos mensuales.', null, "Familia productos: " + _.upperCase(familia)))}
                 columns={[
                     {
+                        header: 'Producto',
+                        accessorKey: 'producto',
+                        enableSorting: false,
+                        enableColumnFilter: false,
+                        enableEditing: false,
+                        Cell: ({ cell, row }) => (
+                            <Typography>
+                                {cell.getValue()}
+                            </Typography>
+                        ),
+                        size: 75
+                    },
+                    {
                         header: 'Stock inicial',
-                        size: 50,
                         accessorKey: 'stockInicial',
                         enableSorting: false,
-                        enableColumnFilter: false,    
-                        enableEditing: false,                   
+                        enableColumnFilter: false,
+                        enableEditing: false,
                         Cell: ({ cell, row }) => (
                             <Typography
                                 variant="body1"
@@ -87,10 +129,10 @@ function PanelInicialProduccion1(props) {
                                 {cell.getValue()}
                             </Typography>
                         ),
+                        size: 75
                     },
                     {
                         header: 'Unidades',
-                        size: 50,
                         accessorKey: 'unidades',
                         enableSorting: false,
                         enableColumnFilter: false,
@@ -103,13 +145,13 @@ function PanelInicialProduccion1(props) {
                                 {cell.getValue()}
                             </Typography>
                         ),
+                        size: 75
                     },
                     {
                         header: 'Stock',
-                        size: 50,
                         accessorKey: 'stock',
                         enableSorting: false,
-                        enableColumnFilter: false,                        
+                        enableColumnFilter: false,
                         Header: ({ column }) => (
                             <div className='flex flex-row items-center'>
                                 <FuseSvgIcon className="mr-4" size={20}>material-outline:edit_note</FuseSvgIcon>
@@ -126,17 +168,16 @@ function PanelInicialProduccion1(props) {
                                 {cell.getValue()}
                             </Typography>
                         ),
+                        size: 75
                     },
                     {
                         header: 'Saldo inicial',
-                        size: 50,
                         accessorKey: 'saldoInicial',
                         enableSorting: false,
                         enableColumnFilter: false,
-                        enableEditing: producto.posicion === 1 ? true : false,
                         Header: ({ column }) => (
                             <div className='flex flex-row items-center'>
-                                {producto.posicion === 1 && <FuseSvgIcon className="mr-4" size={20}>material-outline:edit_note</FuseSvgIcon>}
+                                <FuseSvgIcon className="mr-4" size={20}>material-outline:edit_note</FuseSvgIcon>
                                 <div>
                                     {column.columnDef.header}
                                 </div>
@@ -150,6 +191,7 @@ function PanelInicialProduccion1(props) {
                                 {cell.getValue()}
                             </Typography>
                         ),
+                        size: 75
                     }
                 ]}
                 data={tableData}
@@ -162,4 +204,4 @@ function PanelInicialProduccion1(props) {
     );
 }
 
-export default PanelInicialProduccion1;
+export default PanelDatosInicialesProduccion;

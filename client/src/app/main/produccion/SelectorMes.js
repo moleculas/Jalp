@@ -7,7 +7,15 @@ import { es } from 'date-fns/locale';
 
 //importacion acciones
 import { setMesActual } from 'app/redux/produccion/inicioSlice';
-import { setSemanasAnyo } from 'app/redux/produccion/produccionSlice';
+import { 
+    setSemanasAnyo, 
+    setDatosProduccionInicialProductos,
+    setDatosProduccionInicialProductosMesAnterior,
+    setDatosProduccionTabla,
+    setDatosProduccionInicial,
+    setDatosProduccionPalet,
+    setDatosProduccionSaldo
+ } from 'app/redux/produccion/produccionSlice';
 
 function SelectorMes(props) {
     const dispatch = useDispatch();
@@ -29,6 +37,12 @@ function SelectorMes(props) {
         dispatch(setMesActual(elMes));
         setValue(val);
         dispatch(setSemanasAnyo(null));
+        dispatch(setDatosProduccionInicialProductos(null));
+        dispatch(setDatosProduccionInicialProductosMesAnterior(null));
+        dispatch(setDatosProduccionTabla(null));
+        dispatch(setDatosProduccionInicial(null));
+        dispatch(setDatosProduccionPalet(null));
+        dispatch(setDatosProduccionSaldo(null));
     };
 
     return (

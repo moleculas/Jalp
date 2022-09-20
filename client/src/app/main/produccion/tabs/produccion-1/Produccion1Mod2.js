@@ -13,6 +13,9 @@ import PanelProduccion1 from '../../panel/PanelProduccion1';
 import GraficoProduccion1 from '../../grafico/GraficoProduccion1';
 import PanelInicialProduccion1 from '../../panel/PanelInicialProduccion1';
 
+//constantes
+import { PRODUCTOS } from 'constantes';
+
 //importacion acciones
 import {
     selectSemanasAnyo,
@@ -69,7 +72,15 @@ function Produccion1Mod2(props) {
     const [semanasCorrespondientesPeriodo, setSemanasCorrespondientesPeriodo] = useState(null);
     const [periodo, setPeriodo] = useState(1);
     const [objetivosProducto, setObjetivosProducto] = useState(null);
-    const producto = { producto: "1140x90x21", familia: "palet", unidades: 4, posicion: 2, serie: ["1070x90x21", "1140x90x21", "1003x98x21"] };
+    const referencia = 1;
+    const producto = {
+        producto: PRODUCTOS[referencia].producto,
+        familia: PRODUCTOS[referencia].familia,
+        unidades: PRODUCTOS[referencia].unidades,
+        posicion: PRODUCTOS[referencia].posicion,
+        serie: PRODUCTOS[referencia].serie
+    };
+    const { mes, anyo } = dispatch(decMesActual());
 
     //useEffect   
 
@@ -90,8 +101,7 @@ function Produccion1Mod2(props) {
     useEffect(() => {
         if (!semanasCorrespondientesPeriodo) {
             setSemanasCorrespondientesPeriodo(dispatch(calculoSemanasPeriodo(1)));
-        } else {
-            const { mes, anyo } = dispatch(decMesActual());
+        } else {         
             const periodo = semanasCorrespondientesPeriodo.map(({ numeroSemana, mes }) => ({
                 producto: producto.producto,
                 familia: producto.familia,
@@ -190,6 +200,7 @@ function Produccion1Mod2(props) {
                                     producto={producto}
                                     semanas={semanasCorrespondientesPeriodo}
                                     objetivos={objetivosProducto}
+                                    mes={mes}    
                                 />
                             </motion.div>
                             <motion.div variants={item2}>
@@ -216,10 +227,10 @@ function Produccion1Mod2(props) {
                                     { nombre: 'Saldo', tipo: 'texto' },
                                 ]}
                                 semanas={semanasCorrespondientesPeriodo}
-                                mesActual={mesActual}
                                 datosTabla={datosProduccionTabla}
                                 datosPalet={datosProduccionPalet}
                                 producto={producto}
+                                mes={mes}    
                             />
                         </motion.div>
                     </div>

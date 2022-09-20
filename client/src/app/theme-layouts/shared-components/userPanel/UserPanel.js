@@ -23,7 +23,6 @@ import UserPass from './UserPass';
 const StyledSwipeableDrawer = styled(SwipeableDrawer)(({ theme }) => ({
     '& .MuiDrawer-paper': {
         backgroundColor: theme.palette.background,
-        width: 640,       
         borderLeft: '1px solid rgb(226, 232, 240)',
         borderTop: '1px solid rgb(226, 232, 240)',
     },
@@ -76,6 +75,10 @@ function UserPanel(props) {
                         sm: 0,
                         md: 64
                     },
+                    width: {
+                        sm: '100%',
+                        md: 640
+                    }
                 },
             }}
         >

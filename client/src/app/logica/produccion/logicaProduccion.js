@@ -14,7 +14,7 @@ export const decMesActual = () => (dispatch, getState) => {
     const mesActual = getState().produccionSeccion.inicio.produccion.mesActual;
     const mesSplt = _.split(mesActual, '/');
     const mes = mesSplt[0];
-    const anyo = Number(mesSplt[1]);    
+    const anyo = Number(mesSplt[1]);
     return { mes, anyo }
 };
 
@@ -33,6 +33,62 @@ export const calculoSemanasAnyo = () => (dispatch, getState) => {
         diaActual = moment(diaActual).add(7, 'days');
     };
     dispatch(setSemanasAnyo(semanas));
+};
+
+export const obtenermesAnterior = (mes, anyo) => (dispatch, getState) => {
+    let mesAnterior, anyoAnterior;
+    switch (mes) {
+        case "enero":
+            mesAnterior = format(new Date(anyo - 1, 11, 1), 'MMMM', { locale: es });
+            anyoAnterior = anyo - 1;
+            break;
+        case "febrero":
+            mesAnterior = format(new Date(anyo, 12, 1), 'MMMM', { locale: es });
+            anyoAnterior = anyo;
+            break;
+        case "marzo":
+            mesAnterior = format(new Date(anyo, 1, 1), 'MMMM', { locale: es });
+            anyoAnterior = anyo;
+            break;
+        case "abril":
+            mesAnterior = format(new Date(anyo, 2, 1), 'MMMM', { locale: es });
+            anyoAnterior = anyo;
+            break;
+        case "mayo":
+            mesAnterior = format(new Date(anyo, 3, 1), 'MMMM', { locale: es });
+            anyoAnterior = anyo;
+            break;
+        case "junio":
+            mesAnterior = format(new Date(anyo, 4, 1), 'MMMM', { locale: es });
+            anyoAnterior = anyo;
+            break;
+        case "julio":
+            mesAnterior = format(new Date(anyo, 5, 1), 'MMMM', { locale: es });
+            anyoAnterior = anyo;
+            break;
+        case "agosto":
+            mesAnterior = format(new Date(anyo, 6, 1), 'MMMM', { locale: es });
+            anyoAnterior = anyo;
+            break;
+        case "septiembre":
+            mesAnterior = format(new Date(anyo, 7, 1), 'MMMM', { locale: es });
+            anyoAnterior = anyo;
+            break;
+        case "octubre":
+            mesAnterior = format(new Date(anyo, 8, 1), 'MMMM', { locale: es });
+            anyoAnterior = anyo;
+            break;
+        case "noviembre":
+            mesAnterior = format(new Date(anyo, 9, 1), 'MMMM', { locale: es });
+            anyoAnterior = anyo;
+            break;
+        case "diciembre":
+            mesAnterior = format(new Date(anyo, 10, 1), 'MMMM', { locale: es });
+            anyoAnterior = anyo;
+            break;
+        default:
+    };
+    return { mesAnterior, anyoAnterior }
 };
 
 export const calculoSemanasPeriodo = (periodo) => (dispatch, getState) => {
@@ -180,21 +236,21 @@ export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, ti
         },
         renderTopToolbarCustomActions: ({ table }) => {
             return (
-                <div className='flex flex-col flex-auto'>
-                    <div className='px-20 mt-12 pb-16 flex items-start justify-between'>
+                <div className='w-full'>
+                    <div className='px-20 mt-12 pb-16 flex flex-col sm:flex-row flex-1 items-start justify-between'>
                         <div>
                             <Typography className="text-lg font-medium tracking-tight leading-6 truncate">
                                 {titulo1}
                             </Typography>
                             <Typography
-                                className="text-sm leading-none truncate"
+                                className="text-sm leading-none "
                                 color="text.secondary"
                             >
                                 {titulo2}
                             </Typography>
                         </div>
                         {chip && (
-                            <div className='-mb-12'>
+                            <div className='mb:12 md:-mb-16 mt-12 md:mt-4'>
                                 <Chip size="small" color="secondary" className="font-medium text-sm px-6" label={chip} />
                             </div>
                         )}
