@@ -91,7 +91,6 @@ export const updateProduccionTabla = createAsyncThunk(
   });
 
 const initialState = {
-  semanasAnyo: null,
   datosProduccionInicial: null,
   datosProduccionTabla: null,
   datosProduccionPalet: null,
@@ -104,10 +103,7 @@ const initialState = {
 const produccionSlice = createSlice({
   name: 'produccionSeccion/produccion',
   initialState,
-  reducers: {
-    setSemanasAnyo: (state, action) => {
-      state.semanasAnyo = action.payload;
-    },
+  reducers: {    
     setDatosProduccionTabla: (state, action) => {
       state.datosProduccionTabla = action.payload;
     },
@@ -125,10 +121,7 @@ const produccionSlice = createSlice({
     },
     setDatosProduccionInicialProductosMesAnterior: (state, action) => {
       state.datosProduccionInicialProductosMesAnterior = action.payload;
-    },
-    setCambioPeriodo: (state, action) => {
-      state.cambioPeriodo = action.payload;
-    },
+    },    
   },
   extraReducers: {
     [getProduccion.fulfilled]: (state, action) => {
@@ -148,25 +141,21 @@ const produccionSlice = createSlice({
   },
 });
 
-export const {
-  setSemanasAnyo,
+export const { 
   setDatosProduccionTabla,
   setDatosProduccionInicial,
   setDatosProduccionPalet,
   setDatosProduccionSaldo,
   setDatosProduccionInicialProductos,
-  setDatosProduccionInicialProductosMesAnterior,
-  setCambioPeriodo
+  setDatosProduccionInicialProductosMesAnterior, 
 } = produccionSlice.actions;
 
-export const selectSemanasAnyo = ({ produccionSeccion }) => produccionSeccion.produccion.semanasAnyo;
 export const selectDatosProduccionInicial = ({ produccionSeccion }) => produccionSeccion.produccion.datosProduccionInicial;
 export const selectDatosProduccionTabla = ({ produccionSeccion }) => produccionSeccion.produccion.datosProduccionTabla;
 export const selectDatosProduccionPalet = ({ produccionSeccion }) => produccionSeccion.produccion.datosProduccionPalet;
 export const selectDatosProduccionSaldo = ({ produccionSeccion }) => produccionSeccion.produccion.datosProduccionSaldo;
 export const selectDatosProduccionInicialProductos = ({ produccionSeccion }) => produccionSeccion.produccion.datosProduccionInicialProductos;
 export const selectDatosProduccionInicialProductosMesAnterior = ({ produccionSeccion }) => produccionSeccion.produccion.datosProduccionInicialProductosMesAnterior;
-export const selectCambioPeriodo = ({ produccionSeccion }) => produccionSeccion.produccion.cambioPeriodo;
 
 const clasificaProductos = (data, periodo) => (dispatch, getState) => {
   const objetoClasificados = {

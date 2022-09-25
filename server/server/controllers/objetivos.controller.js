@@ -43,6 +43,7 @@ export const updateObjetivos = async (req, res) => {
                 }
             );
             if (!updatedObjetivo) return res.sendStatus(404);
+            await updatedObjetivo.save();
         });
         res.status(200).send({ message: "Objetivos actualizados con éxito." });
     } catch (error) {

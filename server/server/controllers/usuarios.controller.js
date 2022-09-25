@@ -62,7 +62,7 @@ export const registrarUsuario = async (req, res) => {
             "<p><b>Contaseña: </b>" + password + "</p>" +
             "<p>Enlace: <a href='" + enlace + "' target='_blank'>Enlace a la aplicación</a></p><br />" +
             "<p>Una vez hayas ingresado en el sitio podrás cambiar tu contraseña y editar tu perfil de usuario. ¡Gracias!</p>";
-        const sender = { email: 'artikawebmail@gmail.com' };
+        const sender = { email: 'jalpgestion@gmail.com' };//email registrado en sendinblue
         const receivers = [{ email: email }];
         tranEmailApi.sendTransacEmail({
             sender,

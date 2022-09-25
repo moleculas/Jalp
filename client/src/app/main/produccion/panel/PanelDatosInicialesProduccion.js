@@ -100,7 +100,7 @@ function PanelDatosInicialesProduccion(props) {
     return (
         <TableContainer component={Paper} className="rounded-2xl relative flex flex-col flex-auto w-full overflow-hidden">
             <MaterialReactTable
-                {...dispatch(generarPropsTabla(false, false, 'Datos iniciales producción ', 'Configuración datos Stock y Saldo para cáculos mensuales.', null, "Familia productos: " + _.upperCase(familia)))}
+                {...dispatch(generarPropsTabla(false, false, 'Datos iniciales producción ', 'Configuración datos Stock y Saldo para cáculos mensuales.', null, "Familia productos: " + _.upperCase(familia), false))}
                 columns={[
                     {
                         header: 'Producto',
@@ -152,6 +152,9 @@ function PanelDatosInicialesProduccion(props) {
                         accessorKey: 'stock',
                         enableSorting: false,
                         enableColumnFilter: false,
+                        muiTableBodyCellEditTextFieldProps: {
+                            type: 'number',
+                        }, 
                         Header: ({ column }) => (
                             <div className='flex flex-row items-center'>
                                 <FuseSvgIcon className="mr-4" size={20}>material-outline:edit_note</FuseSvgIcon>
@@ -175,6 +178,9 @@ function PanelDatosInicialesProduccion(props) {
                         accessorKey: 'saldoInicial',
                         enableSorting: false,
                         enableColumnFilter: false,
+                        muiTableBodyCellEditTextFieldProps: {
+                            type: 'number',
+                        }, 
                         Header: ({ column }) => (
                             <div className='flex flex-row items-center'>
                                 <FuseSvgIcon className="mr-4" size={20}>material-outline:edit_note</FuseSvgIcon>

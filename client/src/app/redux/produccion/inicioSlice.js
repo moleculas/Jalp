@@ -453,7 +453,8 @@ const initialState = {
     },
     produccion: {
         mesActual: format(new Date(), 'MMMM/yyyy', { locale: es })
-    }
+    },
+    semanasAnyo: null,
 };
 
 const inicioSlice = createSlice({
@@ -462,6 +463,12 @@ const inicioSlice = createSlice({
     reducers: {
         setMesActual: (state, action) => {
             state.produccion.mesActual = action.payload;
+        },
+        setSemanasAnyo: (state, action) => {
+            state.semanasAnyo = action.payload;
+        },
+        setCambioPeriodo: (state, action) => {
+            state.cambioPeriodo = action.payload;
         },
     },
     extraReducers: {
@@ -480,11 +487,17 @@ const inicioSlice = createSlice({
     },
 });
 
-export const { setMesActual } = inicioSlice.actions;
+export const { 
+    setMesActual, 
+    setSemanasAnyo,
+    setCambioPeriodo
+ } = inicioSlice.actions;
 
 export const selectDataInicioHeader = ({ produccionSeccion }) => produccionSeccion.inicio.header;
 export const selectDataInicioWidgets = ({ produccionSeccion }) => produccionSeccion.inicio.widgets;
 export const selectDataInicioMenu = ({ produccionSeccion }) => produccionSeccion.inicio.menu;
 export const selectMesActual = ({ produccionSeccion }) => produccionSeccion.inicio.produccion.mesActual;
+export const selectSemanasAnyo = ({ produccionSeccion }) => produccionSeccion.produccion.semanasAnyo;
+export const selectCambioPeriodo = ({ produccionSeccion }) => produccionSeccion.produccion.cambioPeriodo;
 
 export default inicioSlice.reducer;

@@ -18,7 +18,6 @@ import { PRODUCTOS } from 'constantes';
 
 //importacion acciones
 import {
-    selectSemanasAnyo,
     getProduccion,
     selectDatosProduccionInicial,
     selectDatosProduccionTabla,
@@ -29,7 +28,7 @@ import {
     setDatosProduccionPalet,
     setDatosProduccionSaldo
 } from 'app/redux/produccion/produccionSlice';
-import { selectMesActual } from 'app/redux/produccion/inicioSlice';
+import { selectMesActual, selectSemanasAnyo } from 'app/redux/produccion/inicioSlice';
 import {
     calculoSemanasAnyo,
     calculoSemanasPeriodo,
@@ -101,7 +100,7 @@ function Produccion1Mod1(props) {
     useEffect(() => {
         if (!semanasCorrespondientesPeriodo) {
             setSemanasCorrespondientesPeriodo(dispatch(calculoSemanasPeriodo(1)));
-        } else {           
+        } else {
             const periodo = semanasCorrespondientesPeriodo.map(({ numeroSemana, mes }) => ({
                 producto: producto.producto,
                 familia: producto.familia,
@@ -200,7 +199,7 @@ function Produccion1Mod1(props) {
                                     producto={producto}
                                     semanas={semanasCorrespondientesPeriodo}
                                     objetivos={objetivosProducto}
-                                    mes={mes}                                   
+                                    mes={mes}
                                 />
                             </motion.div>
                             <motion.div variants={item2}>
@@ -230,7 +229,7 @@ function Produccion1Mod1(props) {
                                 datosTabla={datosProduccionTabla}
                                 datosPalet={datosProduccionPalet}
                                 producto={producto}
-                                mes={mes}   
+                                mes={mes}
                             />
                         </motion.div>
                     </div>

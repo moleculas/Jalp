@@ -70,7 +70,7 @@ function PanelInicialProduccion1(props) {
     return (
         <TableContainer component={Paper} className="rounded-2xl relative flex flex-col flex-auto w-full overflow-hidden">
             <MaterialReactTable
-                {...dispatch(generarPropsTabla(false, false, 'Datos iniciales producción ', '', null, _.capitalize(mesActual).replaceAll("/", " ")))}
+                {...dispatch(generarPropsTabla(false, false, 'Datos iniciales producción ', '', null, _.capitalize(mesActual).replaceAll("/", " "), false))}
                 columns={[
                     {
                         header: 'Stock inicial',
@@ -78,7 +78,7 @@ function PanelInicialProduccion1(props) {
                         accessorKey: 'stockInicial',
                         enableSorting: false,
                         enableColumnFilter: false,    
-                        enableEditing: false,                   
+                        enableEditing: false,                                           
                         Cell: ({ cell, row }) => (
                             <Typography
                                 variant="body1"
@@ -94,7 +94,7 @@ function PanelInicialProduccion1(props) {
                         accessorKey: 'unidades',
                         enableSorting: false,
                         enableColumnFilter: false,
-                        enableEditing: false,
+                        enableEditing: false,                        
                         Cell: ({ cell, row }) => (
                             <Typography
                                 variant="body1"
@@ -109,7 +109,10 @@ function PanelInicialProduccion1(props) {
                         size: 50,
                         accessorKey: 'stock',
                         enableSorting: false,
-                        enableColumnFilter: false,                        
+                        enableColumnFilter: false,   
+                        muiTableBodyCellEditTextFieldProps: {
+                            type: 'number',
+                        },                      
                         Header: ({ column }) => (
                             <div className='flex flex-row items-center'>
                                 <FuseSvgIcon className="mr-4" size={20}>material-outline:edit_note</FuseSvgIcon>
@@ -134,6 +137,9 @@ function PanelInicialProduccion1(props) {
                         enableSorting: false,
                         enableColumnFilter: false,
                         enableEditing: producto.posicion === 1 ? true : false,
+                        muiTableBodyCellEditTextFieldProps: {
+                            type: 'number',
+                        }, 
                         Header: ({ column }) => (
                             <div className='flex flex-row items-center'>
                                 {producto.posicion === 1 && <FuseSvgIcon className="mr-4" size={20}>material-outline:edit_note</FuseSvgIcon>}

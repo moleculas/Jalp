@@ -9,18 +9,15 @@ import { Outlet } from 'react-router-dom';
 
 //importación acciones
 
-function ProduccionContent(props) {
+function CalculosContent(props) {
   const [tabValue, setTabValue] = useState(0);
   const navigate = useNavigate();
 
   //useEffect
 
   useEffect(() => {
-    tabValue === 0 && navigate("produccion-0");
-    tabValue === 1 && navigate("produccion-1/mod-1");
-    tabValue === 2 && navigate("produccion-2/mod-1");
-    tabValue === 3 && navigate("produccion-3/mod-1");   
-    tabValue === 4 && navigate("objetivos");
+    tabValue === 0 && navigate("calculos-1");
+    tabValue === 1 && navigate("calculos-2");
   }, [tabValue]);
 
   //funciones
@@ -53,27 +50,12 @@ function ProduccionContent(props) {
           <Tab
             className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
             disableRipple
-            label="Inicio datos"
+            label="Escandallo LX Pino"
           />
           <Tab
             className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
             disableRipple
-            label="Producción Palets"
-          />
-          <Tab
-            className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
-            disableRipple
-            label="Producción Tacos"
-          />
-          <Tab
-            className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
-            disableRipple
-            label="Producción Patines"
-          />          
-           <Tab
-            className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
-            disableRipple
-            label="Objetivos"
+            label="Calculadora cubicaje"
           />
         </Tabs>
       </div>
@@ -82,4 +64,4 @@ function ProduccionContent(props) {
   );
 }
 
-export default ProduccionContent;
+export default CalculosContent;

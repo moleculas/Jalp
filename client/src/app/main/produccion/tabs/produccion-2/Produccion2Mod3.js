@@ -18,7 +18,6 @@ import { PRODUCTOS } from 'constantes';
 
 //importacion acciones
 import {
-    selectSemanasAnyo,
     getProduccion,
     selectDatosProduccionInicial,
     selectDatosProduccionTabla,
@@ -29,7 +28,7 @@ import {
     setDatosProduccionPalet,
     setDatosProduccionSaldo
 } from 'app/redux/produccion/produccionSlice';
-import { selectMesActual } from 'app/redux/produccion/inicioSlice';
+import { selectMesActual, selectSemanasAnyo } from 'app/redux/produccion/inicioSlice';
 import {
     calculoSemanasAnyo,
     calculoSemanasPeriodo,

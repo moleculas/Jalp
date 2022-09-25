@@ -4,8 +4,8 @@ import { useRef } from 'react';
 import { styled } from '@mui/material/styles';
 import useThemeMediaQuery from '@fuse/hooks/useThemeMediaQuery';
 import reducer from 'app/redux/produccion';
-import ProduccionHeader from './ProduccionHeader';
-import ProduccionContent from './ProduccionContent';
+import PedidosHeader from './PedidosHeader';
+import PedidosContent from './PedidosContent';
 
 const Root = styled(FusePageSimple)(({ theme }) => ({
   '& .FusePageSimple-header': {
@@ -17,14 +17,14 @@ const Root = styled(FusePageSimple)(({ theme }) => ({
   },
 }));
 
-function Produccion(props) {
+function Pedidos(props) {
   const pageLayout = useRef(null);
   const isMobile = useThemeMediaQuery((theme) => theme.breakpoints.down('lg'));
 
   return (
     <Root
-      header={<ProduccionHeader pageLayout={pageLayout} />}
-      content={<ProduccionContent />}
+      header={<PedidosHeader pageLayout={pageLayout} />}
+      content={<PedidosContent />}
       ref={pageLayout}
       //rightSidebarContent={}
       //rightSidebarWidth={isMobile ? 400 : 640}
@@ -33,4 +33,4 @@ function Produccion(props) {
   );
 }
 
-export default withReducer('produccionSeccion', reducer)(Produccion);
+export default withReducer('produccionSeccion', reducer)(Pedidos);

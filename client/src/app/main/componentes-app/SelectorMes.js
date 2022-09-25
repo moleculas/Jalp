@@ -6,9 +6,8 @@ import format from 'date-fns/format';
 import { es } from 'date-fns/locale';
 
 //importacion acciones
-import { setMesActual } from 'app/redux/produccion/inicioSlice';
-import { 
-    setSemanasAnyo, 
+import { setMesActual, setSemanasAnyo } from 'app/redux/produccion/inicioSlice';
+import {     
     setDatosProduccionInicialProductos,
     setDatosProduccionInicialProductosMesAnterior,
     setDatosProduccionTabla,

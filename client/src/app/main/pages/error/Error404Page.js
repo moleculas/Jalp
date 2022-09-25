@@ -38,7 +38,7 @@ function Error404Page() {
           </Typography>
         </motion.div>
 
-        <Link className="block font-normal mt-48" to="/apps/dashboards/project">
+        <Link className="block font-normal mt-48" to="/dashboards/project">
           Volver al Inicio
         </Link>
       </div>

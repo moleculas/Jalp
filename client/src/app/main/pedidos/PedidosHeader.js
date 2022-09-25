@@ -6,7 +6,7 @@ import SelectorMes from '../componentes-app/SelectorMes';
 //importacion acciones
 import { selectMesActual } from 'app/redux/produccion/inicioSlice';
 
-function ProduccionHeader(props) {
+function PedidosHeader(props) {
     const mesActual = useSelector(selectMesActual);
 
     return (
@@ -19,7 +19,7 @@ function ProduccionHeader(props) {
                     delay={300}
                     className="text-24 md:text-32 font-extrabold tracking-tight leading-none"
                 >
-                    Gestión de la producción
+                    Gestión de pedidos
                 </Typography>
             </div>
             <div className="flex items-center -mx-8">
@@ -29,4 +29,4 @@ function ProduccionHeader(props) {
     );
 }
 
-export default ProduccionHeader;
+export default PedidosHeader;

@@ -9,18 +9,16 @@ import { Outlet } from 'react-router-dom';
 
 //importación acciones
 
-function ProduccionContent(props) {
+function PedidosContent(props) {
   const [tabValue, setTabValue] = useState(0);
   const navigate = useNavigate();
 
   //useEffect
 
   useEffect(() => {
-    tabValue === 0 && navigate("produccion-0");
-    tabValue === 1 && navigate("produccion-1/mod-1");
-    tabValue === 2 && navigate("produccion-2/mod-1");
-    tabValue === 3 && navigate("produccion-3/mod-1");   
-    tabValue === 4 && navigate("objetivos");
+    tabValue === 0 && navigate("pedidos-1");
+    tabValue === 1 && navigate("pedidos-2");
+    tabValue === 2 && navigate("pedidos-3");
   }, [tabValue]);
 
   //funciones
@@ -53,28 +51,18 @@ function ProduccionContent(props) {
           <Tab
             className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
             disableRipple
-            label="Inicio datos"
+            label="Pedidos Xavi"
           />
           <Tab
             className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
             disableRipple
-            label="Producción Palets"
+            label="Pedidos Sala"
           />
           <Tab
             className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
             disableRipple
-            label="Producción Tacos"
-          />
-          <Tab
-            className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
-            disableRipple
-            label="Producción Patines"
-          />          
-           <Tab
-            className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
-            disableRipple
-            label="Objetivos"
-          />
+            label="Pedidos Masova"
+          />        
         </Tabs>
       </div>
       <Outlet />
@@ -82,4 +70,4 @@ function ProduccionContent(props) {
   );
 }
 
-export default ProduccionContent;
+export default PedidosContent;

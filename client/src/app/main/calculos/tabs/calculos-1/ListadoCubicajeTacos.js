@@ -292,7 +292,7 @@ function ListadoCubicajeTacos() {
             <div className="flex flex-col sm:flex-row flex-1 items-start px-12 justify-between mb-24 space-y-16 sm:space-y-0">
                 <div>
                     <Typography className="text-2xl font-extrabold tracking-tight leading-tight">
-                        Escandallo LX Pino
+                        Tabla cubicaje
                     </Typography>
                     <div className="mt-2 font-medium">
                         <Typography>Datos según producción.</Typography>
@@ -311,7 +311,7 @@ function ListadoCubicajeTacos() {
             <motion.div variants={item1} className="w-full flex flex-col">
                 <TableContainer component={Paper} className="rounded-2xl" sx={{
                     maxHeight: {
-                        md: height - 390,
+                        md: height - 380,
                     }
                 }}>
                     <Table stickyHeader className="w-full" aria-labelledby="tableTitle">

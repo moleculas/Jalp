@@ -4,11 +4,12 @@ import format from 'date-fns/format';
 import { es } from 'date-fns/locale';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
+import Button from '@mui/material/Button';
+import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 
 //importación acciones
-import {
-    setSemanasAnyo
-} from 'app/redux/produccion/produccionSlice';
+import { setSemanasAnyo } from 'app/redux/produccion/inicioSlice';
+import { setAnadirFilaId } from 'app/redux/produccion/pedidoSlice';
 
 export const decMesActual = () => (dispatch, getState) => {
     const mesActual = getState().produccionSeccion.inicio.produccion.mesActual;
@@ -92,7 +93,7 @@ export const obtenermesAnterior = (mes, anyo) => (dispatch, getState) => {
 };
 
 export const calculoSemanasPeriodo = (periodo) => (dispatch, getState) => {
-    const semanasAnyo = getState().produccionSeccion.produccion.semanasAnyo;
+    const semanasAnyo = getState().produccionSeccion.inicio.semanasAnyo;
     const { mes } = dispatch(decMesActual());
     let semanas;
     switch (periodo) {
@@ -144,7 +145,7 @@ export const calculoSemanasPeriodo = (periodo) => (dispatch, getState) => {
     };
 };
 
-export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, titulo2, pinning, chip) => (dispatch, getState) => {
+export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, titulo2, pinning, chip, idButton) => (dispatch, getState) => {
     const tableProps = {
         enableDensityToggle: false,
         enableColumnResizing: false,
@@ -252,6 +253,23 @@ export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, ti
                         {chip && (
                             <div className='mb:12 md:-mb-16 mt-12 md:mt-4'>
                                 <Chip size="small" color="secondary" className="font-medium text-sm px-6" label={chip} />
+                            </div>
+                        )}
+                        {idButton && (
+                            <div className='mb:12 md:-mb-16 mt-12 md:mt-0'>
+                                <Button
+                                    onClick={() => dispatch(setAnadirFilaId(idButton.id))}
+                                    color="primary"
+                                    variant="outlained"
+                                    startIcon={<FuseSvgIcon size={20}>heroicons-outline:plus-circle</FuseSvgIcon>}
+                                    size="small"
+                                    sx={{
+                                        paddingX: 2
+                                    }}
+                                    disabled={idButton.disabled}
+                                >
+                                    Añadir fila
+                                </Button>
                             </div>
                         )}
                     </div>

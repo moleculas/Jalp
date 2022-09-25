@@ -26,7 +26,21 @@ const navigationConfig = [
         type: 'item',
         icon: 'material-outline:query_stats',
         url: '/produccion',
-      }
+      },      
+      {
+        id: 'pedidos',
+        title: 'Pedidos',
+        type: 'item',
+        icon: 'material-outline:launch',
+        url: '/pedidos',
+      },
+      {
+        id: 'escandallo',
+        title: 'Cálculos',
+        type: 'item',
+        icon: 'material-outline:dashboard_customize',
+        url: '/calculos',
+      },
     ],
   },
   {

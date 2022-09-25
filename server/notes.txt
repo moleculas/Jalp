@@ -6,8 +6,8 @@ JalpGest5566@
 Recordar omplir totes les dades per activar compte!
 https://my.sendinblue.com/dashboard
 
-API
-sender-mail-node
+API key: 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
+Jalp-app-sender-mail-node
 key: -
 
 

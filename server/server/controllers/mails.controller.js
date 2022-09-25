@@ -20,7 +20,7 @@ export const sendMail = async (req, res) => {
                     "<p><b>Usuario: </b>" + email + "</p>" +
                     "<p>Enlace: <a href='" + enlace + "' target='_blank'>Enlace de recuperación de contraseña</a></p>" +
                     "<p>Una vez hayas ingresado en el sitio podrás cambiar tu contraseña y editar tu perfil de usuario. ¡Gracias!</p>";
-                const sender = { email: 'artikawebmail@gmail.com' };
+                const sender = { email: 'jalpgestion@gmail.com' };//email registrado en sendinblue
                 const receivers = [{ email: email }];
                 tranEmailApi.sendTransacEmail({
                     sender,

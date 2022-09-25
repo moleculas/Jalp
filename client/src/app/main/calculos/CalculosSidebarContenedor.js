@@ -2,7 +2,7 @@ import IconButton from '@mui/material/IconButton';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import { styled } from '@mui/material/styles';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
-import EscandalloForm from './tabs/produccion-4/EscandalloForm';
+import EscandalloForm from './tabs/calculos-1/EscandalloForm';
 import { useDispatch, useSelector } from 'react-redux';
 
 //importación acciones
@@ -18,7 +18,7 @@ const StyledSwipeableDrawer = styled(SwipeableDrawer)(({ theme }) => ({
     },
 }));
 
-function ProduccionSidebarContenedor(props) {
+function CalculosSidebarContenedor(props) {
     const dispatch = useDispatch();
     const openFormEscandallo = useSelector(selectOpenFormEscandallo);
 
@@ -61,4 +61,4 @@ function ProduccionSidebarContenedor(props) {
     );
 }
 
-export default ProduccionSidebarContenedor;
+export default CalculosSidebarContenedor;

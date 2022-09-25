@@ -213,7 +213,7 @@ function PanelProduccion1(props) {
         };
         const tabla = [...tableData];
         tabla[row.index] = values;
-        calculosTabla(tabla);
+        calculosTabla(tabla, true);
         exitEditingMode();
     };
 
@@ -269,7 +269,7 @@ function PanelProduccion1(props) {
     return (
         <TableContainer component={Paper} className="rounded-2xl">
             <MaterialReactTable
-                {...dispatch(generarPropsTabla(true, true, 'Tabla cálculos producción', '', null, null))}
+                {...dispatch(generarPropsTabla(true, true, 'Tabla cálculos producción', '', null, null, false))}
                 columns={tableColumns}
                 data={tableData}
                 onEditingRowSave={handleSaveRow}

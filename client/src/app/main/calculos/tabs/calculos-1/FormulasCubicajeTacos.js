@@ -262,7 +262,7 @@ function FormulasCubicajeTacos() {
                 <motion.div variants={item2}>
                     <TableContainer component={Paper} className="rounded-2xl">
                         <MaterialReactTable
-                            {...dispatch(generarPropsTabla(false, false, 'Palets realizables con m³', 'Fórmula cálculo datos', null, null))}
+                            {...dispatch(generarPropsTabla(false, false, 'Palets realizables con m³', 'Fórmula cálculo datos', null, null, false))}
                             columns={tableColumns1}
                             data={tableData1}
                             onEditingRowSave={handleSaveRow1}
@@ -274,7 +274,7 @@ function FormulasCubicajeTacos() {
                 <motion.div variants={item3}>
                     <TableContainer component={Paper} className="rounded-2xl">
                         <MaterialReactTable
-                            {...dispatch(generarPropsTabla(false, false, 'm³ necesarios para realizar palets³', 'Fórmula cálculo datos', null, null))}
+                            {...dispatch(generarPropsTabla(false, false, 'm³ necesarios para realizar palets³', 'Fórmula cálculo datos', null, null, false))}
                             columns={tableColumns2}
                             data={tableData2}
                             onEditingRowSave={handleSaveRow2}

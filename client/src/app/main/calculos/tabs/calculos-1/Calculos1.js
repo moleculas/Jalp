@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import ListadoCubicajeTacos from './ListadoCubicajeTacos';
 import FormulasCubicajeTacos from './FormulasCubicajeTacos';
 
-function Produccion4() {
+function Calculos1() {
     const container = {
         show: {
             transition: {
@@ -30,4 +30,4 @@ function Produccion4() {
     );
 }
 
-export default Produccion4;
+export default Calculos1;

@@ -12,6 +12,8 @@ import ForgotPasswordConfig from '../main/pages/auth/forgot-password/ForgotPassw
 import ResetPasswordConfig from '../main/pages/auth/reset-password/ResetPasswordConfig';
 import GestionUsuariosConfig from '../main/pages/auth/gestion-usuarios/GestionUsuariosConfig';
 import ProduccionConfig from '../main/produccion/ProduccionConfig';
+import CalculosConfig from '../main/calculos/CalculosConfig';
+import PedidosConfig from '../main/pedidos/PedidosConfig';
 
 const routeConfigs = [
   ...appsConfigs,
@@ -22,7 +24,9 @@ const routeConfigs = [
   ForgotPasswordConfig,
   ResetPasswordConfig,
   GestionUsuariosConfig,
-  ProduccionConfig
+  ProduccionConfig,
+  CalculosConfig,
+  PedidosConfig
 ];
 
 const routes = [
