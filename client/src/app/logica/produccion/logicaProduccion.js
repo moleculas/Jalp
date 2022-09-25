@@ -13,10 +13,12 @@ import { setAnadirFilaId } from 'app/redux/produccion/pedidoSlice';
 
 export const decMesActual = () => (dispatch, getState) => {
     const mesActual = getState().produccionSeccion.inicio.produccion.mesActual;
-    const mesSplt = _.split(mesActual, '/');
+    const mesSplt = _.split(mesActual.letra, '/');
+    const mesNumSplt = _.split(mesActual.numero, '/');
     const mes = mesSplt[0];
     const anyo = Number(mesSplt[1]);
-    return { mes, anyo }
+    const mesNumero = mesNumSplt[0];
+    return { mes, anyo, mesNumero }
 };
 
 export const calculoSemanasAnyo = () => (dispatch, getState) => {
@@ -36,59 +38,10 @@ export const calculoSemanasAnyo = () => (dispatch, getState) => {
     dispatch(setSemanasAnyo(semanas));
 };
 
-export const obtenermesAnterior = (mes, anyo) => (dispatch, getState) => {
-    let mesAnterior, anyoAnterior;
-    switch (mes) {
-        case "enero":
-            mesAnterior = format(new Date(anyo - 1, 11, 1), 'MMMM', { locale: es });
-            anyoAnterior = anyo - 1;
-            break;
-        case "febrero":
-            mesAnterior = format(new Date(anyo, 12, 1), 'MMMM', { locale: es });
-            anyoAnterior = anyo;
-            break;
-        case "marzo":
-            mesAnterior = format(new Date(anyo, 1, 1), 'MMMM', { locale: es });
-            anyoAnterior = anyo;
-            break;
-        case "abril":
-            mesAnterior = format(new Date(anyo, 2, 1), 'MMMM', { locale: es });
-            anyoAnterior = anyo;
-            break;
-        case "mayo":
-            mesAnterior = format(new Date(anyo, 3, 1), 'MMMM', { locale: es });
-            anyoAnterior = anyo;
-            break;
-        case "junio":
-            mesAnterior = format(new Date(anyo, 4, 1), 'MMMM', { locale: es });
-            anyoAnterior = anyo;
-            break;
-        case "julio":
-            mesAnterior = format(new Date(anyo, 5, 1), 'MMMM', { locale: es });
-            anyoAnterior = anyo;
-            break;
-        case "agosto":
-            mesAnterior = format(new Date(anyo, 6, 1), 'MMMM', { locale: es });
-            anyoAnterior = anyo;
-            break;
-        case "septiembre":
-            mesAnterior = format(new Date(anyo, 7, 1), 'MMMM', { locale: es });
-            anyoAnterior = anyo;
-            break;
-        case "octubre":
-            mesAnterior = format(new Date(anyo, 8, 1), 'MMMM', { locale: es });
-            anyoAnterior = anyo;
-            break;
-        case "noviembre":
-            mesAnterior = format(new Date(anyo, 9, 1), 'MMMM', { locale: es });
-            anyoAnterior = anyo;
-            break;
-        case "diciembre":
-            mesAnterior = format(new Date(anyo, 10, 1), 'MMMM', { locale: es });
-            anyoAnterior = anyo;
-            break;
-        default:
-    };
+export const obtenerMesAnterior = (mes, anyo) => (dispatch, getState) => {  
+    const menos1Mes = moment([anyo, mes, 1]).subtract(2, "month")._d;
+    const mesAnterior = format(new Date(menos1Mes), 'MMMM', { locale: es });
+    const anyoAnterior = format(new Date(menos1Mes), 'yyyy');
     return { mesAnterior, anyoAnterior }
 };
 

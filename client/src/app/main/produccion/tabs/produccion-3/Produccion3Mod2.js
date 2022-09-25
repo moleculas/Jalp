@@ -100,7 +100,7 @@ function Produccion3Mod2(props) {
     useEffect(() => {
         if (!semanasCorrespondientesPeriodo) {
             setSemanasCorrespondientesPeriodo(dispatch(calculoSemanasPeriodo(1)));
-        } else {           
+        } else {
             const periodo = semanasCorrespondientesPeriodo.map(({ numeroSemana, mes }) => ({
                 producto: producto.producto,
                 familia: producto.familia,
@@ -199,12 +199,12 @@ function Produccion3Mod2(props) {
                                     producto={producto}
                                     semanas={semanasCorrespondientesPeriodo}
                                     objetivos={objetivosProducto}
-                                    mes={mes}                                   
+                                    mes={mes}
                                 />
                             </motion.div>
                             <motion.div variants={item2}>
                                 <PanelInicialProduccion1
-                                    mesActual={mesActual}
+                                    mesActualLetra={mesActual.letra}
                                     datosInicial={datosProduccionInicial}
                                     datosSaldo={datosProduccionSaldo}
                                     producto={producto}
@@ -216,8 +216,8 @@ function Produccion3Mod2(props) {
                         <motion.div variants={item3}>
                             <PanelProduccion1
                                 columnas={[
-                                    { nombre: 'Periodo', tipo: 'texto' },                                  
-                                    { nombre: 'Masova', tipo: 'input' }, 
+                                    { nombre: 'Periodo', tipo: 'texto' },
+                                    { nombre: 'Masova', tipo: 'input' },
                                     { nombre: 'Palets', tipo: 'texto' },//primero input
                                     { nombre: 'Saldo', tipo: 'texto' },
                                 ]}
@@ -225,7 +225,7 @@ function Produccion3Mod2(props) {
                                 datosTabla={datosProduccionTabla}
                                 datosPalet={datosProduccionPalet}
                                 producto={producto}
-                                mes={mes}   
+                                mes={mes}
                             />
                         </motion.div>
                     </div>

@@ -1,13 +1,14 @@
 import Typography from '@mui/material/Typography';
 import { motion } from 'framer-motion';
-import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import SelectorMes from '../componentes-app/SelectorMes';
 
 //importacion acciones
-import { selectMesActual } from 'app/redux/produccion/inicioSlice';
+import { decMesActual } from 'app/logica/produccion/logicaProduccion';
 
 function PedidosHeader(props) {
-    const mesActual = useSelector(selectMesActual);
+    const dispatch = useDispatch();
+    const { anyo, mesNumero } = dispatch(decMesActual());
 
     return (
         <div className="flex flex-col sm:flex-row items-center space-y-16 sm:space-y-0 py-24 px-24 sm:px-32 w-full justify-between">
@@ -23,7 +24,10 @@ function PedidosHeader(props) {
                 </Typography>
             </div>
             <div className="flex items-center -mx-8">
-                <SelectorMes prMesActual={mesActual} />
+                <SelectorMes
+                    mesNumero={mesNumero}
+                    anyo={anyo}
+                />
             </div>
         </div>
     );

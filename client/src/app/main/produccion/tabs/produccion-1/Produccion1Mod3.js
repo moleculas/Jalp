@@ -80,7 +80,7 @@ function Produccion1Mod3(props) {
         serie: PRODUCTOS[referencia].serie
     };
     const { mes, anyo } = dispatch(decMesActual());
-    
+
     //useEffect   
 
     useEffect(() => {
@@ -100,7 +100,7 @@ function Produccion1Mod3(props) {
     useEffect(() => {
         if (!semanasCorrespondientesPeriodo) {
             setSemanasCorrespondientesPeriodo(dispatch(calculoSemanasPeriodo(1)));
-        } else {   
+        } else {
             const periodo = semanasCorrespondientesPeriodo.map(({ numeroSemana, mes }) => ({
                 producto: producto.producto,
                 familia: producto.familia,
@@ -199,12 +199,12 @@ function Produccion1Mod3(props) {
                                     producto={producto}
                                     semanas={semanasCorrespondientesPeriodo}
                                     objetivos={objetivosProducto}
-                                    mes={mes}    
+                                    mes={mes}
                                 />
                             </motion.div>
                             <motion.div variants={item2}>
                                 <PanelInicialProduccion1
-                                    mesActual={mesActual}
+                                    mesActualLetra={mesActual.letra}
                                     datosInicial={datosProduccionInicial}
                                     datosSaldo={datosProduccionSaldo}
                                     producto={producto}
@@ -229,7 +229,7 @@ function Produccion1Mod3(props) {
                                 datosTabla={datosProduccionTabla}
                                 datosPalet={datosProduccionPalet}
                                 producto={producto}
-                                mes={mes}    
+                                mes={mes}
                             />
                         </motion.div>
                     </div>

@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Typography from '@mui/material/Typography';
 
 //importacion acciones
-import { obtenermesAnterior } from 'app/logica/produccion/logicaProduccion';
+import { obtenerMesAnterior } from 'app/logica/produccion/logicaProduccion';
 //importacion acciones
 import {
     selectDatosProduccionInicialProductosMesAnterior,
@@ -18,7 +18,7 @@ import {
 } from 'app/redux/produccion/produccionSlice';
 
 function GraficoDatosInicialesProduccion(props) {
-    const { datos, mes, anyo, productos } = props;
+    const { datos, mesNumero, anyo, productos } = props;
     const dispatch = useDispatch();
     const theme = useTheme();
     const [tabValue, setTabValue] = useState(0);
@@ -31,7 +31,7 @@ function GraficoDatosInicialesProduccion(props) {
     useEffect(() => {
         if (datos) {
             if (!datosProduccionInicialProductosMesAnterior) {
-                const { mesAnterior, anyoAnterior } = dispatch(obtenermesAnterior(mes, anyo));
+                const { mesAnterior, anyoAnterior } = dispatch(obtenerMesAnterior(mesNumero, anyo));
                 dispatch(getProduccionInicialMesAnterior({ mes: mesAnterior, anyo: anyoAnterior, productos }));
             } else {
                 generaDatosGrafico();

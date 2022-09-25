@@ -43,7 +43,7 @@ function Produccion0() {
         show: { opacity: 1, y: 0, transition: { delay: 0.9 } },
     };
     const datosProduccionInicialProductos = useSelector(selectDatosProduccionInicialProductos);
-    const { mes, anyo } = dispatch(decMesActual());
+    const { mes, anyo, mesNumero } = dispatch(decMesActual());
 
     //useEffect    
 
@@ -124,7 +124,7 @@ function Produccion0() {
                     <motion.div variants={item2} className="w-full">
                         <GraficoDatosInicialesProduccion
                             datos={datosProduccionInicialProductos}
-                            mes={mes}
+                            mesNumero={mesNumero}
                             anyo={anyo}
                             productos={PRODUCTOS}
                         />

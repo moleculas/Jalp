@@ -91,7 +91,7 @@ function Produccion1Mod1(props) {
     }, []);
 
     useEffect(() => {
-        if (!semanasAnyo) {
+        if (!semanasAnyo) {          
             setSemanasCorrespondientesPeriodo(null);
             dispatch(calculoSemanasAnyo());
         };
@@ -204,7 +204,7 @@ function Produccion1Mod1(props) {
                             </motion.div>
                             <motion.div variants={item2}>
                                 <PanelInicialProduccion1
-                                    mesActual={mesActual}
+                                    mesActualLetra={mesActual.letra}
                                     datosInicial={datosProduccionInicial}
                                     datosSaldo={datosProduccionSaldo}
                                     producto={producto}

@@ -12,7 +12,7 @@ import { generarPropsTabla } from 'app/logica/produccion/logicaProduccion';
 import { updateProduccionInicial } from 'app/redux/produccion/produccionSlice';
 
 function PanelInicialProduccion1(props) {
-    const { mesActual, datosInicial, datosSaldo, producto } = props;
+    const { mesActualLetra, datosInicial, datosSaldo, producto } = props;
     const dispatch = useDispatch();
     const [tableData, setTableData] = useState([
         {
@@ -70,7 +70,7 @@ function PanelInicialProduccion1(props) {
     return (
         <TableContainer component={Paper} className="rounded-2xl relative flex flex-col flex-auto w-full overflow-hidden">
             <MaterialReactTable
-                {...dispatch(generarPropsTabla(false, false, 'Datos iniciales producción ', '', null, _.capitalize(mesActual).replaceAll("/", " "), false))}
+                {...dispatch(generarPropsTabla(false, false, 'Datos iniciales producción ', '', null, _.capitalize(mesActualLetra).replaceAll("/", " "), false))}
                 columns={[
                     {
                         header: 'Stock inicial',

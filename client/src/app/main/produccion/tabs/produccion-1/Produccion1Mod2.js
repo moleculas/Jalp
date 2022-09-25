@@ -204,7 +204,7 @@ function Produccion1Mod2(props) {
                             </motion.div>
                             <motion.div variants={item2}>
                                 <PanelInicialProduccion1
-                                    mesActual={mesActual}
+                                    mesActualLetra={mesActual.letra}
                                     datosInicial={datosProduccionInicial}
                                     datosSaldo={datosProduccionSaldo}
                                     producto={producto}

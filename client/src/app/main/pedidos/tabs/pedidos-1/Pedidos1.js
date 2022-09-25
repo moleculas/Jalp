@@ -49,17 +49,17 @@ function Pedidos1() {
 
     useEffect(() => {
         dispatch(setPedidoProducto(null));
-        dispatch(setPedido(null));
+        dispatch(setPedido(null));       
     }, []);
 
     useEffect(() => {
-        if (!pedidoProducto) {
+        if (!pedidoProducto) {            
             dispatch(getPedidoProducto(tipo));
         };
     }, [pedidoProducto]);
 
     useEffect(() => {
-        if (!semanasAnyo) {
+        if (!semanasAnyo) {  
             setSemanasCorrespondientesPeriodo(null);
             dispatch(calculoSemanasAnyo());
         };
@@ -68,7 +68,7 @@ function Pedidos1() {
     useEffect(() => {
         if (!semanasCorrespondientesPeriodo) {
             setSemanasCorrespondientesPeriodo(dispatch(calculoSemanasPeriodo(1)));
-        } else {
+        } else {            
             const periodo = semanasCorrespondientesPeriodo.map(({ numeroSemana, mes }) => ({
                 semana: numeroSemana,
                 mes,
@@ -89,7 +89,7 @@ function Pedidos1() {
         !semanasCorrespondientesPeriodo ||
         !datosPedido ||
         !pedidoProducto
-    ) {
+    ) {       
         return null;
     };
 
@@ -142,7 +142,7 @@ function Pedidos1() {
                             </div>
                         ))}
                     </motion.div>
-                </div>             
+                </div>
             </motion.div>
         )
     );

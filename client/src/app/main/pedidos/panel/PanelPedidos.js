@@ -179,8 +179,12 @@ function PanelPedidos(props) {
     const handleChangeSelectProducto = (row, table, event) => {
         const arrayTabla = [...table.options.data];
         arrayTabla[row.index].producto = event.target.value;
-        const producto = productos[productos.findIndex(prod => prod.producto === event.target.value)];
-        arrayTabla[row.index].medidas = `Largo: ${producto.largo}, Ancho: ${producto.ancho}, Grueso: ${producto.grueso}`;
+        if (event.target.value !== "") {
+            const producto = productos[productos.findIndex(prod => prod.producto === event.target.value)];
+            arrayTabla[row.index].medidas = `Largo: ${producto.largo}, Ancho: ${producto.ancho}, Grueso: ${producto.grueso}`;
+        } else {
+            arrayTabla[row.index].medidas = "";
+        };
         arrayTabla[row.index].unidades = 0;
         arrayTabla[row.index].vol_unitario = 0;
         arrayTabla[row.index].vol_total = 0;

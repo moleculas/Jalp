@@ -30,7 +30,8 @@ export const getPedido = async (req, res) => {
                     _id: newPedido._id,
                     semana: newPedido.semana,
                     mes: newPedido.mes,
-                    anyo: newPedido.anyo
+                    anyo: newPedido.anyo,
+                    linea: newPedido.linea
                 };
                 arrayPedido.push(newPedidoARetornar);
             } else {
