@@ -40,9 +40,8 @@ export const getEventsInicio = createAsyncThunk(
 export const getTasksInicio = createAsyncThunk(
     'produccionSeccion/inicio/getTasksInicio',
     async (_, { getState, dispatch }) => {
-        const user = getState().user;
         try {
-            const response = await axios.get('/tasks/mes/' + user.data.id);
+            const response = await axios.get('/tasks/mes');
             const data = await response.data;
             return data;
         } catch (err) {

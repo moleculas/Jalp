@@ -53,18 +53,18 @@ function GraficoDatosInicialesProduccion(props) {
                     const unidades = productos[productos.findIndex(prod => prod.producto === dato.producto)].unidades;
                     objetoSeries1.data.push(dato.stockInicial / unidades);
                     objetoSeries2.data.push(datos.palet.saldo[0].saldoInicial * 1.5);
+                });                
+                datos.taco.inicial.forEach((dato) => {
+                    arrayLabels.push(dato.producto);
+                    const unidades = productos[productos.findIndex(prod => prod.producto === dato.producto)].unidades;
+                    objetoSeries1.data.push(dato.stockInicial / unidades);
+                    objetoSeries2.data.push(datos.taco.saldo[0].saldoInicial * 1.5);
                 });
                 datos.patin.inicial.forEach((dato) => {
                     arrayLabels.push(dato.producto);
                     const unidades = productos[productos.findIndex(prod => prod.producto === dato.producto)].unidades;
                     objetoSeries1.data.push(dato.stockInicial / unidades);
                     objetoSeries2.data.push(datos.patin.saldo[0].saldoInicial * 1.5);
-                });
-                datos.taco.inicial.forEach((dato) => {
-                    arrayLabels.push(dato.producto);
-                    const unidades = productos[productos.findIndex(prod => prod.producto === dato.producto)].unidades;
-                    objetoSeries1.data.push(dato.stockInicial / unidades);
-                    objetoSeries2.data.push(datos.taco.saldo[0].saldoInicial * 1.5);
                 });
                 arraySeries.push(objetoSeries1);
                 arraySeries.push(objetoSeries2);
@@ -80,18 +80,18 @@ function GraficoDatosInicialesProduccion(props) {
                     objetoSeries1.data.push(dato.stockInicial / unidades);
                     objetoSeries2.data.push(datosProduccionInicialProductosMesAnterior.palet.saldo[0].saldoInicial * 1.5);
                 });
-                datosProduccionInicialProductosMesAnterior.patin.inicial.forEach((dato) => {
-                    arrayLabels.push(dato.producto);
-                    const unidades = productos[productos.findIndex(prod => prod.producto === dato.producto)].unidades;
-                    objetoSeries1.data.push(dato.stockInicial / unidades);
-                    objetoSeries2.data.push(datosProduccionInicialProductosMesAnterior.patin.saldo[0].saldoInicial * 1.5);
-                });
                 datosProduccionInicialProductosMesAnterior.taco.inicial.forEach((dato) => {
                     arrayLabels.push(dato.producto);
                     const unidades = productos[productos.findIndex(prod => prod.producto === dato.producto)].unidades;
                     objetoSeries1.data.push(dato.stockInicial / unidades);
                     objetoSeries2.data.push(datosProduccionInicialProductosMesAnterior.taco.saldo[0].saldoInicial * 1.5);
                 });
+                datosProduccionInicialProductosMesAnterior.patin.inicial.forEach((dato) => {
+                    arrayLabels.push(dato.producto);
+                    const unidades = productos[productos.findIndex(prod => prod.producto === dato.producto)].unidades;
+                    objetoSeries1.data.push(dato.stockInicial / unidades);
+                    objetoSeries2.data.push(datosProduccionInicialProductosMesAnterior.patin.saldo[0].saldoInicial * 1.5);
+                });                
                 arraySeries.push(objetoSeries1);
                 arraySeries.push(objetoSeries2);
                 objetoDatosGrafico.labels[i] = arrayLabels;
@@ -227,7 +227,7 @@ function GraficoDatosInicialesProduccion(props) {
                         </Tabs>
                     </div>
                 </div>
-                <div className="flex flex-col flex-auto h-full pr-12">
+                <div className="flex flex-col flex-auto h-full px-8">
                     <ReactApexChart
                         options={datosGrafico.chartOptions[tabValue]}
                         series={datosGrafico.series[tabValue]}

@@ -8,9 +8,8 @@ const TaskModel = (data) =>
     completed: false,
     dueDate: null,
     priority: 0,
-    tags: [],
-    assignedTo: null,
-    subTasks: [],
+    asignadaA: [],
+    creadaPor: null,
     order: 1,
   });
 

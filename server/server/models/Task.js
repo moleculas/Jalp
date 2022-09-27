@@ -6,10 +6,16 @@ const TaskSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        usuario: {
-            type: mongoose.Schema.Types.ObjectId,
-            required: true,
-            ref: 'Usuario'
+        creadaPor: {
+            type: String
+        },
+        asignadaA: {
+            type: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Usuario'
+                }
+            ]
         },
         type: {
             type: String,

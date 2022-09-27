@@ -339,8 +339,17 @@ const retornaSetArray = (array, i) => {
     const elSet = {};
     Number(array[i].serfocat) > 0 && (elSet['serfocat'] = array[i].serfocat);
     Number(array[i].masova) > 0 && (elSet['masova'] = array[i].masova);
+    Number(array[i].milieu) > 0 && (elSet['milieu'] = array[i].milieu);
+    Number(array[i].milieu_sala) > 0 && (elSet['milieu_sala'] = array[i].milieu_sala);
+    Number(array[i].arias) > 0 && (elSet['arias'] = array[i].arias);
+    Number(array[i].losan) > 0 && (elSet['losan'] = array[i].losan);    
     Number(array[i].faucher) > 0 && (elSet['faucher'] = array[i].faucher);
     Number(array[i].sala) > 0 && (elSet['sala'] = array[i].sala);
+    Number(array[i].llorente) > 0 && (elSet['llorente'] = array[i].llorente);
+    Number(array[i].p_marcos) > 0 && (elSet['p_marcos'] = array[i].p_marcos);
+    Number(array[i].roncal) > 0 && (elSet['roncal'] = array[i].roncal);
+    Number(array[i].alonso) > 0 && (elSet['alonso'] = array[i].alonso);
+    Number(array[i].ramon) > 0 && (elSet['ramon'] = array[i].ramon);    
     Number(array[i].mp_u_f) > 0 && (elSet['mp_u_f'] = array[i].mp_u_f);
     Number(array[i].saldo) > 0 && (elSet['saldo'] = array[i].saldo);
     return elSet;

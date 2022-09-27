@@ -41,8 +41,9 @@ export const addTask = async (req, res) => {
             completed: newTask.completed,
             dueDate: newTask.dueDate,
             priority: newTask.priority,
-            tags: newTask.tags,
-            order: newTask.order
+            asignadaA: newTask.asignadaA,
+            order: newTask.order,
+            creadaPor: newTask.creadaPor
         };
         return res.json(taskARetornar);
     } catch (error) {
@@ -50,14 +51,11 @@ export const addTask = async (req, res) => {
     };
 };
 
-export const getTasks = async (req, res) => {
-    const { usuario } = req.params;
+export const getTasks = async (req, res) => {   
     try {
-        const tasks = await Task.find({}, {
-            usuario: 0
-        }).where('usuario').equals(usuario);
+        const tasks = await Task.find({});
         const tasksOrdenadas = tasks.sort((a, b) => a.order - b.order);
-        const tasksARetornar = tasksOrdenadas.map(({ _id, title, type, notes, completed, dueDate, priority, tags, order }) => ({
+        const tasksARetornar = tasksOrdenadas.map(({ _id, title, type, notes, completed, dueDate, priority, asignadaA, order, creadaPor }) => ({
             id: _id,
             title: title,
             type: type,
@@ -65,8 +63,9 @@ export const getTasks = async (req, res) => {
             completed: completed,
             dueDate: dueDate,
             priority: priority,
-            tags: tags,
-            order: order
+            asignadaA: asignadaA,
+            order: order,
+            creadaPor: creadaPor
         }));
         return res.json(tasksARetornar);
     } catch (error) {
@@ -87,8 +86,9 @@ export const getTask = async (req, res) => {
             completed: task.completed,
             dueDate: task.dueDate,
             priority: task.priority,
-            tags: task.tags,
-            order: task.order
+            asignadaA: task.asignadaA,
+            order: task.order,
+            creadaPor: task.creadaPor
         };
         return res.json(taskARetornar);
     } catch (error) {
@@ -119,8 +119,9 @@ export const updateTask = async (req, res) => {
             completed: updatedTask.completed,
             dueDate: updatedTask.dueDate,
             priority: updatedTask.priority,
-            tags: updatedTask.tags,
-            order: updatedTask.order
+            asignadaA: updatedTask.asignadaA,
+            order: updatedTask.order,
+            creadaPor: updatedTask.creadaPor
         };
         return res.json(updatedTaskARetornar);
     } catch (error) {
@@ -144,7 +145,7 @@ export const removeTask = async (req, res) => {
 };
 
 export const reorderList = async (req, res) => {
-    const { nuevoArray, usuario } = JSON.parse(req.body.datos);
+    const { nuevoArray } = JSON.parse(req.body.datos);
     try {
         nuevoArray.map(async (elemento, index) => {
             const updatedTask = await Task.findByIdAndUpdate(
@@ -159,10 +160,8 @@ export const reorderList = async (req, res) => {
             if (!updatedTask) return res.sendStatus(404);
             await updatedTask.save();
         });
-        const tasks = await Task.find({}, {
-            usuario: 0
-        }).where('usuario').equals(usuario);
-        const tasksARetornar = tasks.map(({ _id, title, type, notes, completed, dueDate, priority, tags, order }) => ({
+        const tasks = await Task.find({});
+        const tasksARetornar = tasks.map(({ _id, title, type, notes, completed, dueDate, priority, asignadaA, order, creadaPor }) => ({
             id: _id,
             title: title,
             type: type,
@@ -170,8 +169,9 @@ export const reorderList = async (req, res) => {
             completed: completed,
             dueDate: dueDate,
             priority: priority,
-            tags: tags,
-            order: order
+            asignadaA: asignadaA,
+            order: order,
+            creadaPor: creadaPor
         }));
         tasksARetornar.sort((a, b) => a.order - b.order);
         return res.json(tasksARetornar);
@@ -180,8 +180,7 @@ export const reorderList = async (req, res) => {
     };
 };
 
-export const getTasksDia = async (req, res) => {
-    const { usuario } = req.params;
+export const getTasksDia = async (req, res) => {    
     const fecha = new Date();
     const hoy = fecha.toISOString().split('T')[0];
     try {
@@ -191,15 +190,15 @@ export const getTasksDia = async (req, res) => {
                 { dueDate: { $lt: `${hoy}T23:59:59.999Z` } },
                 { completed: false }
             ],
-        }, {
-            usuario: 0,
+        }, {           
             type: 0,
             notes: 0,
             completed: 0,
-            tags: 0,
+            asignadaA: 0,
             order: 0,
-            priority: 0
-        }).where('usuario').equals(usuario);
+            priority: 0,
+            creadaPor: 0
+        });
         const tasksARetornar = tasks.map(({ _id, title, dueDate }) => ({
             id: _id,
             title: title,
@@ -212,7 +211,6 @@ export const getTasksDia = async (req, res) => {
 };
 
 export const getTasksMes = async (req, res) => {
-    const { usuario } = req.params;
     const hoy = new Date();
     const ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
     const hoyVar = hoy.toISOString().split('T')[0];
@@ -224,17 +222,17 @@ export const getTasksMes = async (req, res) => {
                 $lt: `${ultimoDiaMesVar}T23:59:59.999Z`
             },
             completed: false
-        }, {
-            usuario: 0,
+        }, {           
             type: 0,
             notes: 0,
             completed: 0,
-            tags: 0,
+            asignadaA: 0,
             order: 0,
             priority: 0,
             title: 0,
             dueDate: 0,
-        }).where('usuario').equals(usuario);
+            creadaPor: 0
+        });
         const tasksARetornar = tasks.map(({ _id }) => ({
             id: _id
         }));

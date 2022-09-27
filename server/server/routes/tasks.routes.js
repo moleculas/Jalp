@@ -17,12 +17,12 @@ const router = Router();
 router.get("/tags", getTags);
 router.post("/tags", createTag);
 router.post("/", addTask);
-router.get("/:usuario", getTasks);
+router.get("/", getTasks);
 router.get("/task/:id", getTask);
 router.put("/:id", updateTask);
 router.delete("/task/:id", removeTask);
 router.post("/reorder", reorderList);
-router.get("/dia/:usuario", getTasksDia);
-router.get("/mes/:usuario", getTasksMes);
+router.get("/dia", getTasksDia);
+router.get("/mes", getTasksMes);
 
 export default router;

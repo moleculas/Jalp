@@ -34,10 +34,9 @@ export const getEvents = createAsyncThunk(
 
 export const getTasks = createAsyncThunk(
   'quickPanel/data/getTasks',
-  async (_, { getState, dispatch }) => {
-    const user = getState().user;
+  async (_, { getState, dispatch }) => {   
     try {
-      const response = await axios.get('/tasks/dia/' + user.data.id);
+      const response = await axios.get('/tasks/dia');
       const data = await response.data;
       return data;
     } catch (err) {

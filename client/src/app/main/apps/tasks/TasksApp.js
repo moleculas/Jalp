@@ -1,7 +1,7 @@
 import FusePageSimple from '@fuse/core/FusePageSimple';
 import withReducer from 'app/redux/withReducer';
 import { useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useDeepCompareEffect } from '@fuse/hooks';
 import { styled } from '@mui/material/styles';
@@ -12,6 +12,9 @@ import TasksList from './TasksList';
 import reducer from 'app/redux/tasks';
 import { getTags } from 'app/redux/tasks/tagsSlice';
 import { getTasks } from 'app/redux/tasks/tasksSlice';
+
+//importaciones acciones
+import { obtenerUsuarios, usuariosSeleccionados } from 'app/redux/usuariosSlice';
 
 const Root = styled(FusePageSimple)(({ theme }) => ({
   '& .FusePageSimple-header': {
@@ -25,6 +28,7 @@ function TasksApp(props) {
   const routeParams = useParams();
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
   const isMobile = useThemeMediaQuery((theme) => theme.breakpoints.down('lg'));
+  const usuarios = useSelector(usuariosSeleccionados);
 
   useDeepCompareEffect(() => {
     dispatch(getTasks());
@@ -34,6 +38,12 @@ function TasksApp(props) {
   useEffect(() => {
     setRightSidebarOpen(Boolean(routeParams.id));
   }, [routeParams]);
+
+  useEffect(() => {
+    if (usuarios.length === 0) {
+      dispatch(obtenerUsuarios(false));
+    };
+  }, [usuarios]);
 
   return (
     <Root

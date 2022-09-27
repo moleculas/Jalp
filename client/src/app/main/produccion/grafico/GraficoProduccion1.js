@@ -106,14 +106,15 @@ function GraficoProduccion1(props) {
             };
             let cantidad;
             if (i === 0) {
-                cantidad = (100 - ((objetoDatosGrafico.amount[i] * 100) / objetivos.saldo));
                 if (objetoDatosGrafico.amount[i] >= objetivos.saldo) {
+                    cantidad = ((objetoDatosGrafico.amount[i] - objetivos.saldo) * 100) / objetivos.saldo;
                     objetoProporcion = {
                         estado: 'mayor',
                         texto: 'por encima del objetivo',
                         proporcion: _.round(cantidad, 1)
                     };
                 } else {
+                    cantidad = ((objetivos.saldo - objetoDatosGrafico.amount[i]) * 100) / objetivos.saldo;
                     objetoProporcion = {
                         estado: 'menor',
                         texto: 'por debajo del objetivo',
@@ -123,14 +124,15 @@ function GraficoProduccion1(props) {
                 objetoDatosGrafico.proporcion[i] = objetoProporcion;
             };
             if (i === 1) {
-                cantidad = (100 - ((objetoDatosGrafico.amount[i] * 100) / objetivos.palets));
                 if (objetoDatosGrafico.amount[i] >= objetivos.palets) {
+                    cantidad = ((objetoDatosGrafico.amount[i] - objetivos.palets) * 100) / objetivos.palets;
                     objetoProporcion = {
                         estado: 'mayor',
                         texto: 'por encima del objetivo',
                         proporcion: _.round(cantidad, 1)
                     };
                 } else {
+                    cantidad = ((objetivos.palets - objetoDatosGrafico.amount[i]) * 100) / objetivos.palets;
                     objetoProporcion = {
                         estado: 'menor',
                         texto: 'por debajo del objetivo',
@@ -223,7 +225,7 @@ function GraficoProduccion1(props) {
                         type={datosGrafico.chartOptions[tabValue].chart.type}
                         height={datosGrafico.chartOptions[tabValue].chart.height}
                     />
-                </div>
+                </div>                
             </Paper>
         )
     );

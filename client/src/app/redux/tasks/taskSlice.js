@@ -23,7 +23,6 @@ export const getTask = createAsyncThunk(
 export const addTask = createAsyncThunk(
   'tasksApp/tasks/addTask',
   async (task, { dispatch, getState }) => {
-    const user = getState().user;
     const formData = new FormData();
     const losDatos = {
       title: task.title,
@@ -32,9 +31,9 @@ export const addTask = createAsyncThunk(
       completed: task.completed,
       dueDate: task.dueDate,
       priority: task.priority,
-      tags: task.tags,
+      asignadaA: task.asignadaA,
       order: task.order,
-      usuario: user.data.id
+      creadaPor: task.creadaPor
     };
     formData.append("datos", JSON.stringify(losDatos));
     const response = await axios.post('/tasks', formData);
@@ -53,8 +52,9 @@ export const updateTask = createAsyncThunk(
       completed: task.completed,
       dueDate: task.dueDate,
       priority: task.priority,
-      tags: task.tags,
-      order: task.order
+      asignadaA: task.asignadaA,
+      order: task.order,
+      creadaPor: task.creadaPor
     };
     formData.append("datos", JSON.stringify(losDatos));
     const response = await axios.put(`/tasks/${task.id}`, formData);

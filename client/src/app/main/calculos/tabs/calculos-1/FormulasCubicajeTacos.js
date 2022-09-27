@@ -274,7 +274,7 @@ function FormulasCubicajeTacos() {
                 <motion.div variants={item3}>
                     <TableContainer component={Paper} className="rounded-2xl">
                         <MaterialReactTable
-                            {...dispatch(generarPropsTabla(false, false, 'm³ necesarios para realizar palets³', 'Fórmula cálculo datos', null, null, false))}
+                            {...dispatch(generarPropsTabla(false, false, 'm³ necesarios para realizar palets', 'Fórmula cálculo datos', null, null, false))}
                             columns={tableColumns2}
                             data={tableData2}
                             onEditingRowSave={handleSaveRow2}

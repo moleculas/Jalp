@@ -2,7 +2,7 @@ import Button from '@mui/material/Button';
 import NavLinkAdapter from '@fuse/core/NavLinkAdapter';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import FuseLoading from '@fuse/core/FuseLoading';
 import _ from '@lodash';
 import * as yup from 'yup';
@@ -18,8 +18,25 @@ import DateTimePicker from '@mui/lab/DateTimePicker';
 import IconButton from '@mui/material/IconButton';
 import TaskPrioritySelector from './TaskPrioritySelector';
 import FormActionsMenu from './FormActionsMenu';
-import { addTask, getTask, newTask, selectTask, updateTask } from 'app/redux/tasks/taskSlice';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import Avatar from '@mui/material/Avatar';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+
+//importaciones acciones
+import {
+  addTask,
+  getTask,
+  newTask,
+  selectTask,
+  updateTask,
+  resetTask
+} from 'app/redux/tasks/taskSlice';
 import { selectTags } from 'app/redux/tasks/tagsSlice';
+import { usuariosSeleccionados } from 'app/redux/usuariosSlice';
+import { selectUser } from 'app/redux/userSlice';
 
 /**
  * Form Validation Schema
@@ -31,41 +48,68 @@ const schema = yup.object().shape({
 const TaskForm = (props) => {
   const task = useSelector(selectTask);
   const tags = useSelector(selectTags);
+  const usuarios = useSelector(usuariosSeleccionados);
+  const user = useSelector(selectUser);
   const routeParams = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const { control, watch, reset, handleSubmit, formState, getValues } = useForm({
     mode: 'onChange',
     resolver: yupResolver(schema),
   });
   const { isValid, dirtyFields, errors } = formState;
   const form = watch();
+  const [usuarioCreador, setUsuarioCreador] = useState(null);
 
   //useEffect
+
+  useEffect(() => {
+    reset({ ...task });
+  }, [task, reset]);
 
   useEffect(() => {
     if (routeParams.id === 'new') {
       dispatch(newTask(routeParams.type));
     } else {
       dispatch(getTask(routeParams.id));
-    }
+    };
   }, [dispatch, routeParams]);
 
   useEffect(() => {
-    reset({ ...task });
-  }, [task, reset]);
+    if (task && task.id && user) {
+      if (task.creadaPor === user.data.displayName) {
+        setUsuarioCreador({
+          displayName: user.data.displayName,
+          photoURL: user.data.photoURL,
+          email: user.data.email,
+          role: user.role.toString()
+        });
+      } else {
+        const usuarioCreadorUsuarios = usuarios[usuarios.findIndex(usuario => usuario.displayName === task.creadaPor)];
+        setUsuarioCreador({
+          displayName: usuarioCreadorUsuarios.displayName,
+          photoURL: usuarioCreadorUsuarios.photoURL,
+          email: usuarioCreadorUsuarios.email,
+          role: usuarioCreadorUsuarios.role.toString()
+        });
+      }
+    };
+  }, [task]);
 
- //funciones
+  //funciones
 
   function onSubmit(data) {
     dispatch(updateTask(data)).then(({ payload }) => {
+      dispatch(resetTask());
       navigate(`/apps/tasks/`);
     });
   };
 
   function onSubmitNew(data) {
-    dispatch(addTask(data)).then(({ payload }) => {
+    const datos = { ...data };
+    datos.creadaPor = user.data.displayName;
+    dispatch(addTask(datos)).then(({ payload }) => {
+      dispatch(resetTask());
       navigate(`/apps/tasks/`);
     });
   };
@@ -88,7 +132,7 @@ const TaskForm = (props) => {
                     <FuseSvgIcon>heroicons-outline:check-circle</FuseSvgIcon>
                   </Box>
                   <span className="mx-8">
-                    {task.completed ? 'MARCAR COMO INCOMPLETA' : 'MARCAR COMO COMPLETA'}
+                    {task.completed ? 'MARCAR COMO NO REALIZADA' : 'MARCAR COMO REALIZADA'}
                   </span>
                 </Button>
               )}
@@ -98,7 +142,7 @@ const TaskForm = (props) => {
           )}
           <div className="flex items-center">
             {routeParams.id !== 'new' && <FormActionsMenu taskId={task.id} />}
-            <IconButton className="" component={NavLinkAdapter} to="/apps/tasks" size="large">
+            <IconButton className="" component={NavLinkAdapter} to="/apps/tasks" size="large" onClick={() => dispatch(resetTask())}>
               <FuseSvgIcon>heroicons-outline:x</FuseSvgIcon>
             </IconButton>
           </div>
@@ -126,32 +170,34 @@ const TaskForm = (props) => {
         />
         {form.type === 'task' && (
           <>
-            <Controller
-              control={control}
-              name="tags"
-              render={({ field: { onChange, value } }) => (
-                <Autocomplete
-                  multiple
-                  id="tags"
-                  className="mt-32"
-                  options={tags}
-                  disableCloseOnSelect
-                  getOptionLabel={(option) => option.title}
-                  renderOption={(_props, option, { selected }) => (
-                    <li {..._props}>
-                      <Checkbox style={{ marginRight: 8 }} checked={selected} />
-                      {option.title}
-                    </li>
-                  )}
-                  value={value ? value.map((id) => _.find(tags, { id })) : []}
-                  onChange={(event, newValue) => {
-                    onChange(newValue.map((item) => item.id));
-                  }}
-                  fullWidth
-                  renderInput={(params) => <TextField {...params} label="Etiquetas" placeholder="Etiquetas" />}
-                />
-              )}
-            />
+            {usuarios.length > 0 && (
+              <Controller
+                control={control}
+                name="asignadaA"
+                render={({ field: { onChange, value } }) => (
+                  <Autocomplete
+                    multiple
+                    id="asignadaA"
+                    className="mt-32"
+                    options={usuarios}
+                    disableCloseOnSelect
+                    getOptionLabel={(option) => option.displayName}
+                    renderOption={(_props, option, { selected }) => (
+                      <li {..._props}>
+                        <Checkbox style={{ marginRight: 8 }} checked={selected} />
+                        {option.displayName}
+                      </li>
+                    )}
+                    value={value ? value.map((_id) => _.find(usuarios, { _id })) : []}
+                    onChange={(event, newValue) => {
+                      onChange(newValue.map((item) => item._id));
+                    }}
+                    fullWidth
+                    renderInput={(params) => <TextField {...params} label="Asignada" placeholder="Asignada" />}
+                  />
+                )}
+              />
+            )}
             <div className="flex w-full space-x-16 mt-32 mb-16 items-center">
               <Controller
                 control={control}
@@ -215,12 +261,59 @@ const TaskForm = (props) => {
             />
           </>
         )}
+        {(routeParams.id !== 'new' && usuarioCreador) && (
+          <div className="flex w-full mt-32 mb-16 items-start">
+            <Paper className="flex flex-col flex-auto shadow rounded-2xl px-20">
+              <List>
+                <ListItem className="px-0 -mx-8">
+                  <Avatar
+                    alt={usuarioCreador.displayName}
+                    src={usuarioCreador.photoURL}
+                    className="mx-8"
+                  />
+                  <ListItemText
+                    className="px-4"
+                    primary={
+                      <div className="flex items-center space-x-8">
+                        <Typography
+                          className="font-normal"
+                          paragraph={false}
+                        >
+                          Creada por:
+                        </Typography>
+                        <Typography
+                          className="font-normal"
+                          color="secondary"
+                          paragraph={false}
+                        >
+                          {usuarioCreador.displayName}
+                        </Typography>
+                      </div>
+                    }
+                    secondary={
+                      <span className="flex items-center space-x-8">
+                        <Typography
+                          paragraph={false}
+                          component="span"
+                          className="mb-0"
+                        >
+                          {usuarioCreador.email}
+                        </Typography>
+                        <Typography paragraph={false} className="capitalize" component="span" variant="caption">{usuarioCreador.role}</Typography>
+                      </span>
+                    }
+                  />
+                </ListItem>
+              </List>
+            </Paper>
+          </div>
+        )}
       </div>
       <Box
         className="flex items-center mt-40 py-14 pr-16 pl-4 sm:pr-48 sm:pl-36 border-t"
         sx={{ backgroundColor: 'background.default' }}
       >
-        <Button className="ml-auto" component={NavLinkAdapter} to={-1}>
+        <Button className="ml-auto" component={NavLinkAdapter} to={-1} onClick={() => dispatch(resetTask())}>
           Cancelar
         </Button>
         <Button

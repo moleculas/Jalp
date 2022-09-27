@@ -12,10 +12,9 @@ import { addTask, removeTask, updateTask } from './taskSlice';
 
 export const getTasks = createAsyncThunk(
   'tasksApp/tasks/getTasks',
-  async (params, { getState, dispatch }) => {
-    const user = getState().user;
+  async (params, { getState, dispatch }) => {    
     try {
-      const response = await axios.get('/tasks/' + user.data.id);
+      const response = await axios.get('/tasks');
       const data = await response.data; 
       return data;
     } catch (err) {
@@ -26,8 +25,7 @@ export const getTasks = createAsyncThunk(
 
 export const reorderList = createAsyncThunk(
   'tasksApp/tasks/reorder',
-  async ({ arr, startIndex, endIndex }, { dispatch, getState }) => {
-    const user = getState().user;
+  async ({ arr, startIndex, endIndex }, { dispatch, getState }) => {   
     const formData = new FormData();
     let idInicio;
     let nuevoArray = [];
@@ -40,8 +38,7 @@ export const reorderList = createAsyncThunk(
     });
     nuevoArray.splice(endIndex, 0, idInicio);
     const losDatos = {
-      nuevoArray: nuevoArray,
-      usuario: user.data.id
+      nuevoArray: nuevoArray,      
     };
     formData.append("datos", JSON.stringify(losDatos));
     try {
