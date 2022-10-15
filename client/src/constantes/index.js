@@ -43,8 +43,37 @@ const productos = [
     { producto: "1150x78x21", familia: "patin", serie: ["1150x135x21", "1150x78x21"], unidades: 2, posicion: 2 }
 ];
 
+const formulaLX3FR = (cargas) => {
+    return (cargas > 0) ? (((cargas - 1) * 520) + 600) : 0
+};
+
+const formulaTLFR = (cargas) => {
+    return (cargas > 0) ? (cargas * 1508) : 0
+};
+
+const formulaLX3DE = (cargas) => {
+    return (cargas > 0) ? (cargas * 600) : 0
+};
+
+const formulaLX3ES = (cargas) => {
+    return (cargas > 0) ? (cargas * 468) : 0
+};
+
+const formulaTLES = (cargas) => {
+    return (cargas > 0) ? (cargas * 858) : 0
+};
+
+const productosLX = [
+    { producto: "LX3FR", formula: formulaLX3FR },
+    { producto: "TOPLAYERFR", formula: formulaTLFR },
+    { producto: "LX3DE", formula: formulaLX3DE },
+    { producto: "LX3ES", formula: formulaLX3ES },
+    { producto: "TOPLAYERES", formula: formulaTLES },
+];
+
 export const SUBDIRECTORI_PRODUCCIO = subdirectoriProduccio;
 export const RUTA_API = rutaApi;
 export const RUTA_SERVER = rutaServer;
 export const SUPPORTED_FORMATS = formatosArchivos;
 export const PRODUCTOS = productos;
+export const PRODUCTOSLX = productosLX;

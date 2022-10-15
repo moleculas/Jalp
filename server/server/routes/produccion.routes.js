@@ -1,18 +1,18 @@
 import { Router } from "express";
 import {
     addProduccion,
-    getProduccion,
-    updateProduccionInicial,
+    getProduccion,   
     updateProduccionTabla,
-    getProduccionInicial
+    getProduccionLX,
+    updateProduccionLX
 } from "../controllers/produccion.controller";
 
 const router = Router();
 
 router.post("/", addProduccion);
 router.post("/producto", getProduccion);
-router.post("/actualizarInicial", updateProduccionInicial);
 router.post("/actualizarTabla", updateProduccionTabla);
-router.post("/inicial", getProduccionInicial);
+router.post("/lx", getProduccionLX);
+router.post("/actualizarlx", updateProduccionLX);
 
 export default router;

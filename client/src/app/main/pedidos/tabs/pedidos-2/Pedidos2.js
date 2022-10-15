@@ -7,6 +7,10 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import PanelPedidos from '../../panel/PanelPedidos';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
 
 //importacion acciones
 import {
@@ -21,7 +25,9 @@ import { selectSemanasAnyo } from 'app/redux/produccion/inicioSlice';
 import {
     calculoSemanasAnyo,
     calculoSemanasPeriodo,
-    decMesActual
+    decMesActual,
+    calculoSemanaAnyoActual,
+    TabPanel
 } from 'app/logica/produccion/logicaProduccion';
 
 function Pedidos2() {
@@ -44,6 +50,9 @@ function Pedidos2() {
     const [periodo, setPeriodo] = useState(1);
     const { mes, anyo } = dispatch(decMesActual());
     const tipo = "sala";
+    const [tabValue, setTabValue] = useState({});
+    const [semanaActual, setSemanaActual] = useState(dispatch(calculoSemanaAnyoActual()));
+    const [datosAgrupadosMeses, setDatosAgrupadosMeses] = useState(null);
 
     //useEffect   
 
@@ -78,7 +87,29 @@ function Pedidos2() {
         };
     }, [semanasCorrespondientesPeriodo]);
 
+    useEffect(() => {
+        if (datosPedido && semanasCorrespondientesPeriodo) {
+            let indexSemana = semanasCorrespondientesPeriodo.findIndex(semana => semana.numeroSemana === semanaActual);
+            indexSemana < 0 && (indexSemana = 0);
+            const groupedObject = _.groupBy(datosPedido, dato => dato.mes);
+            const arrayAgrupado = [];
+            let objetoTabs = {};
+            for (const key in groupedObject) {
+                arrayAgrupado.push(groupedObject[key]);
+                objetoTabs[key] = indexSemana;
+            };
+            setDatosAgrupadosMeses(arrayAgrupado);
+            setTabValue(objetoTabs);
+        };
+    }, [datosPedido]);
+
     //funciones
+
+    const handleChangeTab = (event, value, key) => {
+        let objetoTabs = { ...tabValue };
+        objetoTabs[key] = value;
+        setTabValue(objetoTabs);
+    };
 
     const handleChangeSelect = (e) => {
         setPeriodo(e.target.value);
@@ -87,7 +118,7 @@ function Pedidos2() {
 
     if (
         !semanasCorrespondientesPeriodo ||
-        !datosPedido ||
+        !datosAgrupadosMeses ||
         !pedidoProducto
     ) {
         return null;
@@ -96,7 +127,7 @@ function Pedidos2() {
     return (
         (
             semanasCorrespondientesPeriodo &&
-            datosPedido &&
+            datosAgrupadosMeses &&
             pedidoProducto
         ) && (
             <motion.div
@@ -132,15 +163,63 @@ function Pedidos2() {
                         </div>
                     </div>
                     <motion.div variants={item1} className="w-full flex flex-col">
-                        {datosPedido.map((pedido, index) => (
-                            <div className="mb-24" key={"pedidoDiv" + index}>
-                                <PanelPedidos
-                                    datosPedido={pedido}
-                                    semana={semanasCorrespondientesPeriodo[index]}
-                                    productos={pedidoProducto}
-                                />
-                            </div>
-                        ))}
+                        {datosAgrupadosMeses.map((mes, indexMes) => {
+                            return (
+                                <Paper
+                                    className="rounded-2xl flex grow mb-24"
+                                    key={'mes' + indexMes}
+                                    sx={{ minHeight: 330 }}
+                                >
+                                    <Tabs
+                                        orientation="vertical"
+                                        value={tabValue[mes[0].mes]}
+                                        onChange={(event, value, key) => handleChangeTab(event, value, mes[0].mes)}
+                                        className="border-r-1 pt-64"
+                                        sx={{ minWidth: 130 }}
+                                        textColor="inherit"
+                                        classes={{ indicator: 'flex justify-center bg-transparent w-full h-full' }}
+                                        TabIndicatorProps={{
+                                            children: (
+                                                <Box
+                                                    sx={{ bgcolor: 'text.disabled' }}
+                                                    className="w-full h-full opacity-20"
+                                                />
+                                            ),
+                                        }}
+                                    >
+                                        {mes.map((pedido, index) => {
+                                            return (
+                                                <Tab
+                                                    className="text-14 font-semibold flex items-start pl-24"
+                                                    key={"tab" + index}
+                                                    label={`Semana ${pedido.semana}`}
+                                                    disableRipple
+                                                />
+                                            )
+                                        })}
+                                    </Tabs>
+                                    {mes.map((pedido, index) => {
+                                        const semana = semanasCorrespondientesPeriodo[semanasCorrespondientesPeriodo.findIndex(semana => semana.numeroSemana === pedido.semana)];
+                                        return (
+                                            <TabPanel
+                                                key={"tabPanel" + index}
+                                                value={tabValue[mes[0].mes]}
+                                                index={index}
+                                                className="w-full"
+                                                sx={{ minHeight: 330 }}
+                                            >
+                                                <PanelPedidos
+                                                    datosPedido={pedido}
+                                                    semana={semana}
+                                                    anyo={anyo}
+                                                    productos={pedidoProducto}
+                                                />
+                                            </TabPanel>
+                                        )
+                                    })}
+                                </Paper>
+                            )
+                        })}
                     </motion.div>
                 </div>
             </motion.div>

@@ -112,7 +112,7 @@ function TaskListItem(props) {
             </ListItem>
             <Divider />
           </>
-        )}
+        )}       
       </Draggable>
     )
   );

@@ -2,91 +2,88 @@ import ProduccionTabla from "../models/ProduccionTabla";
 import ProduccionInicial from "../models/ProduccionInicial";
 import ProduccionPalet from "../models/ProduccionPalet";
 import ProduccionSaldo from "../models/ProduccionSaldo";
+import ProduccionLX from "../models/ProduccionLX";
 
-export const getProduccionInicial = async (req, res) => {
-    const { mes, anyo, productos } = JSON.parse(req.body.datos);
+export const getProduccionLX = async (req, res) => {
+    const { periodo, productos } = JSON.parse(req.body.datos);
     try {
-        const objetoProduccion = { inicial: [], saldo: [] };
-        let id = "";
-        for (let i = 0; i < productos.length; i++) {
-            const produccionInicial = await ProduccionInicial.findOne(
-                {
-                    mes,
-                    anyo,
-                    producto: productos[i].producto,
-                },
-                {
-                    createdAt: 0,
-                    updatedAt: 0
-                }
-            );
-            let newProduccionInicial;
-            if (!produccionInicial) {
-                newProduccionInicial = new ProduccionInicial({
-                    producto: productos[i].producto,
-                    familia: productos[i].familia,
-                    mes,
-                    anyo
-                });
-                await newProduccionInicial.save();
-            };
-            const produccionSaldo = await ProduccionSaldo.findOne(
-                {
-                    mes,
-                    anyo,
-                    producto: { $in: productos[i].serie }
-                },
-                {
-                    createdAt: 0,
-                    updatedAt: 0,
-                }
-            );
-            let newProduccionSaldo;
-            if (!produccionSaldo) {
-                newProduccionSaldo = new ProduccionSaldo({
-                    producto: productos[i].serie,
-                    familia: productos[i].familia,
-                    mes,
-                    anyo
-                });
-                await newProduccionSaldo.save();
-            };
-            if (produccionInicial) {
-                objetoProduccion.inicial.push(produccionInicial);
-            } else {
-                const newProduccionInicialARetornar = {
-                    _id: newProduccionInicial._id,
-                    mes: newProduccionInicial.mes,
-                    anyo: newProduccionInicial.anyo,
-                    stockInicial: newProduccionInicial.stockInicial,
-                    producto: newProduccionInicial.producto,
-                    familia: newProduccionInicial.familia,
+        const arrayProduccionLX = [];
+        const semanas = periodo.map(semana => semana.semana);
+        for (let i = 0; i < semanas.length; i++) {
+            for (let j = 0; j < productos.length; j++) {
+                const produccionLX = await ProduccionLX.findOne(
+                    {
+                        semana: periodo[i].semana,
+                        mes: periodo[i].mes,
+                        anyo: periodo[i].anyo,
+                        producto: productos[j].producto,
+                    },
+                    {
+                        createdAt: 0,
+                        updatedAt: 0
+                    }
+                );
+                let newProduccionLX;
+                if (!produccionLX) {
+                    newProduccionLX = new ProduccionLX({
+                        semana: periodo[i].semana,
+                        mes: periodo[i].mes,
+                        anyo: periodo[i].anyo,
+                        producto: productos[j].producto,
+                    });
+                    await newProduccionLX.save();
                 };
-                objetoProduccion.inicial.push(newProduccionInicialARetornar);
-            };
-            if (produccionSaldo) {
-                if (id !== produccionSaldo._id.toString()) {
-                    objetoProduccion.saldo.push(produccionSaldo);
-                };
-                id = produccionSaldo._id.toString();
-            } else {
-                if (id !== newProduccionSaldo._id.toString()) {
-                    const newProduccionSaldoARetornar = {
-                        _id: newProduccionSaldo._id,
-                        mes: newProduccionSaldo.mes,
-                        anyo: newProduccionSaldo.anyo,
-                        saldoInicial: newProduccionSaldo.saldoInicial,
-                        producto: newProduccionSaldo.producto,
-                        familia: newProduccionSaldo.familia,
+                if (produccionLX) {
+                    arrayProduccionLX.push(produccionLX);
+                } else {
+                    const newProduccionLXARetornar = {
+                        _id: newProduccionLX._id,
+                        semana: newProduccionLX.semana,
+                        mes: newProduccionLX.mes,
+                        anyo: newProduccionLX.anyo,
+                        producto: newProduccionLX.producto,
+                        cargas: newProduccionLX.cargas,
+                        cantidad: newProduccionLX.cantidad
                     };
-                    objetoProduccion.saldo.push(newProduccionSaldoARetornar);
+                    arrayProduccionLX.push(newProduccionLXARetornar);
                 };
-                id = newProduccionSaldo._id.toString();
             };
         };
-        return res.json(objetoProduccion);
+        return res.json(arrayProduccionLX);
     } catch (error) {
         console.log(error)
+        return res.status(500).json({ message: error.message });
+    };
+};
+
+export const updateProduccionLX = async (req, res) => {
+    const { linea } = JSON.parse(req.body.datos);
+    try {
+        const updatedProduccionLX = await ProduccionLX.findByIdAndUpdate(
+            linea._id,
+            {
+                $set: {
+                    cargas: linea.cargas,
+                    cantidad: linea.cantidad
+                }
+            },
+            {
+                new: true,
+            }
+        );
+        if (!updatedProduccionLX) return res.sendStatus(404);
+        await updatedProduccionLX.save();
+        const updatedProduccionLXARetornar = {
+            _id: updatedProduccionLX._id,
+            semana: updatedProduccionLX.semana,
+            mes: updatedProduccionLX.mes,
+            anyo: updatedProduccionLX.anyo,
+            producto: updatedProduccionLX.producto,
+            cargas: updatedProduccionLX.cargas,
+            cantidad: updatedProduccionLX.cantidad
+        };
+        return res.json(updatedProduccionLXARetornar);
+    } catch (error) {
         return res.status(500).json({ message: error.message });
     };
 };
@@ -138,7 +135,7 @@ export const getProduccion = async (req, res) => {
                         anyo: periodo[i].anyo
                     });
                     await newProduccionPalet.save();
-                };               
+                };
                 if (mesIterado !== periodo[i].mes) {
                     const produccionInicial = await ProduccionInicial.findOne(
                         {
@@ -184,7 +181,7 @@ export const getProduccion = async (req, res) => {
                             familia: periodo[i].familia,
                         });
                         await newProduccionSaldo.save();
-                    };                    
+                    };
                     mesIterado = periodo[i].mes;
                     if (mesIterado === mes) {
                         if (produccionInicial) {
@@ -208,7 +205,7 @@ export const getProduccion = async (req, res) => {
                                 saldoInicial: newProduccionSaldo.saldoInicial
                             };
                             objetoProduccion.saldo = newProduccionSaldoARetornar;
-                        };                       
+                        };
                     };
                 };
                 if (produccionPalet) {
@@ -227,7 +224,7 @@ export const getProduccion = async (req, res) => {
                     semana: newProduccionTabla.semana,
                     mes: newProduccionTabla.mes,
                     anyo: newProduccionTabla.anyo
-                };                
+                };
                 objetoProduccion.tabla.push(newProduccionTablaARetornar);
             } else {
                 objetoProduccion.tabla.push(produccionTabla);
@@ -296,45 +293,6 @@ export const addProduccion = async (req, res) => {
     };
 };
 
-export const updateProduccionInicial = async (req, res) => {
-    const { idInicial, idSaldo, stockInicial, saldoInicial } = JSON.parse(req.body.datos);
-    const objetoProduccionInicial = { inicial: null, saldo: null };
-    try {
-        const updatedProduccionInicial = await ProduccionInicial.findByIdAndUpdate(
-            idInicial,
-            {
-                $set: {
-                    stockInicial
-                }
-            },
-            {
-                new: true,
-            }
-        );
-        if (!updatedProduccionInicial) return res.sendStatus(404);
-        await updatedProduccionInicial.save();
-        objetoProduccionInicial.inicial = updatedProduccionInicial;
-        const updatedProduccionSaldo = await ProduccionSaldo.findByIdAndUpdate(
-            idSaldo,
-            {
-                $set: {
-                    saldoInicial
-                }
-            },
-            {
-                new: true,
-            }
-        );
-        if (!updatedProduccionSaldo) return res.sendStatus(404);
-        await updatedProduccionSaldo.save();
-        objetoProduccionInicial.saldo = updatedProduccionSaldo;
-        return res.json(objetoProduccionInicial);
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({ message: error.message });
-    };
-};
-
 const retornaSetArray = (array, i) => {
     const elSet = {};
     Number(array[i].serfocat) > 0 && (elSet['serfocat'] = array[i].serfocat);
@@ -342,14 +300,14 @@ const retornaSetArray = (array, i) => {
     Number(array[i].milieu) > 0 && (elSet['milieu'] = array[i].milieu);
     Number(array[i].milieu_sala) > 0 && (elSet['milieu_sala'] = array[i].milieu_sala);
     Number(array[i].arias) > 0 && (elSet['arias'] = array[i].arias);
-    Number(array[i].losan) > 0 && (elSet['losan'] = array[i].losan);    
+    Number(array[i].losan) > 0 && (elSet['losan'] = array[i].losan);
     Number(array[i].faucher) > 0 && (elSet['faucher'] = array[i].faucher);
     Number(array[i].sala) > 0 && (elSet['sala'] = array[i].sala);
     Number(array[i].llorente) > 0 && (elSet['llorente'] = array[i].llorente);
     Number(array[i].p_marcos) > 0 && (elSet['p_marcos'] = array[i].p_marcos);
     Number(array[i].roncal) > 0 && (elSet['roncal'] = array[i].roncal);
     Number(array[i].alonso) > 0 && (elSet['alonso'] = array[i].alonso);
-    Number(array[i].ramon) > 0 && (elSet['ramon'] = array[i].ramon);    
+    Number(array[i].ramon) > 0 && (elSet['ramon'] = array[i].ramon);
     Number(array[i].mp_u_f) > 0 && (elSet['mp_u_f'] = array[i].mp_u_f);
     Number(array[i].saldo) > 0 && (elSet['saldo'] = array[i].saldo);
     return elSet;

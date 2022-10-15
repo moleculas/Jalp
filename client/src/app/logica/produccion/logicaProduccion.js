@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
+import Box from '@mui/material/Box';
 
 //importación acciones
 import { setSemanasAnyo } from 'app/redux/produccion/inicioSlice';
@@ -19,6 +20,12 @@ export const decMesActual = () => (dispatch, getState) => {
     const anyo = Number(mesSplt[1]);
     const mesNumero = mesNumSplt[0];
     return { mes, anyo, mesNumero }
+};
+
+export const calculoSemanaAnyoActual = () => (dispatch, getState) => {
+    const ahora = format(new Date(), 'MM-dd-yyyy');
+    const weekNumber = moment(ahora, "MMDDYYYY").isoWeek();
+    return weekNumber
 };
 
 export const calculoSemanasAnyo = () => (dispatch, getState) => {
@@ -38,7 +45,7 @@ export const calculoSemanasAnyo = () => (dispatch, getState) => {
     dispatch(setSemanasAnyo(semanas));
 };
 
-export const obtenerMesAnterior = (mes, anyo) => (dispatch, getState) => {  
+export const obtenerMesAnterior = (mes, anyo) => (dispatch, getState) => {
     const menos1Mes = moment([anyo, mes, 1]).subtract(2, "month")._d;
     const mesAnterior = format(new Date(menos1Mes), 'MMMM', { locale: es });
     const anyoAnterior = format(new Date(menos1Mes), 'yyyy');
@@ -96,6 +103,12 @@ export const calculoSemanasPeriodo = (periodo) => (dispatch, getState) => {
             break;
         default:
     };
+};
+
+export const calculoSemanasPeriodoMesConcreto = (mes) => (dispatch, getState) => {
+    const semanasAnyo = getState().produccionSeccion.inicio.semanasAnyo;
+    let semanas = semanasAnyo.filter(semana => semana.mes === mes);
+    return semanas
 };
 
 export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, titulo2, pinning, chip, idButton) => (dispatch, getState) => {
@@ -197,38 +210,59 @@ export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, ti
                                 {titulo1}
                             </Typography>
                             <Typography
-                                className="text-sm leading-none "
+                                className="text-sm leading-none"
                                 color="text.secondary"
                             >
                                 {titulo2}
                             </Typography>
                         </div>
-                        {chip && (
-                            <div className='mb:12 md:-mb-16 mt-12 md:mt-4'>
-                                <Chip size="small" color="secondary" className="font-medium text-sm px-6" label={chip} />
-                            </div>
-                        )}
-                        {idButton && (
-                            <div className='mb:12 md:-mb-16 mt-12 md:mt-0'>
-                                <Button
-                                    onClick={() => dispatch(setAnadirFilaId(idButton.id))}
-                                    color="primary"
-                                    variant="outlained"
-                                    startIcon={<FuseSvgIcon size={20}>heroicons-outline:plus-circle</FuseSvgIcon>}
-                                    size="small"
-                                    sx={{
-                                        paddingX: 2
-                                    }}
-                                    disabled={idButton.disabled}
-                                >
-                                    Añadir fila
-                                </Button>
-                            </div>
-                        )}
+                        <div className="flex flex-col sm:flex-row items-center">
+                            {idButton && (
+                                <div className='mb:12 md:-mb-16 mt-12 md:mt-0 mr-12'>
+                                    <Button
+                                        onClick={() => dispatch(setAnadirFilaId(idButton.id))}
+                                        color="primary"
+                                        variant="outlained"
+                                        startIcon={<FuseSvgIcon size={20}>heroicons-outline:plus-circle</FuseSvgIcon>}
+                                        size="small"
+                                        sx={{
+                                            paddingX: 2
+                                        }}
+                                        disabled={idButton.disabled}
+                                    >
+                                        Añadir fila
+                                    </Button>
+                                </div>
+                            )}
+                            {chip && (
+                                <div className='mb:12 md:-mb-16 mt-12 md:mt-0'>
+                                    <Chip size="small" color="secondary" className="font-medium text-sm px-6" label={chip} />
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             );
         },
     };
     return tableProps
+};
+
+export const TabPanel = (props) => {
+    const { children, value, index, ...other } = props;
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`vertical-tabpanel-${index}`}
+            aria-labelledby={`vertical-tab-${index}`}
+            {...other}
+        >
+            {value === index && (
+                <Box>
+                    <div>{children}</div>
+                </Box>
+            )}
+        </div>
+    );
 };

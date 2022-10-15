@@ -8,12 +8,11 @@ import { es } from 'date-fns/locale';
 //importacion acciones
 import { setMesActual, setSemanasAnyo } from 'app/redux/produccion/inicioSlice';
 import {
-    setDatosProduccionInicialProductos,
-    setDatosProduccionInicialProductosMesAnterior,
     setDatosProduccionTabla,
-    setDatosProduccionInicial,
     setDatosProduccionPalet,
-    setDatosProduccionSaldo
+    setDatosProduccionSaldo,
+    setDatosProduccionLX,
+    setDatosProduccionLXMesAnterior
 } from 'app/redux/produccion/produccionSlice';
 import {
     setPedido,
@@ -36,10 +35,9 @@ function SelectorMes(props) {
         dispatch(setMesActual({ letra, numero }));
         setValue(val);
         dispatch(setSemanasAnyo(null));
-        dispatch(setDatosProduccionInicialProductos(null));
-        dispatch(setDatosProduccionInicialProductosMesAnterior(null));
+        dispatch(setDatosProduccionLX(null));
+        dispatch(setDatosProduccionLXMesAnterior(null));
         dispatch(setDatosProduccionTabla(null));
-        dispatch(setDatosProduccionInicial(null));
         dispatch(setDatosProduccionPalet(null));
         dispatch(setDatosProduccionSaldo(null));
         dispatch(setPedidoProducto(null));

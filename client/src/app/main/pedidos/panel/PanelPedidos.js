@@ -1,4 +1,3 @@
-import Paper from '@mui/material/Paper';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import _ from '@lodash';
@@ -19,7 +18,7 @@ import {
 } from 'app/redux/produccion/pedidoSlice';
 
 function PanelPedidos(props) {
-    const { datosPedido, semana, productos } = props;
+    const { datosPedido, semana, productos, anyo } = props;
     const dispatch = useDispatch();
     const anadirFilaId = useSelector(selectAnadirfilaId);
     const [tableColumns, setTableColumns] = useState(null);
@@ -128,6 +127,7 @@ function PanelPedidos(props) {
                         {cell.getValue()}
                     </Typography>
                 ),
+                size: 75,
             },
             {
                 header: 'Vol.Unitario',
@@ -143,6 +143,7 @@ function PanelPedidos(props) {
                         {cell.getValue() + " m³"}
                     </Typography>
                 ),
+                size: 75,
             },
             {
                 header: 'Vol.Total',
@@ -158,6 +159,7 @@ function PanelPedidos(props) {
                         {cell.getValue() + " m³"}
                     </Typography>
                 ),
+                size: 75,
                 Footer: ({ table }) => retornaTotales(table),
             }
         ];
@@ -165,7 +167,7 @@ function PanelPedidos(props) {
     };
 
     const retornaTotales = (table) => {
-        if (datosPedido.linea.length > 0) {
+        if (table.options.data[0].vol_total > 0) {
             const sumatorioTotales = table.options.data.reduce((sum, { vol_total }) => sum + vol_total, 0);
             return (
                 <Typography variant="body1">
@@ -279,9 +281,17 @@ function PanelPedidos(props) {
     };
 
     return (
-        <TableContainer component={Paper} className="rounded-2xl relative flex flex-col flex-auto w-full overflow-hidden">
+        <TableContainer className="rounded-2xl relative w-full overflow-hidden h-full">
             <MaterialReactTable
-                {...dispatch(generarPropsTabla(false, false, `Pedido ${_.upperFirst(datosPedido.tipo)} Semana: ${semana.numeroSemana} - ${semana.nombre} ${datosPedido.anyo}`, '', null, null, { id: datosPedido._id, disabled: disabledButton }))}
+                {...dispatch(generarPropsTabla(
+                    false,
+                    false,
+                    `Pedido ${_.upperFirst(datosPedido.tipo)} Semana: ${semana.numeroSemana} - ${semana.nombre} ${datosPedido.anyo}`,
+                    '',
+                    null,
+                    `${_.upperFirst(semana.mes)} ${anyo}`,
+                    { id: datosPedido._id, disabled: disabledButton }
+                ))}
                 columns={tableColumns}
                 data={tableData}
                 onEditingRowSave={handleSaveRow}
@@ -289,7 +299,6 @@ function PanelPedidos(props) {
                     sx: retornaSx(row.getValue('producto'))
                 })}
             />
-            {/* {console.log(productos)} */}
         </TableContainer>
     );
 }

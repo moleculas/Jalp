@@ -31,7 +31,7 @@ function ProduccionContent(props) {
 
   return (
     <div className="w-full flex flex-col min-h-full">
-      <div className="py-14 sticky top-0 z-10 bg-[#f1f5f9] border-b-1">
+      <div className="py-14 sticky top-0 !z-50 bg-[#f1f5f9] border-b-1">
         <Tabs
           value={tabValue}
           onChange={handleChangeTab}

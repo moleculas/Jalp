@@ -18,6 +18,7 @@ https://react-hook-form.com/
 https://fullcalendar.io/docs/react
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
 https://www.material-react-table.com/docs
+https://apexcharts.com/react-chart-demos/
 
 //actualitzar menú item
 
@@ -189,3 +190,8 @@ function GraficoProduccion1(props) {
  "& input::placeholder": {
             fontSize: "13px"
           },
+
+//borrar collection db compass
+show dbs                                    -> to list all the database
+use test-database                           -> to select the database
+db.getCollection('orders').deleteMany({})   -> to select the collection and deletes all the data.

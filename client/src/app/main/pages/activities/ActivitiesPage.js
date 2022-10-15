@@ -20,8 +20,8 @@ function ActivitiesPage() {
   //useEffect
 
   useEffect(() => {
-    dispatch(obtenerUsuarios(true)).then(() => {
-      dispatch(getItems());
+    dispatch(obtenerUsuarios(false)).then(() => {
+      dispatch(getItems());    
     });
   }, [dispatch]);
 
@@ -55,7 +55,7 @@ function ActivitiesPage() {
         </div>
       }
       scroll={isMobile ? 'normal' : 'content'}
-    />
+    />   
   );
 }
 
