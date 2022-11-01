@@ -20,7 +20,8 @@ function ProduccionContent(props) {
     tabValue === 1 && navigate("produccion-1/mod-1");
     tabValue === 2 && navigate("produccion-2/mod-1");
     tabValue === 3 && navigate("produccion-3/mod-1");   
-    tabValue === 4 && navigate("objetivos");
+    tabValue === 4 && navigate("produccion-lx");
+    tabValue === 5 && navigate("objetivos");
   }, [tabValue]);
 
   //funciones
@@ -69,7 +70,12 @@ function ProduccionContent(props) {
             className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
             disableRipple
             label="Producción Patines"
-          />          
+          />      
+           <Tab
+            className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
+            disableRipple
+            label="Salida Palets"
+          />    
            <Tab
             className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
             disableRipple

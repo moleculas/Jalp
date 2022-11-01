@@ -19,6 +19,10 @@ const ProduccionLXSchema = new mongoose.Schema(
             type: Number,
             default: 0
         },
+        config: {
+            type: Number,
+            default: 0
+        },
         cantidad: {
             type: Number,
             default: 0

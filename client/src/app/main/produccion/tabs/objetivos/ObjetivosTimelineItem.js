@@ -74,20 +74,3 @@ function ObjetivosTimelineItem({ item, last }) {
 }
 
 export default ObjetivosTimelineItem;
-
-{/* <div className="flex flex-col sm:flex-row sm:items-center mt-8 sm:mt-4 sm:space-x-8 text-md leading-5">
-                    <Typography className="text-13" color="text.secondary">
-                        {item.date}
-                    </Typography>
-                    {item.linkedContent && <div className="hidden sm:block">&bull;</div>}
-                    {item.useRouter && (
-                        <Link className="cursor-pointer" to={item.link}>
-                            {item.linkedContent}
-                        </Link>
-                    )}
-                    {!item.useRouter && (
-                        <a className="cursor-pointer" href={item.link} target="_blank" rel="noreferrer">
-                            {item.linkedContent}
-                        </a>
-                    )}
-                </div> */}

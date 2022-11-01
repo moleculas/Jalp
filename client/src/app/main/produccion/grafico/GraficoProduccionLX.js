@@ -273,7 +273,7 @@ function GraficoProduccionLX(props) {
                 <div className="flex items-start justify-between mx-24 mt-16">
                     <div>
                         <Typography className="text-lg font-medium tracking-tight leading-6 truncate">
-                            Gráfico datos iniciales
+                            Gráfico datos salida palets
                         </Typography>
                         <Typography
                             className="text-sm leading-none"

@@ -16,8 +16,8 @@ function CalculosContent(props) {
   //useEffect
 
   useEffect(() => {
-    tabValue === 0 && navigate("calculos-1");
-    tabValue === 1 && navigate("calculos-2");
+    tabValue === 0 && navigate("calculos-2");
+    tabValue === 1 && navigate("calculos-1");
   }, [tabValue]);
 
   //funciones
@@ -50,13 +50,13 @@ function CalculosContent(props) {
           <Tab
             className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
             disableRipple
-            label="Escandallo LX Pino"
+            label="Cotización palets"
           />
           <Tab
             className="text-14 font-semibold min-h-40 min-w-64 mx-4 px-12"
             disableRipple
-            label="Calculadora cubicaje"
-          />
+            label="Escandallo LX Pino"
+          />          
         </Tabs>
       </div>
       <Outlet />

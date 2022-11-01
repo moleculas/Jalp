@@ -22,17 +22,18 @@ function PanelInicialProduccion1(props) {
             saldoInicial: datosSaldo.saldoInicial,
         }
     ]);
+    const [changedData, setChangedData] = useState(false);
 
     //useEffect  
 
     //funciones
 
-    const calculosTabla = (tabla) => {
+    const calculosTabla = (tabla, update) => {
         const arrayTabla = [];
         let objetoFila = null;
         tabla.map((fila, index) => {
             objetoFila = { ...fila };
-            objetoFila.stockInicial = Number(objetoFila.stock * objetoFila.unidades);
+            objetoFila.stock = Number(objetoFila.stockInicial / objetoFila.unidades);
             arrayTabla.push(objetoFila);
         });
         const datosInicialUpdate = {
@@ -43,19 +44,28 @@ function PanelInicialProduccion1(props) {
             mensaje: false
         };
         setTableData(arrayTabla);
-        dispatch(updateProduccionInicial(datosInicialUpdate));
+        if (update) {
+            dispatch(updateProduccionInicial(datosInicialUpdate));
+        };
     };
 
-    const handleSaveRow = ({ exitEditingMode, row, values }) => {
-        for (const key in values) {
-            if (values[key] === '') {
-                values[key] = 0;
-            };
-        };
+    const handleChangeCell = (cell, event) => {
+        setChangedData(true);
         const tabla = [...tableData];
-        tabla[row.index] = values;
-        calculosTabla(tabla);
-        exitEditingMode();
+        const rowIndex = Number(cell.row.id);
+        const columna = cell.column.id;
+        let valor = event.target.value;
+        !valor && (valor = 0);
+        tabla[rowIndex][columna] = valor;
+        calculosTabla(tabla, false);
+    };
+
+    const handleExitCell = (cell) => {
+        const tabla = [...tableData];
+        if (changedData) {
+            calculosTabla(tabla, true);
+            setChangedData(false);
+        };
     };
 
     const retornaIcono = () => {
@@ -77,42 +87,21 @@ function PanelInicialProduccion1(props) {
                         size: 50,
                         accessorKey: 'stockInicial',
                         enableSorting: false,
-                        enableColumnFilter: false,    
-                        enableEditing: false,                                           
-                        Cell: ({ cell, row }) => (
-                            <Typography
-                                variant="body1"
-                                color={cell.getValue() < 0 && "error"}
-                            >
-                                {cell.getValue()}
-                            </Typography>
-                        ),
-                    },
-                    {
-                        header: 'Unidades',
-                        size: 50,
-                        accessorKey: 'unidades',
-                        enableSorting: false,
                         enableColumnFilter: false,
-                        enableEditing: false,                        
-                        Cell: ({ cell, row }) => (
-                            <Typography
-                                variant="body1"
-                                color={cell.getValue() < 0 && "error"}
-                            >
-                                {cell.getValue()}
-                            </Typography>
-                        ),
-                    },
-                    {
-                        header: 'Stock',
-                        size: 50,
-                        accessorKey: 'stock',
-                        enableSorting: false,
-                        enableColumnFilter: false,   
-                        muiTableBodyCellEditTextFieldProps: {
-                            type: 'number',
-                        },                      
+                        muiTableHeadCellProps: {
+                            sx: {
+                                paddingLeft: '24px'
+                            },
+                        },
+                        muiTableBodyCellProps: {
+                            sx: {
+                                '&:hover': {
+                                    backgroundColor: '#ebebeb',
+                                },
+                                paddingLeft: '24px',
+                                backgroundColor: 'white',
+                            },
+                        },
                         Header: ({ column }) => (
                             <div className='flex flex-row items-center'>
                                 <FuseSvgIcon className="mr-4" size={20}>material-outline:edit_note</FuseSvgIcon>
@@ -131,18 +120,58 @@ function PanelInicialProduccion1(props) {
                         ),
                     },
                     {
+                        header: 'Unidades',
+                        size: 50,
+                        accessorKey: 'unidades',
+                        enableSorting: false,
+                        enableColumnFilter: false,
+                        enableEditing: false,
+                        Cell: ({ cell, row }) => (
+                            <Typography
+                                variant="body1"
+                                color={cell.getValue() < 0 && "error"}
+                            >
+                                {cell.getValue()}
+                            </Typography>
+                        ),
+                    },
+                    {
+                        header: 'Stock',
+                        size: 50,
+                        accessorKey: 'stock',
+                        enableSorting: false,
+                        enableColumnFilter: false,
+                        enableEditing: false,
+                        Cell: ({ cell, row }) => (
+                            <Typography
+                                variant="body1"
+                                color={cell.getValue() < 0 && "error"}
+                            >
+                                {cell.getValue()}
+                            </Typography>
+                        ),
+                    },
+                    {
                         header: 'Saldo inicial',
                         size: 50,
                         accessorKey: 'saldoInicial',
                         enableSorting: false,
                         enableColumnFilter: false,
-                        enableEditing: producto.posicion === 1 ? true : false,
+                        enableEditing: true,
                         muiTableBodyCellEditTextFieldProps: {
                             type: 'number',
-                        }, 
+                        },
+                        muiTableBodyCellProps: {
+                            sx: {
+                                '&:hover': {
+                                    backgroundColor: '#ebebeb',
+                                },
+                                backgroundColor: 'white',
+                            },
+                        },
                         Header: ({ column }) => (
                             <div className='flex flex-row items-center'>
-                                {producto.posicion === 1 && <FuseSvgIcon className="mr-4" size={20}>material-outline:edit_note</FuseSvgIcon>}
+                                <FuseSvgIcon className="mr-4" size={20}>material-outline:edit_note</FuseSvgIcon>
                                 <div>
                                     {column.columnDef.header}
                                 </div>
@@ -159,7 +188,18 @@ function PanelInicialProduccion1(props) {
                     }
                 ]}
                 data={tableData}
-                onEditingRowSave={handleSaveRow}
+                muiTableBodyCellProps={({ cell }) => ({
+                    onChange: (event) => {
+                        handleChangeCell(cell, event);
+                    },
+                    onBlur: () => {
+                        handleExitCell(cell);
+                    },
+                    sx: {
+                        backgroundColor: 'white',
+                        cursor: 'default'
+                    }
+                })}
             />
             <div className="absolute bottom-0 ltr:right-0 rtl:left-0 w-96 h-96 -m-24 z-99">
                 {retornaIcono()}

@@ -8,30 +8,41 @@ import format from 'date-fns/format';
 import { es } from 'date-fns/locale';
 import Typography from '@mui/material/Typography';
 import _ from "lodash";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Chip from '@mui/material/Chip';
 import { Draggable } from 'react-beautiful-dnd';
 import clsx from 'clsx';
 
 //importaciones acciones
-import { usuariosSeleccionados } from 'app/redux/usuariosSlice';
+import { usuariosSeleccionados, obtenerUsuarios } from 'app/redux/usuariosSlice';
 
 function TaskListItem(props) {
   const { data, index } = props;
+  const dispatch = useDispatch();
   const usuarios = useSelector(usuariosSeleccionados);
+  const [cargadoUsuarios, setCargadoUsuarios] = useState(false);
 
-  if (usuarios.length === 0) {
+  //useEffect
+
+  useEffect(() => {
+    dispatch(obtenerUsuarios(false)).then(() => {
+      setCargadoUsuarios(true);
+    });
+  }, []);
+
+  if (!cargadoUsuarios) {
     return null
   };
 
   return (
-    usuarios.length > 0 && (
+    cargadoUsuarios && (
       <Draggable draggableId={data.id} index={index} type="list">
         {(provided, snapshot) => (
           <>
             <ListItem
-             className={clsx(snapshot.isDragging ? 'shadow-lg' : 'shadow', 'px-40 py-12 group')}
+              className={clsx(snapshot.isDragging ? 'shadow-lg' : 'shadow', 'px-40 py-12 group')}
               sx={{ bgcolor: 'background.paper' }}
               button
               component={NavLinkAdapter}
@@ -112,7 +123,7 @@ function TaskListItem(props) {
             </ListItem>
             <Divider />
           </>
-        )}       
+        )}
       </Draggable>
     )
   );

@@ -76,7 +76,7 @@ const pedidoSlice = createSlice({
         },
         [updatePedido.fulfilled]: (state, action) => {
             const arrayPedido = [...state.pedidoProduccion];
-            arrayPedido[arrayPedido.findIndex(item => item._id === action.payload._id)] = action.payload;
+            arrayPedido[arrayPedido.findIndex(item => item._id === action.payload._id)] = action.payload;                   
             state.pedidoProduccion = arrayPedido;
         },
         [getPedidoProducto.fulfilled]: (state, action) => {
@@ -92,7 +92,7 @@ export const {
 } = pedidoSlice.actions;
 
 export const selectPedido = ({ produccionSeccion }) => produccionSeccion.pedido.pedidoProduccion;
-export const selectAnadirfilaId = ({ produccionSeccion }) => produccionSeccion.pedido.anadirFilaId;
+export const selectAnadirFilaId = ({ produccionSeccion }) => produccionSeccion.pedido.anadirFilaId;
 export const selectPedidoProducto = ({ produccionSeccion }) => produccionSeccion.pedido.pedidoProducto;
 
 export default pedidoSlice.reducer;

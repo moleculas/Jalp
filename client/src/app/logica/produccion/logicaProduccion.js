@@ -7,6 +7,7 @@ import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import Box from '@mui/material/Box';
+import clsx from 'clsx';
 
 //importación acciones
 import { setSemanasAnyo } from 'app/redux/produccion/inicioSlice';
@@ -123,7 +124,7 @@ export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, ti
         enableColumnActions: enableColumnActions,
         initialState: { density: 'spacious', columnPinning: { left: pinning } },
         enableEditing: true,
-        editingMode: "row",
+        editingMode: "cell",
         muiTableHeadRowProps: {
             sx: {
                 backgroundColor: 'white',
@@ -133,6 +134,7 @@ export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, ti
         muiTableFooterRowProps: {
             sx: {
                 backgroundColor: 'white',
+                cursor: 'default'
             },
         },
         muiTopToolbarProps: {
@@ -154,7 +156,7 @@ export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, ti
         muiBottomToolbarProps: {
             sx: {
                 backgroundColor: 'white',
-                minHeight: '25px'
+                minHeight: '25px',
             },
         },
         muiTableHeadCellProps: {
@@ -218,9 +220,12 @@ export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, ti
                         </div>
                         <div className="flex flex-col sm:flex-row items-center">
                             {idButton && (
-                                <div className='mb:12 md:-mb-16 mt-12 md:mt-0 mr-12'>
+                                <div className={clsx(
+                                    idButton.type === 'pedido' && 'md:-mb-16 mt-12 md:mt-0 mr-12'
+                                )}
+                                >
                                     <Button
-                                        onClick={() => dispatch(setAnadirFilaId(idButton.id))}
+                                        onClick={() => idButton.type === 'pedido' && dispatch(setAnadirFilaId(idButton.id))}
                                         color="primary"
                                         variant="outlained"
                                         startIcon={<FuseSvgIcon size={20}>heroicons-outline:plus-circle</FuseSvgIcon>}

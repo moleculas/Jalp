@@ -4,7 +4,9 @@ import {
     getProduccion,   
     updateProduccionTabla,
     getProduccionLX,
-    updateProduccionLX
+    updateProduccionLX,
+    getProduccionInicial,
+    updateProduccionInicial
 } from "../controllers/produccion.controller";
 
 const router = Router();
@@ -14,5 +16,7 @@ router.post("/producto", getProduccion);
 router.post("/actualizarTabla", updateProduccionTabla);
 router.post("/lx", getProduccionLX);
 router.post("/actualizarlx", updateProduccionLX);
+router.post("/inicial", getProduccionInicial);
+router.post("/actualizarInicial", updateProduccionInicial);
 
 export default router;

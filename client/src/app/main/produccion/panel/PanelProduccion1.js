@@ -24,6 +24,7 @@ function PanelProduccion1(props) {
     const [tableColumns, setTableColumns] = useState(null);
     const [tableData, setTableData] = useState(null);
     const [calculoTabla, setCalculoTabla] = useState(false);
+    const [changedData, setChangedData] = useState(false);
 
     //useEffect  
 
@@ -49,7 +50,7 @@ function PanelProduccion1(props) {
 
     //funciones
 
-    const calculosTabla = (tabla, mensaje) => {
+    const calculosTabla = (tabla, mensaje, update) => {
         let sumatorioSaldoInicial = (datosProduccionInicial.stockInicial / producto.unidades) + datosProduccionSaldo.saldoInicial;
         let sumatorioSaldo = 0;
         let objetoFila = null;
@@ -74,7 +75,10 @@ function PanelProduccion1(props) {
             };
         });
         setCalculoTabla(true);
-        actualizarTabla(arrayTabla, mensaje);
+        setTableData(arrayTabla);
+        if (update) {
+            actualizarTabla(arrayTabla, true);
+        };
     };
 
     const actualizarTabla = (arrayTabla, mensaje) => {
@@ -110,6 +114,21 @@ function PanelProduccion1(props) {
                 muiTableBodyCellEditTextFieldProps: {
                     type: index !== 0 && 'number',
                 },
+                muiTableHeadCellProps: {
+                    sx: {
+                        paddingLeft: index === 0 && '24px'
+                    },
+                },
+                muiTableBodyCellProps: {
+                    sx: {
+                        paddingLeft: '24px',
+                        backgroundColor: 'white',
+                        cursor: columna.tipo === 'input' ? 'pointer' : 'default',
+                        '&:hover': {
+                            backgroundColor: columna.tipo === 'input' && '#ebebeb',
+                        },
+                    },
+                },
                 Header: ({ column }) => (
                     <div className='flex flex-row items-center'>
                         {columna.tipo === 'input' && <FuseSvgIcon className="mr-4" size={20}>material-outline:edit_note</FuseSvgIcon>}
@@ -138,7 +157,7 @@ function PanelProduccion1(props) {
         setTableColumns(arrayColumnas);
     };
 
-    const generarDatos = (actualizando) => {
+    const generarDatos = (actualizando, arrayTabla) => {
         const arrayDatos = [];
         let sumatorioSaldoInicial = (datosProduccionInicial.stockInicial / producto.unidades) + datosProduccionSaldo.saldoInicial;
         let sumatorioSaldo = 0;
@@ -205,16 +224,23 @@ function PanelProduccion1(props) {
         actualizando && (actualizarTabla(arrayDatos, false));
     };
 
-    const handleSaveRow = ({ exitEditingMode, row, values }) => {
-        for (const key in values) {
-            if (values[key] === '') {
-                values[key] = 0;
-            };
-        };
+    const handleChangeCell = (cell, event) => {
+        setChangedData(true);
         const tabla = [...tableData];
-        tabla[row.index] = values;
-        calculosTabla(tabla, true);
-        exitEditingMode();
+        const rowIndex = Number(cell.row.id);
+        const columna = cell.column.id;
+        let valor = event.target.value;
+        !valor && (valor = 0);
+        tabla[rowIndex][columna] = valor;
+        calculosTabla(tabla, false, false);
+    };
+
+    const handleExitCell = (cell) => {
+        const tabla = [...tableData];
+        if (changedData) {
+            calculosTabla(tabla, true, true);
+            setChangedData(false);
+        };
     };
 
     const retornaPeriodo = (periodo) => {
@@ -252,9 +278,8 @@ function PanelProduccion1(props) {
             }
         } else {
             sxRetornar = {
-                '& button': {
-                    pointerEvents: 'none',
-                    color: '#cac8c8'
+                '& td': {
+                    pointerEvents: 'none',                  
                 },
                 backgroundColor: 'white'
             }
@@ -272,12 +297,23 @@ function PanelProduccion1(props) {
                 {...dispatch(generarPropsTabla(true, true, 'Tabla cálculos producción', '', null, null, false))}
                 columns={tableColumns}
                 data={tableData}
-                onEditingRowSave={handleSaveRow}
                 muiTableBodyRowProps={({ row }) => ({
-                    onClickCapture: (event) => {
+                    onDoubleClickCapture: (event) => {
                         retornaClick(row.getValue('periodo'), event);
                     },
                     sx: semanas.length > 5 ? retornaSx(row.getValue('periodo')) : { backgroundColor: 'white' }
+                })}
+                muiTableBodyCellProps={({ cell }) => ({                    
+                    onChange: (event) => {
+                        handleChangeCell(cell, event);
+                    },
+                    onBlur: () => {
+                        handleExitCell(cell);
+                    },
+                    sx: {
+                        backgroundColor: 'white',
+                        cursor: 'default'
+                    }
                 })}
             />
         </TableContainer>

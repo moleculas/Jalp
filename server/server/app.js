@@ -16,6 +16,7 @@ import escandalloRoutes from "./routes/escandallo.routes";
 import produccionRoutes from "./routes/produccion.routes";
 import objetivosRoutes from "./routes/objetivos.routes";
 import pedidoRoutes from "./routes/pedido.routes";
+import cotizacionRoutes from "./routes/cotizacion.routes";
 
 const app = express();
 
@@ -48,5 +49,6 @@ app.use('/api/escandallo', escandalloRoutes);
 app.use('/api/produccion', produccionRoutes);
 app.use('/api/objetivos', objetivosRoutes);
 app.use('/api/pedido', pedidoRoutes);
+app.use('/api/cotizacion', cotizacionRoutes);
 
 export { app };

@@ -64,6 +64,26 @@ function FormulasCubicajeTacos() {
             muiTableBodyCellEditTextFieldProps: {
                 type: 'number'
             },
+            muiTableHeadCellProps: {
+                sx: {
+                    paddingLeft: '24px'
+                },
+            },
+            muiTableBodyCellProps: {
+                sx: {
+                    '&:hover': {
+                        backgroundColor: '#ebebeb',
+                    },
+                    paddingLeft: '24px',
+                    backgroundColor: 'white',
+                },
+            },
+            muiTableFooterCellProps: {
+                sx: {
+                    paddingLeft: '24px',
+                    cursor: 'default'
+                },
+            },
             Footer: () => (
                 <Typography
                     variant="body1"
@@ -81,6 +101,14 @@ function FormulasCubicajeTacos() {
             enableColumnFilter: false,
             muiTableBodyCellEditTextFieldProps: {
                 type: 'number'
+            },
+            muiTableBodyCellProps: {
+                sx: {
+                    '&:hover': {
+                        backgroundColor: '#ebebeb',
+                    },
+                    backgroundColor: 'white',
+                },
             },
             Footer: () => (
                 <Typography
@@ -100,6 +128,14 @@ function FormulasCubicajeTacos() {
             enableColumnFilter: false,
             muiTableBodyCellEditTextFieldProps: {
                 type: 'number'
+            },
+            muiTableBodyCellProps: {
+                sx: {
+                    '&:hover': {
+                        backgroundColor: '#ebebeb',
+                    },
+                    backgroundColor: 'white',
+                },
             },
             Footer: () => (
                 <Typography
@@ -122,6 +158,26 @@ function FormulasCubicajeTacos() {
             muiTableBodyCellEditTextFieldProps: {
                 type: 'number'
             },
+            muiTableHeadCellProps: {
+                sx: {
+                    paddingLeft: '24px'
+                },
+            },
+            muiTableBodyCellProps: {
+                sx: {
+                    '&:hover': {
+                        backgroundColor: '#ebebeb',
+                    },
+                    paddingLeft: '24px',
+                    backgroundColor: 'white',
+                },
+            },
+            muiTableFooterCellProps: {
+                sx: {
+                    paddingLeft: '24px',
+                    cursor: 'default'
+                },
+            },
             Footer: () => (
                 <Typography
                     variant="body1"
@@ -139,6 +195,14 @@ function FormulasCubicajeTacos() {
             enableColumnFilter: false,
             muiTableBodyCellEditTextFieldProps: {
                 type: 'number'
+            },
+            muiTableBodyCellProps: {
+                sx: {
+                    '&:hover': {
+                        backgroundColor: '#ebebeb',
+                    },
+                    backgroundColor: 'white',
+                },
             },
             Footer: () => (
                 <Typography
@@ -158,6 +222,14 @@ function FormulasCubicajeTacos() {
             enableColumnFilter: false,
             muiTableBodyCellEditTextFieldProps: {
                 type: 'number'
+            },
+            muiTableBodyCellProps: {
+                sx: {
+                    '&:hover': {
+                        backgroundColor: '#ebebeb',
+                    },
+                    backgroundColor: 'white',
+                },
             },
             Footer: () => (
                 <Typography
@@ -228,18 +300,22 @@ function FormulasCubicajeTacos() {
         setResultadoCalculosM3(objetoACambiar);
     };
 
-    const handleSaveRow1 = ({ exitEditingMode, row, values }) => {
-        tableData1[row.index] = values;
-        setTableData1([...tableData1]);
-        handleChangeForm1(tableData1);
-        exitEditingMode();
-    };
-
-    const handleSaveRow2 = ({ exitEditingMode, row, values }) => {
-        tableData2[row.index] = values;
-        setTableData2([...tableData2]);
-        handleChangeForm2(tableData2);
-        exitEditingMode();
+    const handleChangeCell = (cell, event, tabla) => {        
+        const rowIndex = Number(cell.row.id);
+        const columna = cell.column.id;
+        let valor = event.target.value;
+        !valor && (valor = 0);       
+        if (tabla === 1) {
+            const tabla1 = [...tableData1];
+            tabla1[rowIndex][columna] = valor;
+            setTableData1(tabla1);
+            handleChangeForm1(tabla1);
+        } else {
+            const tabla2 = [...tableData2];
+            tabla2[rowIndex][columna] = valor;
+            setTableData2(tabla2);
+            handleChangeForm2(tabla2);
+        };
     };
 
     if (!escandallo) {
@@ -265,7 +341,15 @@ function FormulasCubicajeTacos() {
                             {...dispatch(generarPropsTabla(false, false, 'Palets realizables con m³', 'Fórmula cálculo datos', null, null, false))}
                             columns={tableColumns1}
                             data={tableData1}
-                            onEditingRowSave={handleSaveRow1}
+                            muiTableBodyCellProps={({ cell }) => ({
+                                onChange: (event) => {
+                                    handleChangeCell(cell, event, 1);
+                                },
+                                sx: {
+                                    backgroundColor: 'white',
+                                    cursor: 'default'
+                                }
+                            })}
                         />
                     </TableContainer>
                 </motion.div>
@@ -277,7 +361,15 @@ function FormulasCubicajeTacos() {
                             {...dispatch(generarPropsTabla(false, false, 'm³ necesarios para realizar palets', 'Fórmula cálculo datos', null, null, false))}
                             columns={tableColumns2}
                             data={tableData2}
-                            onEditingRowSave={handleSaveRow2}
+                            muiTableBodyCellProps={({ cell }) => ({
+                                onChange: (event) => {
+                                    handleChangeCell(cell, event, 2);
+                                },
+                                sx: {
+                                    backgroundColor: 'white',
+                                    cursor: 'default'
+                                }
+                            })}
                         />
                     </TableContainer>
                 </motion.div>

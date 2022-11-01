@@ -7,6 +7,9 @@ import Typography from '@mui/material/Typography';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import Box from '@mui/system/Box';
 import Avatar from '@mui/material/Avatar';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 
 //constantes
 import { PRODUCTOSLX } from 'constantes';
@@ -15,11 +18,102 @@ import { PRODUCTOSLX } from 'constantes';
 import { generarPropsTabla } from 'app/logica/produccion/logicaProduccion';
 import { updateProduccionLX } from 'app/redux/produccion/produccionSlice';
 
+const formulaLX3FR = (cargas, formula) => {
+    switch (formula) {
+        case 0:
+            return (cargas > 0) ? (((cargas - 1) * 520) + 600) : 0
+            break;
+        case 1:
+            return (cargas > 0) ? (((cargas - 2) * 520) + (600 * 2)) : 0
+            break;
+        case 2:
+            return (cargas > 0) ? (((cargas - 3) * 520) + (600 * 3)) : 0
+            break;
+        default:
+    };
+};
+
+const formulaTLFR = (cargas, formula) => {
+    switch (formula) {
+        case 0:
+            return (cargas > 0) ? (cargas * 1508) : 0
+            break;
+        default:
+    };
+};
+
+const formulaLX3DE = (cargas, formula) => {
+    switch (formula) {
+        case 0:
+            return (cargas > 0) ? (cargas * 600) : 0
+            break;
+        default:
+    };
+};
+
+const formulaLX3ES = (cargas, formula) => {
+    switch (formula) {
+        case 0:
+            return (cargas > 0) ? (cargas * 468) : 0
+            break;
+        default:
+    };
+};
+
+const formulaTLES = (cargas, formula) => {
+    switch (formula) {
+        case 0:
+            return (cargas > 0) ? (cargas * 858) : 0
+            break;
+        default:
+    };
+};
+
 function PanelDatosLX(props) {
     const { datos, semana, anyo } = props;
     const dispatch = useDispatch();
     const [tableData, setTableData] = useState(null);
     const [tableColumns, setTableColumns] = useState(null);
+    const [changedData, setChangedData] = useState(false);
+    const configItems = [
+        {
+            producto: "LX3FR",
+            config: [
+                { valor: 0, tipo: "C*520+1C*600" },
+                { valor: 1, tipo: "C*520+2C*600" },
+                { valor: 2, tipo: "C*520+3C*600" }
+            ],
+            formula: formulaLX3FR
+        },
+        {
+            producto: "TOPLAYERFR",
+            config: [
+                { valor: 0, tipo: "C*1508" }
+            ],
+            formula: formulaTLFR
+        },
+        {
+            producto: "LX3DE",
+            config: [
+                { valor: 0, tipo: "C*600" }
+            ],
+            formulaLX3DE
+        },
+        {
+            producto: "LX3ES",
+            config: [
+                { valor: 0, tipo: "C*468" }
+            ],
+            formula: formulaLX3ES
+        },
+        {
+            producto: "TOPLAYERES",
+            config: [
+                { valor: 0, tipo: "C*858" }
+            ],
+            formula: formulaTLES
+        },
+    ];
 
     //useEffect  
 
@@ -43,11 +137,28 @@ function PanelDatosLX(props) {
                 enableSorting: false,
                 enableColumnFilter: false,
                 enableEditing: false,
+                muiTableHeadCellProps: {
+                    sx: {
+                        paddingLeft: '24px'
+                    },
+                },
+                muiTableBodyCellProps: {
+                    sx: {
+                        paddingLeft: '24px',
+                        backgroundColor: 'white',
+                        cursor: 'default'
+                    },
+                },
+                muiTableFooterCellProps: {
+                    sx: {
+                        paddingLeft: '24px',
+                        cursor: 'default'
+                    },
+                },
                 Cell: ({ cell, row }) => (
                     <Box className='flex flex-row items-center'
                         sx={{
                             minWidth: 150,
-                            paddingLeft: 1,
                         }}
                     >
                         <Avatar
@@ -75,10 +186,7 @@ function PanelDatosLX(props) {
                 Footer: ({ cell, row }) => (
                     <>
                         <Box className='flex flex-row items-center mb-28 -mt-4 cursor-default'
-                            sx={{
-                                minWidth: 150,
-                                paddingLeft: 1,
-                            }}
+
                         >
                             <Avatar
                                 variant="square"
@@ -97,7 +205,6 @@ function PanelDatosLX(props) {
                         <Box className='flex flex-row items-center cursor-default'
                             sx={{
                                 minWidth: 150,
-                                paddingLeft: 1,
                             }}
                         >
                             <Avatar
@@ -124,6 +231,14 @@ function PanelDatosLX(props) {
                 enableColumnFilter: false,
                 muiTableBodyCellEditTextFieldProps: {
                     type: 'number',
+                },
+                muiTableBodyCellProps: {
+                    sx: {
+                        '&:hover': {
+                            backgroundColor: '#ebebeb',
+                        },
+                        backgroundColor: 'white',
+                    },
                 },
                 Header: ({ column }) => (
                     <div className='flex flex-row items-center'>
@@ -154,6 +269,15 @@ function PanelDatosLX(props) {
                 )
             },
             {
+                header: 'Config',
+                accessorKey: 'config',
+                enableSorting: false,
+                enableColumnFilter: false,
+                enableEditing: false,
+                size: 75,
+                Cell: ({ cell, row, table }) => retornaSelect(cell, row, table),
+            },
+            {
                 header: 'Cantidad',
                 accessorKey: 'cantidad',
                 enableSorting: false,
@@ -181,6 +305,35 @@ function PanelDatosLX(props) {
             }
         ];
         setTableColumns(arrayColumnas);
+    };
+
+    const handleChangeSelect = (row, table, event) => {
+        const arrayTabla = [...table.options.data];
+        arrayTabla[row.index].config = event.target.value;
+        setTableData(arrayTabla);
+        calculosTabla(arrayTabla, row.index, true);
+    };
+
+    const retornaSelect = (cell, row, table) => {
+        const configuracion = configItems[configItems.findIndex(prod => prod.producto === row.original.producto)].config;
+        return (
+            <FormControl
+                variant="standard"
+                className="-my-12"
+                disabled={configuracion.length === 1 ? true : false}
+            >
+                <Select
+                    value={cell.getValue()}
+                    onChange={(event) => handleChangeSelect(row, table, event)}
+                >
+                    {configuracion.map((option) => (
+                        <MenuItem key={option.valor} value={option.valor}>
+                            {option.tipo}
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+        )
     };
 
     const retornaTotales = (table, tipo) => {
@@ -225,6 +378,7 @@ function PanelDatosLX(props) {
             objetoDatos = {
                 producto: producto.producto,
                 cargas: producto.cargas,
+                config: producto.config,
                 cantidad: producto.cantidad,
             };
             arrayDatos.push(objetoDatos);
@@ -232,18 +386,20 @@ function PanelDatosLX(props) {
         setTableData(arrayDatos);
     };
 
-    const calculosTabla = (tabla, indice) => {
+    const calculosTabla = (tabla, indice, update) => {
         const arrayTabla = [];
         let objetoFila = {};
         tabla.map((fila, index) => {
             objetoFila = { ...fila };
-            let formula = PRODUCTOSLX[PRODUCTOSLX.findIndex(prod => prod.producto === fila.producto)].formula;
+            let formula = configItems[configItems.findIndex(prod => prod.producto === fila.producto)].formula;
             objetoFila.cargas = Number(fila.cargas);
-            objetoFila.cantidad = objetoFila.cargas > 0 ? (formula(objetoFila.cargas)) : 0;
+            objetoFila.cantidad = objetoFila.cargas > 0 ? (formula(objetoFila.cargas, objetoFila.config)) : 0;
             arrayTabla.push(objetoFila);
         });
         setTableData(arrayTabla);
-        actualizarTabla(arrayTabla[indice]);
+        if (update) {
+            actualizarTabla(arrayTabla[indice]);
+        };
     };
 
     const actualizarTabla = (elemento) => {
@@ -251,21 +407,31 @@ function PanelDatosLX(props) {
         const linea = {
             _id: id,
             cargas: elemento.cargas,
-            cantidad: elemento.cantidad
+            config: elemento.config,
+            cantidad: elemento.cantidad,
+            mensaje: true
         };
         dispatch(updateProduccionLX({ linea }));
     };
 
-    const handleSaveRow = ({ exitEditingMode, row, values }) => {
-        for (const key in values) {
-            if (values[key] === '') {
-                values[key] = 0;
-            };
-        };
+    const handleChangeCell = (cell, event) => {
+        setChangedData(true);
         const tabla = [...tableData];
-        tabla[row.index] = values;
-        calculosTabla(tabla, row.index);
-        exitEditingMode();
+        const rowIndex = Number(cell.row.id);
+        const columna = cell.column.id;
+        let valor = event.target.value;
+        !valor && (valor = 0);
+        tabla[rowIndex][columna] = valor;
+        calculosTabla(tabla, rowIndex, false);
+    };
+
+    const handleExitCell = (cell) => {
+        const tabla = [...tableData];
+        const rowIndex = Number(cell.row.id);
+        if (changedData) {
+            calculosTabla(tabla, rowIndex, true);
+            setChangedData(false);
+        };
     };
 
     const retornaIcono = () => {
@@ -290,7 +456,7 @@ function PanelDatosLX(props) {
                 {...dispatch(generarPropsTabla(
                     false,
                     false,
-                    `Datos iniciales semana: ${semana.semana} - ${semana.nombre} ${anyo}`,
+                    `Salida palets semana: ${semana.semana} - ${semana.nombre} ${anyo}`,
                     '',
                     null,
                     `${_.upperFirst(semana.mes)} ${anyo}`,
@@ -298,7 +464,18 @@ function PanelDatosLX(props) {
                 ))}
                 columns={tableColumns}
                 data={tableData}
-                onEditingRowSave={handleSaveRow}
+                muiTableBodyCellProps={({ cell }) => ({
+                    onChange: (event) => {
+                        handleChangeCell(cell, event);
+                    },
+                    onBlur: () => {
+                        handleExitCell(cell);
+                    },
+                    sx: {
+                        backgroundColor: 'white',
+                        cursor: 'default'
+                    }
+                })}
             />
             <div className="absolute bottom-0 ltr:right-0 rtl:left-0 w-96 h-96 -m-24 z-10">
                 {retornaIcono()}

@@ -13,17 +13,18 @@ import Select from '@mui/material/Select';
 import { generarPropsTabla } from 'app/logica/produccion/logicaProduccion';
 import {
     setAnadirFilaId,
-    selectAnadirfilaId,
+    selectAnadirFilaId,
     updatePedido
 } from 'app/redux/produccion/pedidoSlice';
 
 function PanelPedidos(props) {
     const { datosPedido, semana, productos, anyo } = props;
     const dispatch = useDispatch();
-    const anadirFilaId = useSelector(selectAnadirfilaId);
+    const anadirFilaId = useSelector(selectAnadirFilaId);
     const [tableColumns, setTableColumns] = useState(null);
     const [tableData, setTableData] = useState(null);
     const [disabledButton, setDisabledButton] = useState(true);
+    const [changedData, setChangedData] = useState(false);
 
     //useEffect  
 
@@ -72,10 +73,21 @@ function PanelPedidos(props) {
                 enableSorting: false,
                 enableColumnFilter: false,
                 enableEditing: false,
+                muiTableHeadCellProps: {
+                    sx: {
+                        paddingLeft: '24px'
+                    },
+                },
+                muiTableBodyCellProps: {
+                    sx: {
+                        paddingLeft: '24px',
+                        backgroundColor: 'white',
+                        cursor: 'default'
+                    },
+                },
                 Cell: ({ cell, row, table }) => (
-                    <FormControl variant="standard" sx={{ minWidth: 200 }}>
+                    <FormControl variant="standard" className="-my-12" sx={{ minWidth: 200 }}>
                         <Select
-                            id="demo-simple-select-standard"
                             value={cell.getValue()}
                             onChange={(event) => handleChangeSelectProducto(row, table, event)}
                         >
@@ -110,6 +122,14 @@ function PanelPedidos(props) {
                 enableColumnFilter: false,
                 muiTableBodyCellEditTextFieldProps: {
                     type: 'number',
+                },
+                muiTableBodyCellProps: {
+                    sx: {
+                        '&:hover': {
+                            backgroundColor: '#ebebeb',
+                        },
+                        backgroundColor: 'white',
+                    },
                 },
                 Header: ({ column }) => (
                     <div className='flex flex-row items-center'>
@@ -160,21 +180,27 @@ function PanelPedidos(props) {
                     </Typography>
                 ),
                 size: 75,
-                Footer: ({ table }) => retornaTotales(table),
+                Footer: ({ table }) => retornaTotales(table, 'vol_total'),
             }
         ];
         setTableColumns(arrayColumnas);
     };
 
-    const retornaTotales = (table) => {
-        if (table.options.data[0].vol_total > 0) {
-            const sumatorioTotales = table.options.data.reduce((sum, { vol_total }) => sum + vol_total, 0);
-            return (
-                <Typography variant="body1">
-                    <span className="font-bold">Total: </span>
-                    {`${sumatorioTotales} m³`}
-                </Typography>
-            )
+    const retornaTotales = (table, columna) => {
+        switch (columna) {
+            case 'vol_total':
+                if (table.options.data[0].vol_total > 0) {
+                    const sumatorioTotales = table.options.data.reduce((sum, { vol_total }) => sum + vol_total, 0);
+                    return (
+                        <Typography variant="body1">
+                            <span className="font-bold">
+                                {`${sumatorioTotales} m³`}
+                            </span>
+                        </Typography>
+                    )
+                };
+                break;
+            default:
         };
     };
 
@@ -221,7 +247,7 @@ function PanelPedidos(props) {
         setTableData(arrayDatos);
     };
 
-    const calculosTabla = (tabla, indice) => {
+    const calculosTabla = (tabla, indice, update) => {
         let objetoFila;
         const arrayTabla = [];
         tabla.map((fila) => {
@@ -230,10 +256,12 @@ function PanelPedidos(props) {
             objetoFila.unidades = Number(objetoFila.unidades);
             objetoFila.vol_unitario = _.round(((producto.largo * producto.ancho * producto.grueso) / 1000000000), 4);
             objetoFila.vol_total = _.round((Number(objetoFila.unidades) * objetoFila.vol_unitario), 4);
-            objetoFila.unidades > 0 && (arrayTabla.push(objetoFila));
+            arrayTabla.push(objetoFila);
         });
         setTableData(arrayTabla);
-        actualizarTabla(arrayTabla);
+        if (update) {
+            actualizarTabla(arrayTabla);
+        };
     };
 
     const actualizarTabla = (arrayTabla) => {
@@ -244,36 +272,24 @@ function PanelPedidos(props) {
         dispatch(updatePedido(datosPedidoUpdate));
     };
 
-    const handleSaveRow = ({ exitEditingMode, row, values }) => {
-        if (values.unidades > 0) {
-            for (const key in values) {
-                if (values[key] === '') {
-                    values[key] = 0;
-                };
-            };
-            const tabla = [...tableData];
-            tabla[row.index] = values;
-            calculosTabla(tabla, row.index);
-        };
-        exitEditingMode();
+    const handleChangeCell = (cell, event) => {
+        setChangedData(true);
+        const tabla = [...tableData];
+        const rowIndex = Number(cell.row.id);
+        const columna = cell.column.id;
+        let valor = event.target.value;
+        !valor && (valor = 0);
+        tabla[rowIndex][columna] = valor;
+        calculosTabla(tabla, rowIndex, false);
     };
 
-    const retornaSx = (producto) => {
-        let sxRetornar = null;
-        if (producto) {
-            sxRetornar = {
-                backgroundColor: 'white'
-            }
-        } else {
-            sxRetornar = {
-                '& button': {
-                    pointerEvents: 'none',
-                    color: '#cac8c8'
-                },
-                backgroundColor: 'white'
-            }
+    const handleExitCell = (cell) => {
+        const tabla = [...tableData];
+        const rowIndex = Number(cell.row.id);
+        if (changedData) {
+            calculosTabla(tabla, rowIndex, true);
+            setChangedData(false);
         };
-        return sxRetornar
     };
 
     if (!tableData) {
@@ -290,13 +306,21 @@ function PanelPedidos(props) {
                     '',
                     null,
                     `${_.upperFirst(semana.mes)} ${anyo}`,
-                    { id: datosPedido._id, disabled: disabledButton }
+                    { id: datosPedido._id, disabled: disabledButton, type: 'pedido' }
                 ))}
                 columns={tableColumns}
                 data={tableData}
-                onEditingRowSave={handleSaveRow}
-                muiTableBodyRowProps={({ row }) => ({
-                    sx: retornaSx(row.getValue('producto'))
+                muiTableBodyCellProps={({ cell }) => ({
+                    onChange: (event) => {
+                        handleChangeCell(cell, event);
+                    },
+                    onBlur: () => {
+                        handleExitCell(cell);
+                    },
+                    sx: {
+                        backgroundColor: 'white',
+                        cursor: 'default'
+                    }
                 })}
             />
         </TableContainer>

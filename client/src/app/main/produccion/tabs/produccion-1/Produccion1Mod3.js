@@ -75,9 +75,7 @@ function Produccion1Mod3(props) {
     const producto = {
         producto: PRODUCTOS[referencia].producto,
         familia: PRODUCTOS[referencia].familia,
-        unidades: PRODUCTOS[referencia].unidades,
-        posicion: PRODUCTOS[referencia].posicion,
-        serie: PRODUCTOS[referencia].serie
+        unidades: PRODUCTOS[referencia].unidades
     };
     const { mes, anyo } = dispatch(decMesActual());
 
@@ -108,7 +106,7 @@ function Produccion1Mod3(props) {
                 mes,
                 anyo
             }));
-            dispatch(getProduccion({ periodo, mes, anyo, producto: producto.producto, serie: producto.serie }));
+            dispatch(getProduccion({ periodo, mes, anyo, producto: producto.producto }));
         };
     }, [semanasCorrespondientesPeriodo]);
 

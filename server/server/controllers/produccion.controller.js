@@ -43,6 +43,7 @@ export const getProduccionLX = async (req, res) => {
                         anyo: newProduccionLX.anyo,
                         producto: newProduccionLX.producto,
                         cargas: newProduccionLX.cargas,
+                        config: newProduccionLX.config,
                         cantidad: newProduccionLX.cantidad
                     };
                     arrayProduccionLX.push(newProduccionLXARetornar);
@@ -64,6 +65,7 @@ export const updateProduccionLX = async (req, res) => {
             {
                 $set: {
                     cargas: linea.cargas,
+                    config: linea.config,
                     cantidad: linea.cantidad
                 }
             },
@@ -80,6 +82,7 @@ export const updateProduccionLX = async (req, res) => {
             anyo: updatedProduccionLX.anyo,
             producto: updatedProduccionLX.producto,
             cargas: updatedProduccionLX.cargas,
+            config: updatedProduccionLX.config,
             cantidad: updatedProduccionLX.cantidad
         };
         return res.json(updatedProduccionLXARetornar);
@@ -88,8 +91,130 @@ export const updateProduccionLX = async (req, res) => {
     };
 };
 
+export const getProduccionInicial = async (req, res) => {
+    const { mes, anyo, productos } = JSON.parse(req.body.datos);
+    try {
+        const objetoProduccion = { inicial: [], saldo: [] };
+        let id = "";
+        for (let i = 0; i < productos.length; i++) {
+            const produccionInicial = await ProduccionInicial.findOne(
+                {
+                    mes,
+                    anyo,
+                    producto: productos[i].producto,
+                },
+                {
+                    createdAt: 0,
+                    updatedAt: 0
+                }
+            );
+            let newProduccionInicial;
+            if (!produccionInicial) {
+                newProduccionInicial = new ProduccionInicial({
+                    producto: productos[i].producto,
+                    familia: productos[i].familia,
+                    mes,
+                    anyo
+                });
+                await newProduccionInicial.save();
+            };
+            const produccionSaldo = await ProduccionSaldo.findOne(
+                {
+                    mes,
+                    anyo
+                },
+                {
+                    createdAt: 0,
+                    updatedAt: 0,
+                }
+            );
+            let newProduccionSaldo;
+            if (!produccionSaldo) {
+                newProduccionSaldo = new ProduccionSaldo({
+                    mes,
+                    anyo
+                });
+                await newProduccionSaldo.save();
+            };
+            if (produccionInicial) {
+                objetoProduccion.inicial.push(produccionInicial);
+            } else {
+                const newProduccionInicialARetornar = {
+                    _id: newProduccionInicial._id,
+                    mes: newProduccionInicial.mes,
+                    anyo: newProduccionInicial.anyo,
+                    stockInicial: newProduccionInicial.stockInicial,
+                    producto: newProduccionInicial.producto,
+                    familia: newProduccionInicial.familia,
+                };
+                objetoProduccion.inicial.push(newProduccionInicialARetornar);
+            };
+            if (produccionSaldo) {
+                if (id !== produccionSaldo._id.toString()) {
+                    objetoProduccion.saldo.push(produccionSaldo);
+                };
+                id = produccionSaldo._id.toString();
+            } else {
+                if (id !== newProduccionSaldo._id.toString()) {
+                    const newProduccionSaldoARetornar = {
+                        _id: newProduccionSaldo._id,
+                        mes: newProduccionSaldo.mes,
+                        anyo: newProduccionSaldo.anyo,
+                        saldoInicial: newProduccionSaldo.saldoInicial
+                    };
+                    objetoProduccion.saldo.push(newProduccionSaldoARetornar);
+                };
+                id = newProduccionSaldo._id.toString();
+            };
+        };
+        return res.json(objetoProduccion);
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: error.message });
+    };
+};
+
+export const updateProduccionInicial = async (req, res) => {
+    const { idInicial, idSaldo, stockInicial, saldoInicial } = JSON.parse(req.body.datos);
+    const objetoProduccionInicial = { inicial: null, saldo: null };
+    try {
+        const updatedProduccionInicial = await ProduccionInicial.findByIdAndUpdate(
+            idInicial,
+            {
+                $set: {
+                    stockInicial
+                }
+            },
+            {
+                new: true,
+            }
+        );
+        if (!updatedProduccionInicial) return res.sendStatus(404);
+        await updatedProduccionInicial.save();
+        objetoProduccionInicial.inicial = updatedProduccionInicial;
+        const updatedProduccionSaldo = await ProduccionSaldo.findByIdAndUpdate(
+            idSaldo,
+            {
+                $set: {
+                    saldoInicial
+                }
+            },
+            {
+                new: true,
+            }
+        );
+        if (!updatedProduccionSaldo) return res.sendStatus(404);
+        await updatedProduccionSaldo.save();
+        objetoProduccionInicial.saldo = updatedProduccionSaldo;
+        return res.json(objetoProduccionInicial);
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: error.message });
+    };
+};
+
 export const getProduccion = async (req, res) => {
-    const { periodo, mes, anyo, producto, serie } = JSON.parse(req.body.datos);
+    const { periodo, mes, anyo, producto } = JSON.parse(req.body.datos);
     try {
         const objetoProduccion = { inicial: null, tabla: [], palet: [], saldo: null };
         let mesIterado = null;
@@ -163,8 +288,7 @@ export const getProduccion = async (req, res) => {
                     const produccionSaldo = await ProduccionSaldo.findOne(
                         {
                             mes: periodo[i].mes,
-                            anyo: periodo[i].anyo,
-                            producto: { $in: serie }
+                            anyo: periodo[i].anyo
                         },
                         {
                             createdAt: 0,
@@ -175,10 +299,8 @@ export const getProduccion = async (req, res) => {
                     let newProduccionSaldo;
                     if (!produccionSaldo) {
                         newProduccionSaldo = new ProduccionSaldo({
-                            producto: serie,
                             mes: periodo[i].mes,
                             anyo: periodo[i].anyo,
-                            familia: periodo[i].familia,
                         });
                         await newProduccionSaldo.save();
                     };
@@ -260,7 +382,6 @@ export const getProduccion = async (req, res) => {
                         {
                             mes,
                             anyo,
-                            producto: { $in: serie }
                         },
                         {
                             createdAt: 0,

@@ -3,7 +3,7 @@ import FuseNavigation from '@fuse/core/FuseNavigation';
 const navigationData = [
     {
         id: '1',
-        title: '2500x135x72',
+        title: '135x72',
         subtitle: 'Taco',
         type: 'item',
         icon: 'material-outline:layers',
@@ -11,7 +11,7 @@ const navigationData = [
     },
     {
         id: '2',
-        title: '2420x103x72',
+        title: '103x72',
         subtitle: 'Taco',
         type: 'item',
         icon: 'material-outline:layers',
@@ -19,7 +19,7 @@ const navigationData = [
     },
     {
         id: '3',
-        title: '2500x103x94',
+        title: '103x94',
         subtitle: 'Taco',
         type: 'item',
         icon: 'material-outline:layers',
