@@ -5,6 +5,7 @@ import escandallo from './escandalloSlice';
 import objetivos from './objetivosSlice';
 import pedido from './pedidoSlice';
 import cotizacion from './cotizacionSlice';
+import producto from './productoSlice';
 
 const reducer = combineReducers({
   inicio,
@@ -12,7 +13,8 @@ const reducer = combineReducers({
   escandallo,
   objetivos,
   pedido,
-  cotizacion
+  cotizacion,
+  producto
 });
 
 export default reducer;

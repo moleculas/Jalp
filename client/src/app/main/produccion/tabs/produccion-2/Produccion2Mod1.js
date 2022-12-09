@@ -9,9 +9,9 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import PanelProduccion1 from '../../panel/PanelProduccion1';
+import PanelProduccion1 from '../../componentes/PanelProduccion1';
 import GraficoProduccion1 from '../../grafico/GraficoProduccion1';
-import PanelInicialProduccion1 from '../../panel/PanelInicialProduccion1';
+import PanelInicialProduccion1 from '../../componentes/PanelInicialProduccion1';
 
 //constantes
 import { PRODUCTOS } from 'constantes';

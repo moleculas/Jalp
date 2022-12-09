@@ -12,8 +12,10 @@ import ForgotPasswordConfig from '../main/pages/auth/forgot-password/ForgotPassw
 import ResetPasswordConfig from '../main/pages/auth/reset-password/ResetPasswordConfig';
 import GestionUsuariosConfig from '../main/pages/auth/gestion-usuarios/GestionUsuariosConfig';
 import ProduccionConfig from '../main/produccion/ProduccionConfig';
-import CalculosConfig from '../main/calculos/CalculosConfig';
 import PedidosConfig from '../main/pedidos/PedidosConfig';
+import CotizacionConfig from '../main/cotizacion/CotizacionConfig';
+import EscandalloConfig from '../main/escandallo/EscandalloConfig';
+import DatosConfig from '../main/datos/DatosConfig';
 
 const routeConfigs = [
   ...appsConfigs,
@@ -25,8 +27,10 @@ const routeConfigs = [
   ResetPasswordConfig,
   GestionUsuariosConfig,
   ProduccionConfig,
-  CalculosConfig,
-  PedidosConfig
+  PedidosConfig,
+  CotizacionConfig,
+  EscandalloConfig,
+  DatosConfig
 ];
 
 const routes = [

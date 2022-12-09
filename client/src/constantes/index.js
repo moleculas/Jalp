@@ -64,3 +64,5 @@ export const SUPPORTED_FORMATS = formatosArchivos;
 export const PRODUCTOS = productos;
 export const PRODUCTOSLX = productosLX;
 export const COTIZACION_CLIENTES = cotizacionClientes;
+//Redondeado decimales
+export const REDONDEADO = 4;

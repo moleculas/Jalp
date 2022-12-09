@@ -7,7 +7,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import PanelDatosLX from '../../panel/PanelDatosLX';
+import PanelDatosLX from '../../componentes/PanelDatosLX';
 import GraficoProduccionLX from '../../grafico/GraficoProduccionLX';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';

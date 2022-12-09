@@ -10,7 +10,6 @@ import _ from '@lodash';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import { motion } from 'framer-motion';
-import FuseUtils from '@fuse/utils';
 import { useLocation } from 'react-router';
 import history from '@history';
 import Typography from '@mui/material/Typography';

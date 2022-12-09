@@ -14,7 +14,7 @@ export const obtenerUsuarios = createAsyncThunk(
     const user = getState().user;
     try {
       const response = await axios.get('/usuarios');
-      const data = await response.data;
+      const data = await response.data;     
       if (filtrado) {
         const arrayFiltrado = data.filter(function (usuario) {
           return usuario._id !== user.data.id;

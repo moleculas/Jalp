@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import Typography from '@mui/material/Typography';
 import _ from '@lodash';
-import PanelDatosInicialesProduccion from '../../panel/PanelDatosInicialesProduccion';
+import PanelDatosInicialesProduccion from '../../componentes/PanelDatosInicialesProduccion';
 import GraficoDatosInicialesProduccion from '../../grafico/GraficoDatosInicialesProduccion';
 
 //constantes

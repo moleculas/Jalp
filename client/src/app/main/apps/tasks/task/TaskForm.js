@@ -324,7 +324,7 @@ const TaskForm = (props) => {
           onClick={routeParams.id === 'new' ? (handleSubmit(onSubmitNew)) : (handleSubmit(onSubmit))}
         >
           {routeParams.id === 'new' ? 'Crear' : 'Actualizar'}
-        </Button>
+        </Button>      
       </Box>
     </>
   );

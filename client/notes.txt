@@ -195,3 +195,8 @@ function GraficoProduccion1(props) {
 show dbs                                    -> to list all the database
 use test-database                           -> to select the database
 db.getCollection('orders').deleteMany({})   -> to select the collection and deletes all the data.
+
+//color gris tipografia 
+#959CA9
+//color defauklt tipografia
+#111827

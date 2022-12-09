@@ -2,6 +2,9 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import _ from '@lodash';
 
+//constantes
+import { REDONDEADO } from 'constantes';
+
 //importacion acciones
 import { showMessage } from 'app/redux/fuse/messageSlice';
 
@@ -89,11 +92,11 @@ export const calculoEscandallo = (escandallo) => (dispatch, getState) => {
   const objetoEscandallo = {
     arrayPatines,
     arrayPatinDerecho,
-    varPatinDerecho: _.round(varPatinDerecho + arrayMermaPatinDerecho[0].cubico, 4),
+    varPatinDerecho: _.round(varPatinDerecho + arrayMermaPatinDerecho[0].cubico, REDONDEADO),
     arrayPatinIzquierdo,
-    varPatinIzquierdo: _.round(varPatinIzquierdo + arrayMermaPatinIzquierdo[0].cubico, 4),
+    varPatinIzquierdo: _.round(varPatinIzquierdo + arrayMermaPatinIzquierdo[0].cubico, REDONDEADO),
     arrayPatinCentral,
-    varPatinCentral: _.round(varPatinCentral + arrayMermaPatinCentral[0].cubico, 4),
+    varPatinCentral: _.round(varPatinCentral + arrayMermaPatinCentral[0].cubico, REDONDEADO),
     arrayPalets,
     mermaPatinDerecho: arrayMermaPatinDerecho[0],
     mermaPatinIzquierdo: arrayMermaPatinIzquierdo[0],

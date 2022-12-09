@@ -33,14 +33,34 @@ const navigationConfig = [
         type: 'item',
         icon: 'material-outline:launch',
         url: '/pedidos',
+      },      
+      {
+        id: 'calculos',
+        title: 'Cálculos',
+        type: 'collapse',
+        icon: 'material-outline:dashboard_customize',
+        children: [
+          {
+            id: 'calculos.cotizacion',
+            title: 'Cotización',
+            type: 'item',           
+            url: '/cotizacion',
+          },
+          {
+            id: 'calculos.escandallo',
+            title: 'Escandallo',
+            type: 'item',           
+            url: '/escandallo',
+          }         
+        ]
       },
       {
-        id: 'escandallo',
-        title: 'Cálculos',
+        id: 'datos',
+        title: 'Datos',
         type: 'item',
-        icon: 'material-outline:dashboard_customize',
-        url: '/calculos',
-      },
+        icon: 'heroicons-outline:database',
+        url: '/datos',
+      },   
     ],
   },
   {

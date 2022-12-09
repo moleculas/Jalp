@@ -155,6 +155,7 @@ function ObjetivosForm() {
                                                 helperText={errors[`palets-${objetivo.producto}`]?.message}
                                                 variant="outlined"
                                                 fullWidth
+                                                type="number"
                                                 onChange={e => {
                                                     onChangeFirst(e);
                                                     field.onChange(e);
@@ -176,10 +177,11 @@ function ObjetivosForm() {
                                                 helperText={errors[`saldo-${objetivo.producto}`]?.message}
                                                 variant="outlined"
                                                 fullWidth
+                                                type="number"
                                                 onChange={e => {
                                                     onChangeFirst(e);
                                                     field.onChange(e);
-                                                }}
+                                                }}                                                
                                             />
                                         )}
                                     />

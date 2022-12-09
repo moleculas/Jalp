@@ -8,6 +8,11 @@ import Button from '@mui/material/Button';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import Box from '@mui/material/Box';
 import clsx from 'clsx';
+import { styled, alpha } from '@mui/material/styles';
+import Menu from '@mui/material/Menu';
+
+//constantes
+import { REDONDEADO } from 'constantes';
 
 //importación acciones
 import { setSemanasAnyo } from 'app/redux/produccion/inicioSlice';
@@ -47,7 +52,7 @@ export const calculoSemanasAnyo = () => (dispatch, getState) => {
 };
 
 export const obtenerMesAnterior = (mes, anyo) => (dispatch, getState) => {
-    const menos1Mes = moment([anyo, mes, 1]).subtract(2, "month")._d;
+    const menos1Mes = moment(`${anyo}-${mes}-01`).subtract(1, "months")._d;   
     const mesAnterior = format(new Date(menos1Mes), 'MMMM', { locale: es });
     const anyoAnterior = format(new Date(menos1Mes), 'yyyy');
     return { mesAnterior, anyoAnterior }
@@ -167,18 +172,28 @@ export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, ti
         },
         displayColumnDefOptions: {
             'mrt-row-actions': {
-                muiTableHeadCellProps: {
+                header: '',
+                size: 5,
+                muiTableBodyCellProps: {
                     sx: {
-                        paddingLeft: '24px',
-                        fontSize: '1.5rem',
-                        fontWeight: 700,
+                        padding: 0,
+                        backgroundColor: 'white',
+                        cursor: 'default',
+                        textAlign: 'center'
                     },
                 },
-                size: 10
+            },
+            'mrt-row-expand': {
+                muiTableHeadCellProps: {   
+                    display:'none!important'                
+                },
+                muiTableBodyCellProps: {     
+                    display:'none!important'               
+                },
             },
         },
         localization: {
-            actions: 'Ac',
+            actions: 'Acciones',
             cancel: 'Cancelar',
             changeFilterMode: 'Cambia el modo de filtro',
             clearFilter: 'Filtro claro',
@@ -270,4 +285,67 @@ export const TabPanel = (props) => {
             )}
         </div>
     );
+};
+
+export const StyledMenu = styled((props) => (
+    <Menu
+        elevation={0}
+        anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+        }}
+        transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+        }}
+        {...props}
+    />
+))(({ theme }) => ({
+    '& .MuiPaper-root': {
+        borderRadius: 6,
+        marginTop: theme.spacing(1),
+        minWidth: 210,
+        color:
+            theme.palette.mode === 'light' ? 'rgb(55, 65, 81)' : theme.palette.grey[300],
+        boxShadow:
+            'rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px',
+        '& .MuiMenu-list': {
+            padding: '4px 0',
+        },
+        '& .MuiMenuItem-root': {
+            padding: 10,
+            '& .muiltr-2fiqvc': {
+                fontSize: 18,
+                color: 'theme.palette.text.secondary',
+                marginRight: theme.spacing(1.5),
+                marginLeft: theme.spacing(1.5),
+            },
+            '&:active': {
+                backgroundColor: alpha(
+                    theme.palette.primary.main,
+                    theme.palette.action.selectedOpacity,
+                ),
+            },
+        },
+    },
+}));
+
+export const formateado = (num) => {
+    if (num === 0) {
+        return 0
+    } else {
+        let esDecimal = (num - Math.floor(num)) !== 0;
+        let fraccion = 0;
+        if (esDecimal) {
+            fraccion = num.toString().split('.')[1].length;
+            fraccion > REDONDEADO && (fraccion = REDONDEADO);
+        };
+        const elNumero = Number(num);
+        const numeroARetornar = elNumero.toLocaleString(undefined, { minimumFractionDigits: fraccion });
+        return numeroARetornar
+    };
+};
+
+export const removeArrayByIndex = (array, index) => {
+    return array.slice(0, index).concat(array.slice(index + 1))
 };

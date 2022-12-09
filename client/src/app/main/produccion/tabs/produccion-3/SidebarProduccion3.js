@@ -21,7 +21,7 @@ const navigationData = [
 
 function SidebarProduccion3() {
     return (
-        <div className="py-36">
+        <div className="py-36 w-[200px] min-w-[200px]">
             <div className="pl-36 pb-24 text-2xl font-extrabold tracking-tight leading-tight">Modelos</div>
             <FuseNavigation
                 navigation={navigationData}

@@ -11,7 +11,6 @@ import { selectDataInicioWidgets } from 'app/redux/produccion/inicioSlice';
 function BudgetDistributionWidget(props) {
   const widgets = useSelector(selectDataInicioWidgets);
   const { categories, series } = widgets?.budgetDistribution;
-
   const theme = useTheme();
 
   const chartOptions = {

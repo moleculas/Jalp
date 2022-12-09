@@ -2,6 +2,9 @@ import mongoose from "mongoose";
 
 const CotizacionSchema = new mongoose.Schema(
     {
+        descripcion: {
+            type: String,
+        },
         fecha: {
             type: Date,
         },
@@ -44,31 +47,26 @@ const CotizacionSchema = new mongoose.Schema(
         },
         sumCuerpo: {
             type: Number,
+        },        
+        sumVolumen: {
+            type: Number,
         },
-        clavos: {
-            type: Number
+        sumPrecioMerma: {
+            type: Number,
         },
-        corte_madera: {
-            type: Number
+        sumVolumenMerma: {
+            type: Number,
         },
-        montaje: {
-            type: Number
-        },
-        patines: {
-            type: Number
-        },
-        transporte: {
-            type: Number
-        },
-        tratamiento: {
-            type: Number
-        },
-        desperdicio: {
-            type: Number
-        },
-        varios: {
-            type: Number
-        },
+        filasExtra: {
+            type: [{
+                concepto: {
+                    type: String,
+                },
+                total: {
+                    type: Number,
+                }
+            }]
+        },       
         sumLateralSup: {
             type: Number
         },

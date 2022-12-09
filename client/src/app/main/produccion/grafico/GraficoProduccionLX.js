@@ -12,7 +12,8 @@ import Typography from '@mui/material/Typography';
 //importacion acciones
 import {
     obtenerMesAnterior,
-    calculoSemanasPeriodoMesConcreto
+    calculoSemanasPeriodoMesConcreto,
+    formateado
 } from 'app/logica/produccion/logicaProduccion';
 import {
     selectDatosProduccionLXMesAnterior,
@@ -223,7 +224,7 @@ function GraficoProduccionLX(props) {
                     },
                     formatter: function (value) {
                         if (value > 0) {
-                            return value
+                            return formateado(value)
                         };
                     }
                 },
@@ -238,6 +239,11 @@ function GraficoProduccionLX(props) {
                 tooltip: {
                     followCursor: true,
                     theme: 'dark',
+                    y: {
+                        formatter: function (value) {
+                            return formateado(value)
+                        }
+                    }
                 },
                 xaxis: {
                     type: 'category',
@@ -345,10 +351,10 @@ function GraficoProduccionLX(props) {
                                     <Typography className="ml-12 truncate font-medium text-sm">{label}</Typography>
                                 </div>
                                 <Typography className="text-right text-sm" color="text.secondary">
-                                    {datosPieGrafico.cargas[tabValue][0].data[index]}
+                                    {formateado(datosPieGrafico.cargas[tabValue][0].data[index])}
                                 </Typography>
                                 <Typography className="font-medium text-right text-sm">
-                                    {datosPieGrafico.cantidad[tabValue][0].data[index]}
+                                    {formateado(datosPieGrafico.cantidad[tabValue][0].data[index])}
                                 </Typography>
                             </div>
                         ))}

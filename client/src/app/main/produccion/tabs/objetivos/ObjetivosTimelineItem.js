@@ -42,7 +42,7 @@ function ObjetivosTimelineItem({ item, last }) {
                         return (
                             <div key={'historicoP-' + index} className="flex flex-col sm:flex-row sm:items-center mt-8 sm:mt-4 sm:space-x-8 text-md leading-5">
                                 <Typography className="text-14">
-                                    {`Cant: ${cambio.palets}`}
+                                    {`Cant: ${cambio.palets.toLocaleString()}`}
                                 </Typography>
                                 <div className="hidden sm:block">&bull;</div>
                                 <Typography className="text-13" color="text.secondary">
@@ -58,7 +58,7 @@ function ObjetivosTimelineItem({ item, last }) {
                         return (
                             <div key={'historicoP-' + index} className="flex flex-col sm:flex-row sm:items-center mt-8 sm:mt-4 sm:space-x-8 text-md leading-5">
                                 <Typography className="text-14">
-                                    {`Cant: ${cambio.saldo}`}
+                                    {`Cant: ${cambio.saldo.toLocaleString()}`}
                                 </Typography>
                                 <div className="hidden sm:block">&bull;</div>
                                 <Typography className="text-13" color="text.secondary">

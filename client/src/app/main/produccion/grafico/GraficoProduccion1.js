@@ -10,6 +10,9 @@ import { useState, useEffect } from 'react';
 import _ from '@lodash';
 import clsx from 'clsx';
 
+//importación acciones
+import { formateado } from 'app/logica/produccion/logicaProduccion';
+
 function GraficoProduccion1(props) {
     const { datosTabla, datosPalet, producto, semanas, objetivos, mes } = props;
     const theme = useTheme();
@@ -98,6 +101,11 @@ function GraficoProduccion1(props) {
                 tooltip: {
                     followCursor: true,
                     theme: 'dark',
+                    y: {
+                        formatter: function (value) {
+                            return formateado(value)
+                        }
+                    }
                 },
                 xaxis: {
                     type: 'category',
@@ -111,14 +119,14 @@ function GraficoProduccion1(props) {
                     objetoProporcion = {
                         estado: 'mayor',
                         texto: 'por encima del objetivo',
-                        proporcion: _.round(cantidad, 1)
+                        proporcion: formateado(cantidad)
                     };
                 } else {
                     cantidad = ((objetivos.saldo - objetoDatosGrafico.amount[i]) * 100) / objetivos.saldo;
                     objetoProporcion = {
                         estado: 'menor',
                         texto: 'por debajo del objetivo',
-                        proporcion: _.round(cantidad, 1)
+                        proporcion: formateado(cantidad)
                     };
                 };
                 objetoDatosGrafico.proporcion[i] = objetoProporcion;
@@ -129,14 +137,14 @@ function GraficoProduccion1(props) {
                     objetoProporcion = {
                         estado: 'mayor',
                         texto: 'por encima del objetivo',
-                        proporcion: _.round(cantidad, 1)
+                        proporcion: formateado(cantidad)
                     };
                 } else {
                     cantidad = ((objetivos.palets - objetoDatosGrafico.amount[i]) * 100) / objetivos.palets;
                     objetoProporcion = {
                         estado: 'menor',
                         texto: 'por debajo del objetivo',
-                        proporcion: _.round(cantidad, 1)
+                        proporcion: formateado(cantidad)
                     };
                 };
                 objetoDatosGrafico.proporcion[i] = objetoProporcion;
@@ -190,7 +198,7 @@ function GraficoProduccion1(props) {
                 </div>
                 <div className="flex flex-col lg:flex-row lg:items-center mx-24 mt-12">
                     <Typography className="text-6xl font-bold tracking-tighter leading-tight">
-                        {datosGrafico.amount[tabValue]}
+                        {formateado(datosGrafico.amount[tabValue])}
                     </Typography>
                     <div className="flex lg:flex-col lg:ml-12">
                         <FuseSvgIcon
@@ -225,7 +233,7 @@ function GraficoProduccion1(props) {
                         type={datosGrafico.chartOptions[tabValue].chart.type}
                         height={datosGrafico.chartOptions[tabValue].chart.height}
                     />
-                </div>                
+                </div>
             </Paper>
         )
     );

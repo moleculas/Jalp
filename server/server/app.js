@@ -17,6 +17,7 @@ import produccionRoutes from "./routes/produccion.routes";
 import objetivosRoutes from "./routes/objetivos.routes";
 import pedidoRoutes from "./routes/pedido.routes";
 import cotizacionRoutes from "./routes/cotizacion.routes";
+import productoRoutes from "./routes/producto.routes";
 
 const app = express();
 
@@ -50,5 +51,6 @@ app.use('/api/produccion', produccionRoutes);
 app.use('/api/objetivos', objetivosRoutes);
 app.use('/api/pedido', pedidoRoutes);
 app.use('/api/cotizacion', cotizacionRoutes);
+app.use('/api/producto', productoRoutes);
 
 export { app };

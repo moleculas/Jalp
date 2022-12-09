@@ -10,7 +10,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import Typography from '@mui/material/Typography';
 
 //importacion acciones
-import { obtenerMesAnterior } from 'app/logica/produccion/logicaProduccion';
+import {
+    obtenerMesAnterior,
+    formateado
+} from 'app/logica/produccion/logicaProduccion';
 //importacion acciones
 import {
     selectDatosProduccionInicialProductosMesAnterior,
@@ -30,7 +33,7 @@ function GraficoDatosInicialesProduccion(props) {
 
     useEffect(() => {
         if (datos) {
-            if (!datosProduccionInicialProductosMesAnterior) {
+            if (!datosProduccionInicialProductosMesAnterior) {                
                 const { mesAnterior, anyoAnterior } = dispatch(obtenerMesAnterior(mesNumero, anyo));
                 dispatch(getProduccionInicialMesAnterior({ mes: mesAnterior, anyo: anyoAnterior, productos }));
             } else {
@@ -135,11 +138,11 @@ function GraficoDatosInicialesProduccion(props) {
                     formatter: function (value, { seriesIndex, dataPointIndex, w }) {
                         if (seriesIndex === 1) {
                             if (value > 0) {
-                                return value / 1.5
+                                return formateado(value / 1.5)
                             };
                         } else {
                             if (value > 0) {
-                                return value
+                                return formateado(value)
                             };
                         };
                     }
@@ -158,9 +161,9 @@ function GraficoDatosInicialesProduccion(props) {
                     y: {
                         formatter: function (value, { series, seriesIndex, dataPointIndex, w }) {
                             if (seriesIndex === 1) {
-                                return value / 1.5
+                                return formateado(value / 1.5)
                             } else {
-                                return value
+                                return formateado(value)
                             };
                         }
                     }

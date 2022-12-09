@@ -22,7 +22,7 @@ function Objetivos() {
                 <div>
                     <ObjetivosForm />
                 </div>
-                <div  >
+                <div>
                     <ObjetivosHistorico />
                 </div>
             </motion.div>

@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
@@ -7,12 +8,22 @@ import SectionListItem from './SectionListItem';
 
 //importación acciones
 import { reorderList, selectTasks } from 'app/redux/tasks/tasksSlice';
+import { obtenerUsuarios } from 'app/redux/usuariosSlice';
 
 function TasksList(props) {
   const dispatch = useDispatch();
   const tasks = useSelector(selectTasks);
+  const [cargadoUsuarios, setCargadoUsuarios] = useState(false);
 
-  if (!tasks) {
+  //useEffect
+
+  useEffect(() => {
+    dispatch(obtenerUsuarios(false)).then(() => {
+      setCargadoUsuarios(true);
+    });
+  }, []);
+
+  if (!tasks || !cargadoUsuarios) {
     return null;
   };
 
