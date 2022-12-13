@@ -1,5 +1,4 @@
 import Pedido from "../models/Pedido";
-import PedidoProducto from "../models/PedidoProducto";
 
 export const getPedido = async (req, res) => {
     try {
@@ -80,33 +79,6 @@ export const updatePedido = async (req, res) => {
             linea: updatedPedido.linea
         };
         return res.json(updatedPedidoARetornar);
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    };
-};
-
-export const addPedidoProducto = async (req, res) => {
-    try {
-        const { producto, tipo, largo, ancho, grueso } = req.body;
-        const newPedidoProducto = new PedidoProducto({ producto, tipo, largo, ancho, grueso });
-        await newPedidoProducto.save();
-        return res.json(newPedidoProducto);
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    };
-};
-
-export const getPedidoProducto = async (req, res) => {
-    const { tipo } = req.params;
-    try {
-        const pedidoProducto = await PedidoProducto.find({
-            tipo
-        }, {
-            createdAt: 0,
-            updatedAt: 0,
-            _id: 0
-        });
-        return res.json(pedidoProducto);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     };

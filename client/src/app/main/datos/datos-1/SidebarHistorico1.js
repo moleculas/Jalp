@@ -1,14 +1,14 @@
 import { useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import Timeline from '@mui/lab/Timeline';
-import ClavosTimelineItem from './ClavosTimelineItem';
+import ClientesTimelineItem from './ClientesTimelineItem';
 import { motion } from 'framer-motion';
 import Typography from '@mui/material/Typography';
 
 //importacion acciones
 import { selectProductos } from 'app/redux/produccion/productoSlice';
 
-function SidebarHistorico2() {
+function SidebarHistorico1() {
     const productos = useSelector(selectProductos);
     const container = {
         show: {
@@ -48,10 +48,10 @@ function SidebarHistorico2() {
                 <div className="flex flex-col sm:flex-row mb-24">
                     <div>
                         <Typography className="text-2xl font-extrabold tracking-tight leading-tight">
-                            Histórico producto
+                            Histórico concepto
                         </Typography>
                         <div className="mt-2 font-medium">
-                            <Typography>Secuencia de cambios en producto.</Typography>
+                            <Typography>Secuencia de cambios en concepto.</Typography>
                         </div>
                     </div>
                 </div>
@@ -65,17 +65,17 @@ function SidebarHistorico2() {
                         }}
                     >
                         {itemsTimeline.map((item, index) => (
-                            <ClavosTimelineItem
+                            <ClientesTimelineItem
                                 last={itemsTimeline.length === index + 1}
                                 item={item}
                                 key={item._id}
                             />
                         ))}
                     </Timeline>
-                </motion.div>        
+                </motion.div>
             </motion.div>
         )
     );
 }
 
-export default SidebarHistorico2;
+export default SidebarHistorico1;

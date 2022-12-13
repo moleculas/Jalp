@@ -3,6 +3,7 @@ import Slide from '@mui/material/Slide';
 import { forwardRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import MermaCuerpoCotDialog from './MermaCuerpoCotDialog';
+import ClavosCotDialog from './ClavosCotDialog';
 
 //importacion acciones
 import {
@@ -28,7 +29,7 @@ function CotizacionDialog(props) {
                 return (<MermaCuerpoCotDialog index={mermaIndex} />)
                 break;
             case 'clavos':
-
+                return (<ClavosCotDialog />)
                 break;
             case 'corte_madera':
 
@@ -62,7 +63,12 @@ function CotizacionDialog(props) {
                 paper: 'w-full m-24',
             }}
             fullWidth={true}
-            maxWidth={noteDialogId === "mermaCuerpo" ? 'md' : 'sm'}
+            maxWidth={
+                (
+                    noteDialogId === "mermaCuerpo" ||
+                    noteDialogId === "clavos"
+                )
+                    ? 'md' : 'sm'}
             TransitionComponent={Transition}
             onClose={(ev) => dispatch(closeNoteDialog())}
             open={Boolean(noteDialogId)}

@@ -4,6 +4,13 @@ import _ from '@lodash';
 import MaterialReactTable from 'material-react-table';
 import Typography from '@mui/material/Typography';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import clsx from 'clsx';
 
 //constantes
 import { REDONDEADO } from 'constantes';
@@ -11,30 +18,40 @@ import { REDONDEADO } from 'constantes';
 //importacion acciones
 import {
     generarPropsTabla,
-    formateado
+    formateado,
+    removeArrayByIndex
 } from 'app/logica/produccion/logicaProduccion';
 import {
+    setAnadirFilaIdCotizacion,
+    selectAnadirFilaIdCotizacion,
     selectObjetoCotizacionActualizado,
-    setObjetoCotizacionCuerpo,
-    selectObjetoCotizacionCuerpo,
+    setObjetoCotizacionLateralSup,
+    selectObjetoCotizacionLateralSup,
     setRegistraIntervencionDialog
 } from 'app/redux/produccion/cotizacionSlice';
+import {
+    getProductos,
+    setProductos
+} from 'app/redux/produccion/productoSlice';
 
 function ClavosCotDialog(props) {
-    const { index } = props;
+    const { } = props;
     const dispatch = useDispatch();
     const [tableColumns, setTableColumns] = useState(null);
     const [tableData, setTableData] = useState(null);
     const [changedData, setChangedData] = useState(false);
+    const anadirFilaIdCotizacion = useSelector(selectAnadirFilaIdCotizacion);
     const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
-    const cotizacionCuerpo = useSelector(selectObjetoCotizacionCuerpo);
+    const cotizacionLateralSup = useSelector(selectObjetoCotizacionLateralSup);
     const [updateState, setUpdateState] = useState({ estado: false, objeto: null });
-    const [variablesCalculoMerma, setVariablesCalculoMerma] = useState({ vol_total: null, precio: null });
 
     //useEffect  
 
     useEffect(() => {
-        generarColumnas();
+        dispatch(setProductos(null));
+        dispatch(getProductos({ familia: 'clavos', min: true })).then(({ payload }) => {
+            generarColumnas(payload);
+        });
     }, []);
 
     useEffect(() => {
@@ -59,15 +76,31 @@ function ClavosCotDialog(props) {
         };
     }, [updateState]);
 
+    useEffect(() => {
+        if (anadirFilaIdCotizacion && anadirFilaIdCotizacion === "clavos") {
+            const arrayDatos = [...tableData];
+            let objetoDatos = {
+                clavo: "",
+                precio_unitario: 0,
+                unidades: 0,
+                precio_total: 0
+            };
+            arrayDatos.push(objetoDatos);
+            setTableData(arrayDatos);
+            dispatch(setAnadirFilaIdCotizacion(null));
+        };
+    }, [anadirFilaIdCotizacion]);
+
     //funciones
 
-    const generarColumnas = () => {
+    const generarColumnas = (clavos) => {
         const arrayColumnas = [
             {
-                header: 'Unidades',
-                accessorKey: 'unidades',
+                header: 'Clavo',
+                accessorKey: 'clavo',
                 enableSorting: false,
                 enableColumnFilter: false,
+                enableEditing: false,
                 muiTableHeadCellProps: {
                     sx: {
                         paddingLeft: '24px',
@@ -75,147 +108,38 @@ function ClavosCotDialog(props) {
                         fontWeight: 700,
                     },
                 },
-                muiTableBodyCellEditTextFieldProps: {
-                    type: 'number',
-                    autoFocus: true
-                },
                 muiTableBodyCellProps: ({ cell, table }) => ({
-                    onClick: () => clickCelda(cell, table),
+                    onBlurCapture: (event) => {
+                        if (event.target.dataset.value !== undefined) {
+                            handleChangeSelectClavos(table, event.target.dataset.value, Number(cell.row.id), clavos);
+                        };
+                    },
                     sx: {
-                        '&:hover': {
-                            backgroundColor: '#ebebeb',
-                        },
                         paddingLeft: '24px',
                         backgroundColor: 'white',
                     },
                 }),
-                Header: ({ column }) => (
-                    <div className='flex flex-row items-center'>
-                        <FuseSvgIcon className="mr-4" size={20}>material-outline:edit_note</FuseSvgIcon>
-                        <div>
-                            {column.columnDef.header}
-                        </div>
-                    </div>
+                Cell: ({ cell }) => (
+                    <FormControl variant="standard" className="-my-12" sx={{ minWidth: 200 }}>
+                        <Select
+                            value={cell.getValue()}
+                            fullWidth
+                        >
+                            <MenuItem value="">
+                                <em>Clavos</em>
+                            </MenuItem>
+                            {clavos.map((option, index) => (
+                                <MenuItem key={option.descripcion} value={option.descripcion}>
+                                    {option.descripcion}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                 ),
-                Cell: ({ cell, row }) => (
-                    <Typography
-                        variant="body1"
-                        color={cell.getValue() < 0 && "error"}
-                        className="whitespace-nowrap"
-                    >
-                        {formateado(cell.getValue())}
-                    </Typography>
-                ),
-                size: 50,
             },
             {
-                header: 'Largo',
-                accessorKey: 'largo',
-                enableSorting: false,
-                enableColumnFilter: false,
-                muiTableBodyCellEditTextFieldProps: {
-                    type: 'number',
-                    autoFocus: true
-                },
-                muiTableBodyCellProps: ({ cell, table }) => ({
-                    onClick: () => clickCelda(cell, table),
-                    sx: {
-                        '&:hover': {
-                            backgroundColor: '#ebebeb',
-                        },
-                        backgroundColor: 'white',
-                    },
-                }),
-                Header: ({ column }) => (
-                    <div className='flex flex-row items-center'>
-                        <FuseSvgIcon className="mr-4" size={20}>material-outline:edit_note</FuseSvgIcon>
-                        <div>
-                            {column.columnDef.header}
-                        </div>
-                    </div>
-                ),
-                Cell: ({ cell, row }) => (
-                    <Typography
-                        variant="body1"
-                        color={cell.getValue() < 0 && "error"}
-                        className="whitespace-nowrap"
-                    >
-                        {formateado(cell.getValue())}
-                    </Typography>
-                ),
-                size: 50,
-            },
-            {
-                header: 'Ancho',
-                accessorKey: 'ancho',
-                enableSorting: false,
-                enableColumnFilter: false,
-                enableEditing: false,
-                Cell: ({ cell, row }) => (
-                    <Typography
-                        variant="body1"
-                        color={cell.getValue() < 0 && "error"}
-                        className="whitespace-nowrap"
-                    >
-                        {formateado(cell.getValue())}
-                    </Typography>
-                ),
-                size: 50,
-            },
-            {
-                header: 'Grueso',
-                accessorKey: 'grueso',
-                enableSorting: false,
-                enableColumnFilter: false,
-                enableEditing: false,
-                Cell: ({ cell, row }) => (
-                    <Typography
-                        variant="body1"
-                        color={cell.getValue() < 0 && "error"}
-                        className="whitespace-nowrap"
-                    >
-                        {formateado(cell.getValue())}
-                    </Typography>
-                ),
-                size: 50,
-            },
-            {
-                header: 'Vol.Mat.Prima',
-                accessorKey: 'mat_prima',
-                enableSorting: false,
-                enableColumnFilter: false,
-                enableEditing: false,
-                Cell: ({ cell, row }) => (
-                    <Typography
-                        variant="body1"
-                        color={cell.getValue() < 0 && "error"}
-                        className="whitespace-nowrap"
-                    >
-                        {formateado(cell.getValue()) + " m³"}
-                    </Typography>
-                ),
-                size: 50,
-            },
-            {
-                header: 'Vol.Merma',
-                accessorKey: 'vol_merma',
-                enableSorting: false,
-                enableColumnFilter: false,
-                enableEditing: false,
-                Cell: ({ cell, row }) => (
-                    <Typography
-                        variant="body1"
-                        color={cell.getValue() < 0 && "error"}
-                        className="whitespace-nowrap"
-                    >
-                        {formateado(cell.getValue()) + " m³"}
-                    </Typography>
-                ),
-                size: 50,
-            },
-            {
-                header: 'Precio.Merma',
-                accessorKey: 'precio_merma',
+                header: 'Precio.U',
+                accessorKey: 'precio_unitario',
                 enableSorting: false,
                 enableColumnFilter: false,
                 enableEditing: false,
@@ -229,6 +153,61 @@ function ClavosCotDialog(props) {
                     </Typography>
                 ),
                 size: 50,
+            },
+            {
+                header: 'Unidades',
+                accessorKey: 'unidades',
+                enableSorting: false,
+                enableColumnFilter: false,
+                muiTableBodyCellEditTextFieldProps: {
+                    type: 'number',
+                    autoFocus: true
+                },
+                muiTableBodyCellProps: ({ cell, table }) => ({
+                    onClick: () => clickCelda(cell, table),
+                    sx: {
+                        '&:hover': {
+                            backgroundColor: '#ebebeb',
+                        },
+                        backgroundColor: 'white',
+                    },
+                }),
+                Header: ({ column }) => (
+                    <div className='flex flex-row items-center'>
+                        <FuseSvgIcon className="mr-4" size={20}>material-outline:edit_note</FuseSvgIcon>
+                        <div>
+                            {column.columnDef.header}
+                        </div>
+                    </div>
+                ),
+                Cell: ({ cell, row }) => (
+                    <Typography
+                        variant="body1"
+                        color={cell.getValue() < 0 && "error"}
+                        className="whitespace-nowrap"
+                    >
+                        {formateado(cell.getValue())}
+                    </Typography>
+                ),
+                size: 50,
+            },
+            {
+                header: 'Precio.T',
+                accessorKey: 'precio_total',
+                enableSorting: false,
+                enableColumnFilter: false,
+                enableEditing: false,
+                Cell: ({ cell, row }) => (
+                    <Typography
+                        variant="body1"
+                        color={cell.getValue() < 0 && "error"}
+                        className="whitespace-nowrap"
+                    >
+                        {formateado(cell.getValue()) + " €"}
+                    </Typography>
+                ),
+                size: 50,
+                Footer: ({ table }) => retornaTotales(table, 'precio_total'),
             },
         ];
         setTableColumns(arrayColumnas);
@@ -245,77 +224,81 @@ function ClavosCotDialog(props) {
         table.setEditingCell(cell);
     };
 
+    const retornaTotales = (table, columna) => {
+        switch (columna) {
+            case 'precio_total':
+                if (table.options.data[0].precio_total > 0) {
+                    const sumatorioTotales1 = table.options.data.reduce((sum, { precio_total }) => sum + precio_total, 0);
+                    return (
+                        <Typography variant="body1">
+                            <span className="font-bold whitespace-nowrap">
+                                {`${formateado(sumatorioTotales1)} €`}
+                            </span>
+                        </Typography>
+                    )
+                };
+                break;
+            default:
+        };
+    };
+
     const generarDatos = () => {
         const arrayDatos = [];
         let objetoDatos;
-        if (cotizacionActualizado || cotizacionCuerpo) {
+        if (cotizacionActualizado || cotizacionLateralSup) {
             let arrayFilas;
-            if (cotizacionActualizado && !cotizacionCuerpo) {
-                arrayFilas = cotizacionActualizado.filasCuerpo;
+            if (cotizacionActualizado && !cotizacionLateralSup) {
+                arrayFilas = cotizacionActualizado.filasClavos;
             } else {
-                arrayFilas = cotizacionCuerpo.filasCuerpo;
+                arrayFilas = cotizacionLateralSup.filasClavos;
             };
-            setVariablesCalculoMerma({
-                vol_total: arrayFilas[index].vol_total,
-                precio: arrayFilas[index].precio
-            });
-            objetoDatos = {
-                unidades: arrayFilas[index].vol_merma !== 0 ? arrayFilas[index].vol_merma.unidades : 0,
-                largo: arrayFilas[index].vol_merma !== 0 ? arrayFilas[index].vol_merma.largo : 0,
-                ancho: arrayFilas[index].ancho,
-                grueso: arrayFilas[index].grueso,
-                mat_prima: arrayFilas[index].vol_merma !== 0 ? arrayFilas[index].vol_merma.mat_prima : 0,
-                vol_merma: arrayFilas[index].vol_merma !== 0 ? arrayFilas[index].vol_merma.vol_merma : 0,
-                precio_merma: arrayFilas[index].vol_merma !== 0 ? arrayFilas[index].vol_merma.precio_merma : 0
+            if (arrayFilas && arrayFilas.length > 0) {
+                arrayFilas.forEach((fila) => {
+                    objetoDatos = {
+                        clavo: fila.clavo,
+                        precio_unitario: fila.precio_unitario,
+                        unidades: fila.unidades,
+                        precio_total: fila.precio_total,
+                    };
+                    arrayDatos.push(objetoDatos);
+                });
+            } else {
+                objetoDatos = {
+                    clavo: "",
+                    precio_unitario: 0,
+                    unidades: 0,
+                    precio_total: 0
+                };
+                arrayDatos.push(objetoDatos);
             };
         };
-        arrayDatos.push(objetoDatos);
         setTableData(arrayDatos);
     };
 
-    const calculosTabla = (tabla) => {
+    const calculosTabla = (tabla, update, row) => {
         const arrayTabla = [];
         let objetoFila = null;
         tabla.map((fila, index) => {
             objetoFila = { ...fila };
             objetoFila.unidades = Number(objetoFila.unidades);
-            objetoFila.largo = Number(objetoFila.largo);
-            objetoFila.mat_prima = _.round((objetoFila.unidades * ((objetoFila.largo * objetoFila.ancho * objetoFila.grueso) / 1000000000)), REDONDEADO);
-            if (objetoFila.unidades > 0 && objetoFila.largo > 0) {
-                objetoFila.vol_merma = objetoFila.mat_prima - variablesCalculoMerma.vol_total;
-                objetoFila.precio_merma = objetoFila.vol_merma * variablesCalculoMerma.precio;
-            };
+            objetoFila.precio_total = _.round((objetoFila.unidades * objetoFila.precio_unitario), REDONDEADO);
             arrayTabla.push(objetoFila);
         });
         setTableData(arrayTabla);
-        if (arrayTabla[0].precio_merma > 0) {
-            setUpdateState({ estado: true, objeto: arrayTabla });
-        };
+        setUpdateState({ estado: true, objeto: arrayTabla });
     };
 
     const actualizarTabla = (arrayTabla) => {
-        const datosMermaUpdate = {
-            unidades: arrayTabla[0].unidades,
-            largo: arrayTabla[0].largo,
-            mat_prima: arrayTabla[0].mat_prima,
-            vol_merma: arrayTabla[0].vol_merma,
-            precio_merma: arrayTabla[0].precio_merma
-        };
         let datosCotizacionUpdate = {};
-        let objetoFilasCuerpo = {};
-        let arrayFilasCuerpo = [];
-        if (cotizacionActualizado && !cotizacionCuerpo) {
-            arrayFilasCuerpo = [...cotizacionActualizado.filasCuerpo];
-        } else {
-            arrayFilasCuerpo = [...cotizacionCuerpo.filasCuerpo];
+        if (cotizacionLateralSup) {
+            datosCotizacionUpdate = { ...cotizacionLateralSup };
         };
-        objetoFilasCuerpo = { ...arrayFilasCuerpo[index] };
-        objetoFilasCuerpo.vol_merma = datosMermaUpdate;
-        arrayFilasCuerpo[index] = objetoFilasCuerpo;
-        datosCotizacionUpdate.filasCuerpo = arrayFilasCuerpo;
-        datosCotizacionUpdate.sumCuerpo = cotizacionCuerpo.sumCuerpo;
-        dispatch(setObjetoCotizacionCuerpo(datosCotizacionUpdate));
-        dispatch(setRegistraIntervencionDialog('merma'));
+        const arrayLinea = arrayTabla.map(({ clavo, precio_unitario, unidades, precio_total }) => ({ clavo, precio_unitario, unidades, precio_total }));
+        datosCotizacionUpdate.filasClavos = arrayLinea;
+        const sumClavos = arrayLinea.reduce((sum, { precio_total }) => sum + precio_total, 0);
+        datosCotizacionUpdate.sumClavos = _.round(sumClavos, REDONDEADO);
+        dispatch(setObjetoCotizacionLateralSup(datosCotizacionUpdate));
+        dispatch(setRegistraIntervencionDialog('clavos'));
     };
 
     const handleChangeCell = (cell, event) => {
@@ -326,17 +309,17 @@ function ClavosCotDialog(props) {
         let valor = event.target.value;
         !valor && (valor = 0);
         tabla[rowIndex][columna] = valor;
-        calculosTabla(tabla);
+        calculosTabla(tabla, null, rowIndex);
     };
 
     const handleExitCell = (cell) => {
         const tabla = [...tableData];
+        const rowIndex = Number(cell.row.id);
         if (changedData) {
-            calculosTabla(tabla);
+            calculosTabla(tabla, null, rowIndex);
             setChangedData(false);
         } else {
             if (!cell.getValue()) {
-                const rowIndex = Number(cell.row.id);
                 const columna = cell.column.id;
                 tabla[rowIndex][columna] = 0;
                 setTableData(tabla);
@@ -344,35 +327,81 @@ function ClavosCotDialog(props) {
         };
     };
 
-    if (!tableData) {
+    const handleChangeSelectClavos = (table, clavo, row, clavos) => {
+        const arrayTabla = [...table.options.data];
+        arrayTabla[row].clavo = clavo;
+        let precioUnitario = 0;
+        if (clavo) {
+            precioUnitario = clavos[clavos.findIndex(item => item.descripcion === clavo)].precioUnitario;
+        };
+        arrayTabla[row].precio_unitario = precioUnitario;
+        calculosTabla(arrayTabla, true, row);
+    };
+
+    const borrarColumna = (id) => {
+        const myArray = removeArrayByIndex(tableData, id);
+        setTableData(myArray);
+        actualizarTabla(myArray);
+    };
+
+    if (!tableData && !tableColumns) {
         return null
     };
 
     return (
-        <MaterialReactTable
-            {...dispatch(generarPropsTabla(false, false, `Cálculo merma cotización Fila ${index + 1}`, '', null, null, false))}
-            columns={tableColumns}
-            data={tableData}
-            muiTableBodyCellProps={({ cell }) => ({
-                onChange: (event) => {
-                    handleChangeCell(cell, event);
-                },
-                onBlur: () => {
-                    handleExitCell(cell);
-                },
-                sx: {
-                    backgroundColor: 'white',
-                    cursor: 'default'
-                }
-            })}
-            muiTablePaperProps={{
-                elevation: 0,
-                sx: {
-                    height: 200,
-                    overflow: 'hidden'
-                },
-            }}
-        />
+        (tableColumns && tableData) && (
+            <>
+                <MaterialReactTable
+                    {...dispatch(generarPropsTabla(
+                        false,
+                        false,
+                        `Cálculo clavos cotización`,
+                        '',
+                        null,
+                        null,
+                        { id: null, disabled: false, type: 'clavos' }
+                    ))}
+                    columns={tableColumns}
+                    data={tableData}
+                    muiTableBodyCellProps={({ cell }) => ({
+                        onChange: (event) => {
+                            handleChangeCell(cell, event);
+                        },
+                        onBlur: () => {
+                            if (cell.column.id !== "clavo") {
+                                handleExitCell(cell);
+                            };
+                        },
+                        sx: {
+                            backgroundColor: 'white',
+                            cursor: 'default'
+                        }
+                    })}
+                    muiTablePaperProps={{
+                        elevation: 0,
+                        sx: {
+                            minHeight: 200,
+                            overflowY: 'auto'
+                        },
+                    }}
+                    enableRowActions={true}
+                    positionActionsColumn="last"
+                    renderRowActions={({ row, table }) => (
+                        <Box className="p-0 m-0">
+                            <Tooltip arrow placement="top-start" title="Borrar fila">
+                                <IconButton
+                                    size='small'
+                                    className={clsx(Number(row.id) === 0 && 'hidden')}
+                                    onClick={() => borrarColumna(Number(row.id))}
+                                >
+                                    <FuseSvgIcon>material-outline:delete</FuseSvgIcon>
+                                </IconButton>
+                            </Tooltip>
+                        </Box>
+                    )}
+                />
+            </>
+        )
     );
 }
 

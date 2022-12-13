@@ -17,6 +17,7 @@ import { REDONDEADO } from 'constantes';
 //importación acciones
 import { setSemanasAnyo } from 'app/redux/produccion/inicioSlice';
 import { setAnadirFilaId } from 'app/redux/produccion/pedidoSlice';
+import { setAnadirFilaIdCotizacion } from 'app/redux/produccion/cotizacionSlice';
 
 export const decMesActual = () => (dispatch, getState) => {
     const mesActual = getState().produccionSeccion.inicio.produccion.mesActual;
@@ -52,7 +53,7 @@ export const calculoSemanasAnyo = () => (dispatch, getState) => {
 };
 
 export const obtenerMesAnterior = (mes, anyo) => (dispatch, getState) => {
-    const menos1Mes = moment(`${anyo}-${mes}-01`).subtract(1, "months")._d;   
+    const menos1Mes = moment(`${anyo}-${mes}-01`).subtract(1, "months")._d;
     const mesAnterior = format(new Date(menos1Mes), 'MMMM', { locale: es });
     const anyoAnterior = format(new Date(menos1Mes), 'yyyy');
     return { mesAnterior, anyoAnterior }
@@ -117,6 +118,15 @@ export const calculoSemanasPeriodoMesConcreto = (mes) => (dispatch, getState) =>
     return semanas
 };
 
+const anadirFila = (idButton) => (dispatch, getState) => {
+    if (idButton.type === 'pedido') {
+        dispatch(setAnadirFilaId(idButton.id));
+    };
+    if (idButton.type === 'clavos') {
+        dispatch(setAnadirFilaIdCotizacion('clavos'));
+    };
+};
+
 export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, titulo2, pinning, chip, idButton) => (dispatch, getState) => {
     const tableProps = {
         enableDensityToggle: false,
@@ -130,37 +140,48 @@ export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, ti
         initialState: { density: 'spacious', columnPinning: { left: pinning } },
         enableEditing: true,
         editingMode: "cell",
+        muiTablePaperProps: {
+            sx: {
+                boxShadow: 'none!important'
+            },
+        },
         muiTableHeadRowProps: {
             sx: {
                 backgroundColor: 'white',
+                boxShadow: 'none!important',
                 cursor: 'default'
             },
         },
         muiTableFooterRowProps: {
             sx: {
                 backgroundColor: 'white',
+                boxShadow: 'none!important',
                 cursor: 'default'
             },
         },
         muiTopToolbarProps: {
             sx: {
                 backgroundColor: 'white',
+                boxShadow: 'none!important',
                 borderBottom: '1px solid #e2e8f0',
             },
         },
         muiTableBodyRowProps: {
             sx: {
                 backgroundColor: 'white',
+                boxShadow: 'none!important',
             },
         },
         muiTableBodyCellProps: {
             sx: {
                 cursor: 'default',
+                boxShadow: 'none!important',
             },
         },
         muiBottomToolbarProps: {
             sx: {
                 backgroundColor: 'white',
+                boxShadow: 'none!important',
                 minHeight: '25px',
             },
         },
@@ -184,11 +205,11 @@ export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, ti
                 },
             },
             'mrt-row-expand': {
-                muiTableHeadCellProps: {   
-                    display:'none!important'                
+                muiTableHeadCellProps: {
+                    display: 'none!important'
                 },
-                muiTableBodyCellProps: {     
-                    display:'none!important'               
+                muiTableBodyCellProps: {
+                    display: 'none!important'
                 },
             },
         },
@@ -236,11 +257,12 @@ export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, ti
                         <div className="flex flex-col sm:flex-row items-center">
                             {idButton && (
                                 <div className={clsx(
-                                    idButton.type === 'pedido' && 'md:-mb-16 mt-12 md:mt-0 mr-12'
+                                    idButton.type === 'pedido' && 'md:-mb-16 mt-12 md:mt-0 mr-12',
+                                    idButton.type === 'clavos' && 'md:-mb-16 mt-12 md:mt-0 mr-0'
                                 )}
                                 >
                                     <Button
-                                        onClick={() => idButton.type === 'pedido' && dispatch(setAnadirFilaId(idButton.id))}
+                                        onClick={() => dispatch(anadirFila(idButton))}
                                         color="primary"
                                         variant="outlained"
                                         startIcon={<FuseSvgIcon size={20}>heroicons-outline:plus-circle</FuseSvgIcon>}

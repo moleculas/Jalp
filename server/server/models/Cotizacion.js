@@ -12,7 +12,7 @@ const CotizacionSchema = new mongoose.Schema(
             type: String,
         },
         of: {
-            type: Number,
+            type: String,
         },
         unidades: {
             type: Number,
@@ -31,23 +31,42 @@ const CotizacionSchema = new mongoose.Schema(
                 grueso: {
                     type: Number
                 },
-                precio: {
-                    type: Number
-                },
                 vol_unitario: {
                     type: Number
                 },
                 vol_total: {
                     type: Number
                 },
-                precio_t: {
+                precio_unitario: {
                     type: Number
+                },
+                precio_total: {
+                    type: Number
+                },
+                filaMerma:{
+                    type: [{
+                        unidades: {
+                            type: Number,
+                        },
+                        largo: {
+                            type: Number,
+                        },
+                        mat_prima: {
+                            type: Number,
+                        },
+                        vol_merma: {
+                            type: Number,
+                        },
+                        precio_merma: {
+                            type: Number,
+                        }
+                    }]
                 }
             }]
         },
         sumCuerpo: {
             type: Number,
-        },        
+        },
         sumVolumen: {
             type: Number,
         },
@@ -57,16 +76,35 @@ const CotizacionSchema = new mongoose.Schema(
         sumVolumenMerma: {
             type: Number,
         },
+        filasClavos: {
+            type: [{
+                clavo: {
+                    type: String,
+                },
+                precio_unitario: {
+                    type: Number,
+                },
+                unidades: {
+                    type: Number,
+                },
+                precio_total: {
+                    type: Number,
+                }
+            }]
+        },
+        sumClavos: {
+            type: Number
+        },
         filasExtra: {
             type: [{
                 concepto: {
                     type: String,
                 },
-                total: {
+                precio_total: {
                     type: Number,
                 }
             }]
-        },       
+        },
         sumLateralSup: {
             type: Number
         },

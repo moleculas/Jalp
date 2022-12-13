@@ -92,7 +92,7 @@ export const getCotizacion = createAsyncThunk(
     });
 
 const initialState = {
-    anadirFilaIdCotizacion: false,
+    anadirFilaIdCotizacion: null,
     objetoCotizacionCabecera: null,
     objetoCotizacionCuerpo: null,
     objetoCotizacionLateralSup: null,
@@ -102,7 +102,8 @@ const initialState = {
     cotizaciones: null,
     noteDialogId: null,
     mermaIndex: null,
-    registraIntervencionDialog: null
+    registraIntervencionDialog: null,
+    anadirFila: false
 };
 
 const cotizacionSlice = createSlice({
@@ -144,7 +145,7 @@ const cotizacionSlice = createSlice({
         },
         setRegistraIntervencionDialog: (state, action) => {
             state.registraIntervencionDialog = action.payload;
-        },
+        }
     },
     extraReducers: {
         [addCotizacion.fulfilled]: (state, action) => {

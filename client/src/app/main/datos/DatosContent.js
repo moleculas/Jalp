@@ -1,14 +1,18 @@
 import { styled } from '@mui/material/styles';
 import FusePageSimple from '@fuse/core/FusePageSimple';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useThemeMediaQuery from '@fuse/hooks/useThemeMediaQuery';
 import SidebarDatos from './SidebarDatos';
 import history from '@history';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
 import DatosMod1 from './datos-1/DatosMod1';
 import DatosMod2 from './datos-2/DatosMod2';
+import DatosMod3 from './datos-3/DatosMod3';
+import DatosMod4 from './datos-4/DatosMod4';
+import SidebarHistorico1 from './datos-1/SidebarHistorico1';
 import SidebarHistorico2 from './datos-2/SidebarHistorico2';
+import SidebarHistorico3 from './datos-3/SidebarHistorico3';
+import SidebarHistorico4 from './datos-4/SidebarHistorico4';
 
 const Root = styled(FusePageSimple)(({ theme }) => ({
     '& .FusePageSimple-sidebarContent': {
@@ -55,6 +59,28 @@ function DatosContent() {
                             rightSidebarOpen={rightSidebarOpen}
                         />
                     )}
+                    {ruta.includes("mod-3") && (
+                        <DatosMod3
+                            leftSidebarToggle={(ev) => {
+                                setLeftSidebarOpen(!leftSidebarOpen);
+                            }}
+                            rightSidebarToggle={(ev) => {
+                                setRightSidebarOpen(!rightSidebarOpen);
+                            }}
+                            rightSidebarOpen={rightSidebarOpen}
+                        />
+                    )}
+                    {ruta.includes("mod-4") && (
+                        <DatosMod4
+                            leftSidebarToggle={(ev) => {
+                                setLeftSidebarOpen(!leftSidebarOpen);
+                            }}
+                            rightSidebarToggle={(ev) => {
+                                setRightSidebarOpen(!rightSidebarOpen);
+                            }}
+                            rightSidebarOpen={rightSidebarOpen}
+                        />
+                    )}
                 </div>
             }
             leftSidebarOpen={leftSidebarOpen}
@@ -68,9 +94,20 @@ function DatosContent() {
                 setRightSidebarOpen(false);
             }}
             rightSidebarContent={
-                ruta.includes("mod-2") && (
-                    <SidebarHistorico2 />
-                )
+                <>
+                    {ruta.includes("mod-1") && (
+                        <SidebarHistorico1 />
+                    )}
+                    {ruta.includes("mod-2") && (
+                        <SidebarHistorico2 />
+                    )}
+                    {ruta.includes("mod-3") && (
+                        <SidebarHistorico3 />
+                    )}
+                    {ruta.includes("mod-4") && (
+                        <SidebarHistorico4 />
+                    )}
+                </>
             }
             rightSidebarWidth={400}
             scroll={isMobile ? 'normal' : 'content'}

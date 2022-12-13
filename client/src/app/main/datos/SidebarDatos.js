@@ -15,14 +15,28 @@ const navigationData = [
         icon: 'material-outline:checklist',
         children: [
             {
-                id: '1.1',
+                id: 'panel-datos-2.1',
                 title: 'Clavos',
                 subtitle: '',
                 type: 'item',
                 url: '/datos/mod-2',
-            },           
+            },  
+            {
+                id: 'panel-datos-2.2',
+                title: 'Maderas',
+                subtitle: '',
+                type: 'item',
+                url: '/datos/mod-3',
+            },               
         ]
-    },    
+    },  
+    {
+        id: 'panel-datos-3',
+        title: 'Coste horas',
+        type: 'item',
+        url: '/datos/mod-4',
+        icon: 'material-outline:checklist',        
+    },  
 ];
 
 function SidebarDatos() {

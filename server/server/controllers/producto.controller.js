@@ -42,16 +42,53 @@ export const updateProducto = async (req, res) => {
     };
 };
 
-export const getProductos = async (req, res) => {   
-    const { familia } = JSON.parse(req.body.datos);   
-    try {       
+export const getProductos = async (req, res) => {
+    const { familia, min } = JSON.parse(req.body.datos);
+    try {
         const productos = await Producto.find({
             familia
         }, {
             createdAt: 0,
-            updatedAt: 0,           
+            updatedAt: 0,
         });
-        return res.json(productos);
+        if (min) {
+            let productosARetornar = [];
+            if (familia === "clientes") {
+                productos.map((producto) => {
+                    if (producto.activo) {
+                        productosARetornar.push({
+                            descripcion: producto.descripcion
+                        });
+                    };
+                });
+            };
+            if (familia === "clavos") {
+                productos.map((producto) => {
+                    if (producto.activo) {
+                        productosARetornar.push({
+                            descripcion: producto.descripcion,
+                            precioUnitario: producto.precioUnitario
+                        });
+                    };
+                });
+            };
+            if (familia === "maderas") {
+                productos.map((producto) => {
+                    if (producto.activo) {
+                        productosARetornar.push({
+                            descripcion: producto.descripcion,
+                            largo: producto.largo,
+                            ancho: producto.ancho,
+                            grueso: producto.grueso,
+                            tipoPedido: producto.tipoPedido
+                        });
+                    };
+                });
+            };
+            return res.json(productosARetornar);
+        } else {
+            return res.json(productos);
+        };
     } catch (error) {
         return res.status(500).json({ message: error.message });
     };

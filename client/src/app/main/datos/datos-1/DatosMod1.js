@@ -43,27 +43,32 @@ function DatosMod1(props) {
     //useEffect   
 
     useEffect(() => {
+        rightSidebarOpen && (rightSidebarToggle());
         dispatch(setProductos(null));
         setProductosControllers([]);
-        dispatch(getProductos({ familia: 'clientes' })).then(({ payload }) => {           
-            if (payload.length > 0) {
-                const arrayProductos = [];
-                payload.forEach((producto, index) => {
-                    let objetoProducto = {
-                        _id: producto._id,
-                        descripcion: producto.descripcion,
-                        sage: producto.sage,
-                        historico: producto.historico,
-                        activo: producto.activo
-                    };
-                    arrayProductos.push(objetoProducto);
-                });
-                setProductosControllers(arrayProductos);
-            };
+        dispatch(getProductos({ familia: 'clientes', min: false })).then(({ payload }) => {
+            gestionaProductos(payload);
         });
     }, []);
 
     //funciones
+
+    const gestionaProductos = (respuesta) => {
+        if (respuesta.length > 0) {
+            const arrayProductos = [];
+            respuesta.forEach((producto, index) => {
+                let objetoProducto = {
+                    _id: producto._id,
+                    descripcion: producto.descripcion,
+                    sage: producto.sage,
+                    historico: producto.historico,
+                    activo: producto.activo
+                };
+                arrayProductos.push(objetoProducto);
+            });
+            setProductosControllers(arrayProductos);
+        };
+    };
 
     const anadirFila = () => {
         const arrayProductos = [...productosControllers];
@@ -90,7 +95,9 @@ function DatosMod1(props) {
         objeto.familia = "clientes";
         if (!productoRetornado._id) {
             dispatch(addProducto(objeto)).then(({ payload }) => {
-                dispatch(getProductos({ familia: 'clientes' }));
+                dispatch(getProductos({ familia: 'clientes', min: false })).then(({ payload }) => {
+                    gestionaProductos(payload);
+                });
             });
         } else {
             const datosActualizar = {
@@ -98,7 +105,9 @@ function DatosMod1(props) {
                 producto: objeto
             };
             dispatch(updateProducto(datosActualizar)).then(({ payload }) => {
-                dispatch(getProductos({ familia: 'clientes' }));
+                dispatch(getProductos({ familia: 'clientes', min: false })).then(({ payload }) => {
+                    gestionaProductos(payload);
+                });
             });
         };
     };
@@ -106,7 +115,9 @@ function DatosMod1(props) {
     const borrarFila = (id, index) => {
         if (id) {
             dispatch(deleteProducto(id)).then(({ payload }) => {
-                dispatch(getProductos({ familia: 'clientes' }));
+                dispatch(getProductos({ familia: 'clientes', min: false })).then(({ payload }) => {
+                    gestionaProductos(payload);
+                });
             });
         };
         const myArray = removeArrayByIndex(productosControllers, index);

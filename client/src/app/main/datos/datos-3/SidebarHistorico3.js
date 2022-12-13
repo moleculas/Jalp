@@ -1,14 +1,14 @@
 import { useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import Timeline from '@mui/lab/Timeline';
-import ClavosTimelineItem from './ClavosTimelineItem';
+import MaderasTimelineItem from './MaderasTimelineItem';
 import { motion } from 'framer-motion';
 import Typography from '@mui/material/Typography';
 
 //importacion acciones
 import { selectProductos } from 'app/redux/produccion/productoSlice';
 
-function SidebarHistorico2() {
+function SidebarHistorico3() {
     const productos = useSelector(selectProductos);
     const container = {
         show: {
@@ -65,7 +65,7 @@ function SidebarHistorico2() {
                         }}
                     >
                         {itemsTimeline.map((item, index) => (
-                            <ClavosTimelineItem
+                            <MaderasTimelineItem
                                 last={itemsTimeline.length === index + 1}
                                 item={item}
                                 key={item._id}
@@ -78,4 +78,4 @@ function SidebarHistorico2() {
     );
 }
 
-export default SidebarHistorico2;
+export default SidebarHistorico3;

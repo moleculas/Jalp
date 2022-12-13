@@ -6,8 +6,9 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import ToggleButton from '@mui/material/ToggleButton';
+import InputAdornment from '@mui/material/InputAdornment';
 
-function FilaMod1(props) {
+function FilaMod4(props) {
     const { producto, registrarFila, borrarFila, index } = props;
     const [valoresProducto, setValoresProducto] = useState(null);
     const [disabledGrabar, setDisabledGrabar] = useState(true);
@@ -20,7 +21,8 @@ function FilaMod1(props) {
             setValoresProducto({
                 _id: producto._id,
                 descripcion: producto.descripcion,
-                sage: producto.sage,
+                categoria: producto.categoria,
+                precioUnitario: producto.precioUnitario,
                 historico: producto.historico,
                 activo: producto.activo
             });
@@ -31,7 +33,7 @@ function FilaMod1(props) {
         if (
             valoresProducto &&
             valoresProducto.descripcion &&
-            valoresProducto.sage
+            valoresProducto.precioUnitario
         ) {
             setDisabledGrabar(false);
         } else {
@@ -43,6 +45,7 @@ function FilaMod1(props) {
 
     const handleChange = (event, tipo) => {
         let valor = event.target.value;
+        tipo === "precioUnitario" && (valor = Number(event.target.value));
         setValoresProducto({ ...valoresProducto, [tipo]: valor });
         producto._id && (setDisabledModificado(false));
     };
@@ -50,6 +53,22 @@ function FilaMod1(props) {
     const handleChangeToggle = (valor) => {
         setValoresProducto({ ...valoresProducto, activo: valor });
         producto._id && (setDisabledModificado(false));
+    };
+
+    const retornaTitleTooltipGrabar = () => {
+        if (producto._id) {
+            if (!disabledModificado) {
+                return "Actualizar datos"
+            } else {
+                return ""
+            };
+        } else {
+            if (!disabledGrabar) {
+                return "Registrar datos"
+            } else {
+                return ""
+            };
+        };
     };
 
     if (!valoresProducto) {
@@ -64,14 +83,18 @@ function FilaMod1(props) {
                     value={valoresProducto.descripcion}
                     onChange={(event) => handleChange(event, 'descripcion')}
                     variant="outlined"
-                    className="w-full md:w-[50%] xl:w-[100%]"
+                    className="w-full md:w-[50%] xl:w-[75%]"
                 />
-                <TextField
-                    label="SAGE"
-                    value={valoresProducto.sage}
-                    onChange={(event) => handleChange(event, 'sage')}
+                 <TextField
+                    label="Coste hora/operario"
+                    value={valoresProducto.precioUnitario || ""}
+                    onChange={(event) => handleChange(event, 'precioUnitario')}
                     variant="outlined"
-                    className="w-full md:w-[50%] xl:w-[50%]"
+                    className="w-full md:w-[50%] xl:w-[25%]"
+                    type="number"
+                    InputProps={{
+                        endAdornment: <InputAdornment position="end">€</InputAdornment>,
+                    }}
                 />
                 <div className="flex items-center">
                     <Tooltip
@@ -90,7 +113,11 @@ function FilaMod1(props) {
                             <FuseSvgIcon>{valoresProducto.activo ? "heroicons-outline:check" : "heroicons-outline:x"}</FuseSvgIcon>
                         </ToggleButton>
                     </Tooltip>
-                    <Tooltip arrow placement="top-start" title={(disabledGrabar || disabledModificado) ? "" : (producto._id ? "Actualizar datos" : "Registrar datos")}>
+                    <Tooltip
+                        arrow
+                        placement="top-start"
+                        title={retornaTitleTooltipGrabar()}
+                    >
                         <IconButton
                             onClick={() => { registrarFila(valoresProducto); setDisabledModificado(true) }}
                             disabled={producto._id ? disabledModificado : disabledGrabar}
@@ -112,4 +139,4 @@ function FilaMod1(props) {
     )
 }
 
-export default FilaMod1;
+export default FilaMod4;

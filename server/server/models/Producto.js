@@ -8,7 +8,19 @@ const ProductoSchema = new mongoose.Schema(
         },
         familia: {
             type: String,
-            enum: ['clavos', 'costeHoraTrabajador', 'clientes'],
+            enum: ['clavos', 'costeHoraTrabajador', 'clientes', 'maderas'],
+        },
+        tipoPedido: {
+            type: [String],
+        },        
+        largo: {
+            type: Number,
+        },
+        ancho: {
+            type: Number,
+        },
+        grueso: {
+            type: Number,
         },
         categoria: {
             type: [String]

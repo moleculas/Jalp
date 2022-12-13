@@ -51,18 +51,11 @@ const productosLX = [
     { producto: "TOPLAYERES" },
 ];
 
-const cotizacionClientes = [
-    { cliente: "qualinox" },
-    { cliente: "bunyespo" },
-    { cliente: "egarvac" }
-];
-
 export const SUBDIRECTORI_PRODUCCIO = subdirectoriProduccio;
 export const RUTA_API = rutaApi;
 export const RUTA_SERVER = rutaServer;
 export const SUPPORTED_FORMATS = formatosArchivos;
 export const PRODUCTOS = productos;
 export const PRODUCTOSLX = productosLX;
-export const COTIZACION_CLIENTES = cotizacionClientes;
 //Redondeado decimales
 export const REDONDEADO = 4;

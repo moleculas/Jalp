@@ -108,16 +108,18 @@ function CotizacionContent() {
         objetoCotizacion.fecha = cotizacionCabecera.fecha;
         objetoCotizacion.cliente = cotizacionCabecera.cliente;
         objetoCotizacion.of = cotizacionCabecera.of;
-        objetoCotizacion.unidades = cotizacionCabecera.unidades;        
+        objetoCotizacion.unidades = cotizacionCabecera.unidades;
         //cotizacionCuerpo
         objetoCotizacion.filasCuerpo = cotizacionCuerpo.filasCuerpo;
-        objetoCotizacion.sumCuerpo = cotizacionCuerpo.sumCuerpo;     
+        objetoCotizacion.sumCuerpo = cotizacionCuerpo.sumCuerpo;
         objetoCotizacion.sumVolumen = cotizacionCuerpo.sumVolumen;
         objetoCotizacion.sumPrecioMerma = cotizacionCuerpo.sumPrecioMerma;
         objetoCotizacion.sumVolumenMerma = cotizacionCuerpo.sumVolumenMerma;
         //cotizacionLateralSup    
-        objetoCotizacion.filasExtra = cotizacionLateralSup.filasExtra;
+        objetoCotizacion.filasClavos = cotizacionLateralSup.filasClavos;
+        objetoCotizacion.sumClavos = cotizacionLateralSup.sumClavos;
         objetoCotizacion.sumLateralSup = cotizacionLateralSup.sumLateralSup;
+        objetoCotizacion.filasExtra = cotizacionLateralSup.filasExtra;
         //cotizacionLateralInf       
         objetoCotizacion.cu = cotizacionLateralInf.cu;
         objetoCotizacion.precio_venta = cotizacionLateralInf.precio_venta;
@@ -143,13 +145,15 @@ function CotizacionContent() {
         objetoCotizacion.unidades = cotizacionCabecera ? cotizacionCabecera.unidades : cotizacionActualizado.unidades;
         //cotizacionCuerpo
         objetoCotizacion.filasCuerpo = cotizacionCuerpo ? cotizacionCuerpo.filasCuerpo : cotizacionActualizado.filasCuerpo;
-        objetoCotizacion.sumCuerpo = cotizacionCuerpo ? cotizacionCuerpo.sumCuerpo : cotizacionActualizado.sumCuerpo;    
+        objetoCotizacion.sumCuerpo = cotizacionCuerpo ? cotizacionCuerpo.sumCuerpo : cotizacionActualizado.sumCuerpo;
         objetoCotizacion.sumVolumen = cotizacionCuerpo ? cotizacionCuerpo.sumVolumen : cotizacionActualizado.sumVolumen;
         objetoCotizacion.sumPrecioMerma = cotizacionCuerpo ? cotizacionCuerpo.sumPrecioMerma : cotizacionActualizado.sumPrecioMerma;
         objetoCotizacion.sumVolumenMerma = cotizacionCuerpo ? cotizacionCuerpo.sumVolumenMerma : cotizacionActualizado.sumVolumenMerma;
         //cotizacionLateralSup    
-        objetoCotizacion.filasExtra = cotizacionLateralSup ? cotizacionLateralSup.filasExtra : cotizacionActualizado.filasExtra;
+        objetoCotizacion.filasClavos = cotizacionLateralSup ? cotizacionLateralSup.filasClavos : cotizacionActualizado.filasClavos;
+        objetoCotizacion.sumClavos = cotizacionLateralSup ? cotizacionLateralSup.sumClavos : cotizacionActualizado.sumClavos;
         objetoCotizacion.sumLateralSup = cotizacionLateralSup ? cotizacionLateralSup.sumLateralSup : cotizacionActualizado.sumLateralSup;
+        objetoCotizacion.filasExtra = cotizacionLateralSup ? cotizacionLateralSup.filasExtra : cotizacionActualizado.filasExtra;
         //cotizacionLateralInf       
         objetoCotizacion.cu = cotizacionLateralInf ? cotizacionLateralInf.cu : cotizacionActualizado.cu;
         objetoCotizacion.precio_venta = cotizacionLateralInf ? cotizacionLateralInf.precio_venta : cotizacionActualizado.precio_venta;
@@ -285,6 +289,7 @@ function CotizacionContent() {
                                 />
                                 <CuerpoCotizacion
                                     cotizacionCuerpo={cotizacionCuerpo}
+                                    cotizacionCabecera={cotizacionCabecera}
                                 />
                             </motion.div>
                         </div>

@@ -16,10 +16,7 @@ import Box from '@mui/material/Box';
 import {
     setPedido,
     getPedido,
-    selectPedido,
-    selectPedidoProducto,
-    getPedidoProducto,
-    setPedidoProducto
+    selectPedido
 } from 'src/app/redux/produccion/pedidoSlice';
 import { selectSemanasAnyo } from 'app/redux/produccion/inicioSlice';
 import {
@@ -29,12 +26,15 @@ import {
     calculoSemanaAnyoActual,
     TabPanel
 } from 'app/logica/produccion/logicaProduccion';
+import {
+    getProductos,
+    setProductos
+} from 'app/redux/produccion/productoSlice';
 
 function Pedidos1() {
     const dispatch = useDispatch();
     const semanasAnyo = useSelector(selectSemanasAnyo);
     const datosPedido = useSelector(selectPedido);
-    const pedidoProducto = useSelector(selectPedidoProducto);
     const container = {
         show: {
             transition: {
@@ -53,19 +53,29 @@ function Pedidos1() {
     const [tabValue, setTabValue] = useState({});
     const [semanaActual, setSemanaActual] = useState(dispatch(calculoSemanaAnyoActual()));
     const [datosAgrupadosMeses, setDatosAgrupadosMeses] = useState(null);
+    const [pedidoProducto, setPedidoProducto] = useState(null);
 
-    //useEffect   
+    //useEffect      
 
     useEffect(() => {
-        dispatch(setPedidoProducto(null));
         dispatch(setPedido(null));
+        dispatch(setProductos(null));
+        dispatch(getProductos({ familia: 'maderas', min: true })).then(({ payload }) => {
+            const pedidoProductoArray = [];
+            payload.map((pedProducto) => {
+                if (pedProducto.tipoPedido.includes(tipo)) {
+                    pedidoProductoArray.push({
+                        producto: pedProducto.descripcion,
+                        largo: pedProducto.largo,
+                        ancho: pedProducto.ancho,
+                        grueso: pedProducto.grueso,
+                        tipo: tipo
+                    });
+                };
+            });
+            setPedidoProducto(pedidoProductoArray);
+        });
     }, []);
-
-    useEffect(() => {
-        if (!pedidoProducto) {
-            dispatch(getPedidoProducto(tipo));
-        };
-    }, [pedidoProducto]);
 
     useEffect(() => {
         if (!semanasAnyo) {

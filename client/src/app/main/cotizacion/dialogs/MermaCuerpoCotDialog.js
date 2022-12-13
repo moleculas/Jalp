@@ -29,7 +29,7 @@ function MermaCuerpoCotDialog(props) {
     const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
     const cotizacionCuerpo = useSelector(selectObjetoCotizacionCuerpo);
     const [updateState, setUpdateState] = useState({ estado: false, objeto: null });
-    const [variablesCalculoMerma, setVariablesCalculoMerma] = useState({ vol_total: null, precio: null });
+    const [variablesCalculoMerma, setVariablesCalculoMerma] = useState({ vol_total: null, precio_total: null });
 
     //useEffect  
 
@@ -257,16 +257,16 @@ function MermaCuerpoCotDialog(props) {
             };
             setVariablesCalculoMerma({
                 vol_total: arrayFilas[index].vol_total,
-                precio: arrayFilas[index].precio
+                precio_total: arrayFilas[index].precio_total
             });
             objetoDatos = {
-                unidades: arrayFilas[index].vol_merma !== 0 ? arrayFilas[index].vol_merma.unidades : 0,
-                largo: arrayFilas[index].vol_merma !== 0 ? arrayFilas[index].vol_merma.largo : 0,
+                unidades: arrayFilas[index].filaMerma.length > 0 ? arrayFilas[index].filaMerma[0].unidades : 0,
+                largo: arrayFilas[index].filaMerma.length > 0 ? arrayFilas[index].filaMerma[0].largo : 0,
                 ancho: arrayFilas[index].ancho,
                 grueso: arrayFilas[index].grueso,
-                mat_prima: arrayFilas[index].vol_merma !== 0 ? arrayFilas[index].vol_merma.mat_prima : 0,
-                vol_merma: arrayFilas[index].vol_merma !== 0 ? arrayFilas[index].vol_merma.vol_merma : 0,
-                precio_merma: arrayFilas[index].vol_merma !== 0 ? arrayFilas[index].vol_merma.precio_merma : 0
+                mat_prima: arrayFilas[index].filaMerma.length > 0 ? arrayFilas[index].filaMerma[0].mat_prima : 0,
+                vol_merma: arrayFilas[index].filaMerma.length > 0 ? arrayFilas[index].filaMerma[0].vol_merma : 0,
+                precio_merma: arrayFilas[index].filaMerma.length > 0 ? arrayFilas[index].filaMerma[0].precio_merma : 0
             };
         };
         arrayDatos.push(objetoDatos);
@@ -282,8 +282,8 @@ function MermaCuerpoCotDialog(props) {
             objetoFila.largo = Number(objetoFila.largo);
             objetoFila.mat_prima = _.round((objetoFila.unidades * ((objetoFila.largo * objetoFila.ancho * objetoFila.grueso) / 1000000000)), REDONDEADO);
             if (objetoFila.unidades > 0 && objetoFila.largo > 0) {
-                objetoFila.vol_merma = objetoFila.mat_prima - variablesCalculoMerma.vol_total;
-                objetoFila.precio_merma = objetoFila.vol_merma * variablesCalculoMerma.precio;
+                objetoFila.vol_merma = _.round((objetoFila.mat_prima - variablesCalculoMerma.vol_total), REDONDEADO);
+                objetoFila.precio_merma = _.round((objetoFila.vol_merma * variablesCalculoMerma.precio_total), REDONDEADO);
             };
             arrayTabla.push(objetoFila);
         });
@@ -294,13 +294,13 @@ function MermaCuerpoCotDialog(props) {
     };
 
     const actualizarTabla = (arrayTabla) => {
-        const datosMermaUpdate = {
+        const datosMermaUpdate = [{
             unidades: arrayTabla[0].unidades,
             largo: arrayTabla[0].largo,
             mat_prima: arrayTabla[0].mat_prima,
             vol_merma: arrayTabla[0].vol_merma,
             precio_merma: arrayTabla[0].precio_merma
-        };
+        }];
         let datosCotizacionUpdate = {};
         let objetoFilasCuerpo = {};
         let arrayFilasCuerpo = [];
@@ -310,7 +310,7 @@ function MermaCuerpoCotDialog(props) {
             arrayFilasCuerpo = [...cotizacionCuerpo.filasCuerpo];
         };
         objetoFilasCuerpo = { ...arrayFilasCuerpo[index] };
-        objetoFilasCuerpo.vol_merma = datosMermaUpdate;
+        objetoFilasCuerpo.filaMerma = datosMermaUpdate;
         arrayFilasCuerpo[index] = objetoFilasCuerpo;
         datosCotizacionUpdate.filasCuerpo = arrayFilasCuerpo;
         datosCotizacionUpdate.sumCuerpo = cotizacionCuerpo.sumCuerpo;

@@ -32,7 +32,7 @@ import {
 } from 'app/redux/produccion/cotizacionSlice';
 
 function CuerpoCotizacion(props) {
-    const { cotizacionCuerpo } = props;
+    const { cotizacionCuerpo, cotizacionCabecera } = props;
     const dispatch = useDispatch();
     const anadirFilaIdCotizacion = useSelector(selectAnadirFilaIdCotizacion);
     const [tableColumns, setTableColumns] = useState(null);
@@ -60,7 +60,7 @@ function CuerpoCotizacion(props) {
     }, [cotizacionActualizado]);
 
     useEffect(() => {
-        if (anadirFilaIdCotizacion) {
+        if (anadirFilaIdCotizacion && anadirFilaIdCotizacion === "cuerpo") {
             const arrayDatos = [...tableData];
             let objetoDatos = {
                 unidades: 0,
@@ -69,13 +69,13 @@ function CuerpoCotizacion(props) {
                 grueso: 0,
                 vol_unitario: 0,
                 vol_total: 0,
-                precio: 0,
-                precio_t: 0,
-                vol_merma: 0,
+                precio_unitario: 0,
+                precio_total: 0,
+                filaMerma: [],
             };
             arrayDatos.push(objetoDatos);
             setTableData(arrayDatos);
-            dispatch(setAnadirFilaIdCotizacion(false));
+            dispatch(setAnadirFilaIdCotizacion(null));
         };
     }, [anadirFilaIdCotizacion]);
 
@@ -248,7 +248,7 @@ function CuerpoCotizacion(props) {
                 size: 50,
             },
             {
-                header: 'Vol.Unitario',
+                header: 'Vol.U',
                 accessorKey: 'vol_unitario',
                 enableSorting: false,
                 enableColumnFilter: false,
@@ -265,7 +265,7 @@ function CuerpoCotizacion(props) {
                 Footer: ({ table }) => retornaTotales(table, 'vol_unitario'),
             },
             {
-                header: 'Vol.Total',
+                header: 'Vol.T',
                 accessorKey: 'vol_total',
                 enableSorting: false,
                 enableColumnFilter: false,
@@ -283,8 +283,8 @@ function CuerpoCotizacion(props) {
                 Footer: ({ table }) => retornaTotales(table, 'vol_total'),
             },
             {
-                header: 'Precio',
-                accessorKey: 'precio',
+                header: 'Precio.U',
+                accessorKey: 'precio_unitario',
                 enableSorting: false,
                 enableColumnFilter: false,
                 muiTableBodyCellEditTextFieldProps: {
@@ -320,8 +320,8 @@ function CuerpoCotizacion(props) {
                 size: 50,
             },
             {
-                header: 'PrecioT.',
-                accessorKey: 'precio_t',
+                header: 'Precio.T',
+                accessorKey: 'precio_total',
                 enableSorting: false,
                 enableColumnFilter: false,
                 enableEditing: false,
@@ -335,11 +335,11 @@ function CuerpoCotizacion(props) {
                     </Typography>
                 ),
                 size: 50,
-                Footer: ({ table }) => retornaTotales(table, 'precio_t'),
+                Footer: ({ table }) => retornaTotales(table, 'precio_total'),
             },
             {
                 header: 'Vol.Merma',
-                accessorKey: 'vol_merma',
+                accessorKey: 'filaMerma',
                 enableSorting: false,
                 enableColumnFilter: false,
                 enableEditing: false,
@@ -367,7 +367,7 @@ function CuerpoCotizacion(props) {
                 Cell: ({ cell }) => {
                     let valorCeldaParsed = 0;
                     const valorCelda = cell.getValue();
-                    valorCelda.vol_merma && (valorCeldaParsed = valorCelda.vol_merma);
+                    valorCelda.length > 0 && (valorCeldaParsed = valorCelda[0].vol_merma);
                     return (
                         <Typography
                             variant="body1"
@@ -378,7 +378,7 @@ function CuerpoCotizacion(props) {
                     )
                 },
                 size: 50,
-                Footer: ({ table }) => retornaTotales(table, 'vol_merma'),
+                Footer: ({ table }) => retornaTotales(table, 'filaMerma'),
             },
         ];
         setTableColumns(arrayColumnas);
@@ -410,7 +410,7 @@ function CuerpoCotizacion(props) {
                 };
                 break;
             case 'vol_total':
-                if (table.options.data[0].vol_unitario > 0) {
+                if (table.options.data[0].vol_total > 0) {
                     const sumatorioTotales2 = table.options.data.reduce((sum, { vol_total }) => sum + vol_total, 0);
                     return (
                         <Typography variant="body1">
@@ -421,9 +421,9 @@ function CuerpoCotizacion(props) {
                     )
                 };
                 break;
-            case 'precio_t':
-                if (table.options.data[0].vol_unitario > 0) {
-                    const sumatorioTotales3 = table.options.data.reduce((sum, { precio_t }) => sum + precio_t, 0);
+            case 'precio_total':
+                if (table.options.data[0].precio_total > 0) {
+                    const sumatorioTotales3 = table.options.data.reduce((sum, { precio_total }) => sum + precio_total, 0);
                     return (
                         <Typography variant="body1">
                             <span className="font-bold whitespace-nowrap">
@@ -433,10 +433,10 @@ function CuerpoCotizacion(props) {
                     )
                 };
                 break;
-            case 'vol_merma':
-                if (table.options.data[0].vol_merma !== 0) {
+            case 'filaMerma':
+                if (table.options.data[0].filaMerma.length > 0) {
                     let sumatorioTotales4 = 0;
-                    table.options.data.map((fila) => { fila.vol_merma && (sumatorioTotales4 += fila.vol_merma.vol_merma) });
+                    table.options.data.map((fila) => { fila.filaMerma.length > 0 && (sumatorioTotales4 += fila.filaMerma[0].vol_merma) });
                     return (
                         <Typography variant="body1">
                             <span className="font-bold whitespace-nowrap">
@@ -462,9 +462,9 @@ function CuerpoCotizacion(props) {
                     grueso: fila.grueso,
                     vol_unitario: fila.vol_unitario,
                     vol_total: fila.vol_total,
-                    precio: fila.precio,
-                    precio_t: fila.precio_t,
-                    vol_merma: fila.vol_merma,
+                    precio_unitario: fila.precio_unitario,
+                    precio_total: fila.precio_total,
+                    filaMerma: fila.filaMerma,
                 };
                 arrayDatos.push(objetoDatos);
             });
@@ -476,9 +476,9 @@ function CuerpoCotizacion(props) {
                 grueso: 0,
                 vol_unitario: 0,
                 vol_total: 0,
-                precio: 0,
-                precio_t: 0,
-                vol_merma: 0,
+                precio_unitario: 0,
+                precio_total: 0,
+                filaMerma: [],
             };
             arrayDatos.push(objetoDatos);
         };
@@ -489,24 +489,57 @@ function CuerpoCotizacion(props) {
         const arrayTabla = [];
         tabla.map((fila, index) => {
             let objetoFila = {};
-            let merma = 0;
+            let merma = [];
+            let arrayFilas;
+            let recalcular = false;
             if (cotizacionActualizado && !cotizacionCuerpo) {
-                merma = cotizacionActualizado.filasCuerpo[index].vol_merma;
+                arrayFilas = cotizacionActualizado.filasCuerpo;
+                merma = arrayFilas[index].filaMerma;
             };
-            if (cotizacionCuerpo && cotizacionCuerpo.filasCuerpo[index] && cotizacionCuerpo.filasCuerpo[index].vol_merma) {
-                merma = cotizacionCuerpo.filasCuerpo[index].vol_merma;
+            if (cotizacionCuerpo && cotizacionCuerpo.filasCuerpo[index] && cotizacionCuerpo.filasCuerpo[index].filaMerma.length > 0) {
+                arrayFilas = cotizacionCuerpo.filasCuerpo;
+                merma = arrayFilas[index].filaMerma;
             };
             objetoFila.unidades = Number(fila.unidades);
             objetoFila.largo = Number(fila.largo);
             objetoFila.ancho = Number(fila.ancho);
             objetoFila.grueso = Number(fila.grueso);
-            objetoFila.precio = Number(fila.precio);
+            objetoFila.precio_unitario = Number(fila.precio_unitario);
+            if (merma.length > 0) {
+                if (objetoFila.unidades > 0 && (objetoFila.unidades !== arrayFilas[index].unidades)) {
+                    recalcular = true;
+                };
+                if (objetoFila.largo > 0 && (objetoFila.largo !== arrayFilas[index].largo)) {
+                    recalcular = true;
+                };
+                if (objetoFila.ancho > 0 && (objetoFila.ancho !== arrayFilas[index].ancho)) {
+                    recalcular = true;
+                };
+                if (objetoFila.grueso > 0 && (objetoFila.grueso !== arrayFilas[index].grueso)) {
+                    recalcular = true;
+                };
+                if (objetoFila.precio_unitario > 0 && (objetoFila.precio_unitario !== arrayFilas[index].precio_unitario)) {
+                    recalcular = true;
+                };
+            };
             objetoFila.vol_unitario = _.round(((objetoFila.largo * objetoFila.ancho * objetoFila.grueso) / 1000000000), REDONDEADO);
             objetoFila.vol_total = _.round((objetoFila.unidades * objetoFila.vol_unitario), REDONDEADO);
-            objetoFila.precio_t = _.round((objetoFila.vol_total * objetoFila.precio), REDONDEADO);
-            objetoFila.vol_merma = merma;
+            objetoFila.precio_total = _.round((objetoFila.vol_total * objetoFila.precio_unitario), REDONDEADO);
+            if (recalcular) {
+                const arrayMerma = [];
+                let objetoMerma = {};
+                objetoMerma.unidades = merma[0].unidades;
+                objetoMerma.largo = merma[0].largo;
+                objetoMerma.mat_prima = _.round((objetoMerma.unidades * ((objetoMerma.largo * objetoFila.ancho * objetoFila.grueso) / 1000000000)), REDONDEADO);
+                objetoMerma.vol_merma = _.round((objetoMerma.mat_prima - objetoFila.vol_total), REDONDEADO);
+                objetoMerma.precio_merma = _.round((objetoMerma.vol_merma * objetoFila.precio_total), REDONDEADO);
+                arrayMerma.push(objetoMerma);
+                objetoFila.filaMerma = arrayMerma;
+            } else {
+                objetoFila.filaMerma = merma;
+            };
             arrayTabla.push(objetoFila);
-        });
+        });       
         setTableData(arrayTabla);
         if (update) {
             actualizarTabla(arrayTabla);
@@ -515,18 +548,18 @@ function CuerpoCotizacion(props) {
 
     const actualizarTabla = (arrayTabla) => {
         let datosCotizacionUpdate = {};
-        const arrayLinea = arrayTabla.map(({ unidades, largo, ancho, grueso, precio, vol_unitario, vol_total, precio_t, vol_merma }) => ({ unidades, largo, ancho, grueso, precio, vol_unitario, vol_total, precio_t, vol_merma }));
+        const arrayLinea = arrayTabla.map(({ unidades, largo, ancho, grueso, precio_unitario, vol_unitario, vol_total, precio_total, filaMerma }) => ({ unidades, largo, ancho, grueso, precio_unitario, vol_unitario, vol_total, precio_total, filaMerma }));
         datosCotizacionUpdate.filasCuerpo = arrayLinea;
-        const sumCuerpo = arrayLinea.reduce((sum, { precio_t }) => sum + precio_t, 0);
-        datosCotizacionUpdate.sumCuerpo = _.round(sumCuerpo, 5);
+        const sumCuerpo = arrayLinea.reduce((sum, { precio_total }) => sum + precio_total, 0);
+        datosCotizacionUpdate.sumCuerpo = _.round(sumCuerpo, REDONDEADO);
         const sumVolumen = arrayLinea.reduce((sum, { vol_total }) => sum + vol_total, 0);
-        datosCotizacionUpdate.sumVolumen = _.round(sumVolumen, 5);
+        datosCotizacionUpdate.sumVolumen = _.round(sumVolumen, REDONDEADO);
         let sumPrecioMerma = 0;
         let sumVolumenMerma = 0;
         arrayLinea.map((fila) => {
-            if (fila.vol_merma !== 0) {
-                sumPrecioMerma += fila.vol_merma.precio_merma;
-                sumVolumenMerma += fila.vol_merma.vol_merma;
+            if (fila.filaMerma.length > 0) {
+                sumPrecioMerma += fila.filaMerma[0].precio_merma;
+                sumVolumenMerma += fila.filaMerma[0].vol_merma;
             };
         });
         datosCotizacionUpdate.sumPrecioMerma = _.round(sumPrecioMerma, REDONDEADO);
@@ -564,12 +597,13 @@ function CuerpoCotizacion(props) {
     const borrarColumna = (id) => {
         const myArray = removeArrayByIndex(tableData, id);
         setTableData(myArray);
+        actualizarTabla(myArray);
     };
 
     const gestionCeldaMerma = (rowId, consulta, table) => {
         switch (consulta) {
             case 'click':
-                if (table[rowId].precio_t === 0) {
+                if (table[rowId].precio_total === 0) {
                     return false
                 } else {
                     dispatch(openNoteDialog('mermaCuerpo'));
@@ -577,27 +611,39 @@ function CuerpoCotizacion(props) {
                 };
                 break;
             case 'bg':
-                if (table[rowId].precio_t === 0) {
+                if (table[rowId].precio_total === 0) {
                     return 'white'
                 } else {
                     return '#ebebeb'
                 };
                 break;
             case 'cursor':
-                if (table[rowId].precio_t === 0) {
+                if (table[rowId].precio_total === 0) {
                     return 'default'
                 } else {
                     return 'pointer'
                 };
                 break;
             case 'color':
-                if (table[rowId].precio_t === 0) {
+                if (table[rowId].precio_total === 0) {
                     return '#959CA9'
                 } else {
                     return '#111827'
                 };
                 break;
             default:
+        };
+    };
+
+    const retornaDisplay = () => {
+        if (cotizacionActualizado) {
+            return ""
+        } else {
+            if (cotizacionCabecera && cotizacionCabecera.cliente && cotizacionCabecera.of && cotizacionCabecera.unidades > 0) {
+                return ""
+            } else {
+                return "none"
+            };
         };
     };
 
@@ -643,7 +689,7 @@ function CuerpoCotizacion(props) {
                 })}
                 muiTableProps={{
                     sx: {
-                        display: 'none',
+                        display: retornaDisplay(),
                     }
                 }}
                 enableRowActions={true}

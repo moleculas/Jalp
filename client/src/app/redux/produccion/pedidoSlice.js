@@ -37,23 +37,9 @@ export const updatePedido = createAsyncThunk(
         };
     });
 
-export const getPedidoProducto = createAsyncThunk(
-    'produccionSeccion/pedido/getPedidoProducto',
-    async (tipo, { getState, dispatch }) => {
-        try {
-            const response = await axios.get('/pedido/producto/' + tipo);
-            const data = await response.data;
-            return data;
-        } catch (err) {
-            dispatch(showMessage({ message: err.response.data.message, variant: "error" }));
-            return;
-        };
-    });
-
 const initialState = {
     pedidoProduccion: null,
-    anadirFilaId: null,
-    pedidoProducto: null
+    anadirFilaId: null
 };
 
 const pedidoSlice = createSlice({
@@ -65,10 +51,7 @@ const pedidoSlice = createSlice({
         },
         setAnadirFilaId: (state, action) => {
             state.anadirFilaId = action.payload;
-        },
-        setPedidoProducto: (state, action) => {
-            state.pedidoProducto = action.payload;
-        },
+        },        
     },
     extraReducers: {
         [getPedido.fulfilled]: (state, action) => {
@@ -78,21 +61,16 @@ const pedidoSlice = createSlice({
             const arrayPedido = [...state.pedidoProduccion];
             arrayPedido[arrayPedido.findIndex(item => item._id === action.payload._id)] = action.payload;                   
             state.pedidoProduccion = arrayPedido;
-        },
-        [getPedidoProducto.fulfilled]: (state, action) => {
-            state.pedidoProducto = action.payload;
-        },
+        },       
     },
 });
 
 export const {
     setPedido,
-    setAnadirFilaId,
-    setPedidoProducto
+    setAnadirFilaId   
 } = pedidoSlice.actions;
 
 export const selectPedido = ({ produccionSeccion }) => produccionSeccion.pedido.pedidoProduccion;
 export const selectAnadirFilaId = ({ produccionSeccion }) => produccionSeccion.pedido.anadirFilaId;
-export const selectPedidoProducto = ({ produccionSeccion }) => produccionSeccion.pedido.pedidoProducto;
 
 export default pedidoSlice.reducer;

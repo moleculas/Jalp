@@ -348,6 +348,11 @@ function LateralInfCotizacion(props) {
                             paddingBottom: '5px'
                         },
                     }}
+                    muiTableProps={{
+                        sx: {
+                            display: 'none',
+                        }
+                    }}   
                 />
                  {/* <Box className="flex flex-row items-center w-full py-16 px-24">
                 <div className="flex flex-row gap-8">
@@ -450,7 +455,12 @@ function LateralInfCotizacion(props) {
                         // onBlur: () => {
                         //     handleExitCell2(cell);
                         // },                       
-                    })}                   
+                    })}  
+                    muiTableProps={{
+                        sx: {
+                            display: 'none',
+                        }
+                    }}                    
                 />
             </TableContainer>
         </>

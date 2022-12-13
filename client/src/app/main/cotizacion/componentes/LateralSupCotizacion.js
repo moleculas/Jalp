@@ -28,6 +28,8 @@ import {
     setObjetoCotizacionLateralSup,
     selectObjetoCotizacionActualizado,
     openNoteDialog,
+    setRegistraIntervencionDialog,
+    selectRegistraIntervencionDialog,
 } from 'app/redux/produccion/cotizacionSlice';
 
 function LateralSupCotizacion(props) {
@@ -37,7 +39,9 @@ function LateralSupCotizacion(props) {
     const [changedData, setChangedData] = useState(false);
     const conceptos = ["clavos", "corte_madera", "montaje", "patines", "transporte", "tratamiento", "merma"];
     const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
+    const registraIntervencionDialog = useSelector(selectRegistraIntervencionDialog);
     const [totales, setTotales] = useState({ volumen: 0, precio: 0 });
+    const [expanded, setExpanded] = useState(false);
 
     //useEffect  
 
@@ -51,10 +55,9 @@ function LateralSupCotizacion(props) {
     useEffect(() => {
         if (cotizacionCabecera && cotizacionCuerpo) {
             calculosTabla(tableData, true);
-            setTotales({
-                volumen: (cotizacionCuerpo.sumVolumen - cotizacionCuerpo.sumVolumenMerma),
-                precio: (cotizacionCuerpo.sumCuerpo - cotizacionCuerpo.sumPrecioMerma)
-            });
+            if (checkEnabled()) {
+                setExpanded(false);
+            };
         };
     }, [cotizacionCabecera, cotizacionCuerpo]);
 
@@ -62,20 +65,32 @@ function LateralSupCotizacion(props) {
         if (cotizacionActualizado) {
             setTableData(null);
             generarDatos();
-            setTotales({
-                volumen: (cotizacionActualizado.sumVolumen - cotizacionActualizado.sumVolumenMerma),
-                precio: (cotizacionActualizado.sumCuerpo - cotizacionActualizado.sumPrecioMerma)
-            });
         };
     }, [cotizacionActualizado]);
+
+    useEffect(() => {
+        if (registraIntervencionDialog === "clavos") {
+            calculosTabla(tableData, true);
+            dispatch(setRegistraIntervencionDialog(null));
+        };
+    }, [registraIntervencionDialog]);
 
     //funciones   
 
     const generarDatos = () => {
         let arrayDatos = [];
         let objetoDatos;
+        let precio = 0;
+        let volumen = 0;
         if (cotizacionActualizado) {
-
+            if (cotizacionCuerpo) {
+                precio = cotizacionCuerpo.sumCuerpo;
+                volumen = (cotizacionCuerpo.sumVolumen - cotizacionCuerpo.sumVolumenMerma);
+            } else {
+                precio = cotizacionActualizado.sumCuerpo;
+                volumen = (cotizacionActualizado.sumVolumen - cotizacionActualizado.sumVolumenMerma);
+            };
+            //TODO
         } else {
             conceptos.forEach((concepto, index) => {
                 objetoDatos = {
@@ -86,12 +101,16 @@ function LateralSupCotizacion(props) {
             });
         };
         setTableData(arrayDatos);
+        setTotales({
+            precio,
+            volumen
+        });
     };
 
     const calculosTabla = (tabla, update) => {
         const arrayTabla = [];
         let objetoFila = null;
-        let sumCuerpo, unidades, sumPrecioMerma;
+        let sumCuerpo, unidades, sumPrecioMerma, sumClavos;
         if (cotizacionActualizado) {
             if (cotizacionCuerpo) {
                 sumCuerpo = cotizacionCuerpo.sumCuerpo;
@@ -105,6 +124,11 @@ function LateralSupCotizacion(props) {
             } else {
                 unidades = cotizacionActualizado.unidades;
             };
+            if (cotizacionLateralSup) {
+                sumClavos = cotizacionLateralSup.sumClavos ? cotizacionLateralSup.sumClavos : 0;
+            } else {
+                sumClavos = cotizacionActualizado.sumClavos ? cotizacionActualizado.sumClavos : 0;
+            };
         } else {
             if (cotizacionCabecera && cotizacionCuerpo) {
                 sumCuerpo = cotizacionCuerpo.sumCuerpo;
@@ -115,12 +139,20 @@ function LateralSupCotizacion(props) {
                 unidades = 0;
                 sumPrecioMerma = 0;
             };
+            if (cotizacionLateralSup) {
+                sumClavos = cotizacionLateralSup.sumClavos ? cotizacionLateralSup.sumClavos : 0;
+            } else {
+                sumClavos = 0;
+            };
         };
         tabla.map((fila, index) => {
             objetoFila = { ...fila };
             switch (fila.concepto) {
                 case "merma":
                     objetoFila.total = sumPrecioMerma * unidades;
+                    break;
+                case "clavos":
+                    objetoFila.total = sumClavos * unidades;
                     break;
                 default:
                     objetoFila.total = Number(fila.total);
@@ -135,15 +167,50 @@ function LateralSupCotizacion(props) {
     };
 
     const actualizarTabla = (arrayTabla) => {
-        let datosCotizacionUpdate = {};
-        let datosCotizacionFilasExtra = {};
+        const arrayFilasExtra = [];
+        let objetoFilasExtra;
         arrayTabla.forEach((fila, index) => {
-            datosCotizacionFilasExtra[fila.concepto] = arrayTabla[index].total;
+            if (index > 6) {
+                objetoFilasExtra = {
+                    concepto: fila.concepto,
+                    precio_total: fila.total
+                };
+                arrayFilasExtra.push(objetoFilasExtra);
+            };
         });
+        let sumatoriofilasExtra = 0;
+        if (arrayFilasExtra.length > 0) {
+            sumatoriofilasExtra = arrayFilasExtra.reduce((sum, { precio_total }) => sum + precio_total, 0);
+        };
         const sumLateralSup = arrayTabla.reduce((sum, { total }) => sum + total, 0);
+        let datosCotizacionUpdate = {};
+        let precio, volumen;
+        if (cotizacionActualizado) {
+            if (cotizacionLateralSup) {
+                datosCotizacionUpdate = { ...cotizacionLateralSup };
+            } else {
+                datosCotizacionUpdate = {};
+            };
+            if (cotizacionCuerpo) {
+                precio = cotizacionCuerpo.sumCuerpo;
+                volumen = (cotizacionCuerpo.sumVolumen - cotizacionCuerpo.sumVolumenMerma);
+            } else {
+                precio = cotizacionActualizado.sumCuerpo;
+                volumen = (cotizacionActualizado.sumVolumen - cotizacionActualizado.sumVolumenMerma);
+            };
+        } else {
+            datosCotizacionUpdate = { ...cotizacionLateralSup };
+            precio = cotizacionCuerpo.sumCuerpo;
+            volumen = (cotizacionCuerpo.sumVolumen - cotizacionCuerpo.sumVolumenMerma);
+        };
         datosCotizacionUpdate.sumLateralSup = _.round(sumLateralSup, REDONDEADO);
-        datosCotizacionUpdate.filasExtra = datosCotizacionFilasExtra;
+        datosCotizacionUpdate.filasExtra = arrayFilasExtra;
+        precio -= (datosCotizacionUpdate.sumLateralSup + sumatoriofilasExtra);
         dispatch(setObjetoCotizacionLateralSup(datosCotizacionUpdate));
+        setTotales({
+            precio,
+            volumen
+        });
     };
 
     const handleChangeCell = (cell, event) => {
@@ -211,6 +278,7 @@ function LateralSupCotizacion(props) {
     const borrarColumna = (id) => {
         const myArray = removeArrayByIndex(tableData, id);
         setTableData(myArray);
+        actualizarTabla(myArray);
     };
 
     const clickCelda = (cell, table) => {
@@ -227,46 +295,44 @@ function LateralSupCotizacion(props) {
     const gestionCeldaTotales = (rowId, consulta) => {
         switch (consulta) {
             case 'click':
-                if (totales.precio === 0) {
-                    return false
-                } else {
-                    handleOpenNotedialog(rowId);
-                };
+                handleOpenNotedialog(rowId);
                 break;
             case 'pointer':
-                if (totales.precio === 0) {
+                if (rowId === 6) {
                     return 'none'
                 } else {
-                    if (rowId === 6) {
-                        return 'none'
-                    } else {
-                        return 'auto'
-                    };
-                };
-                break;
-            case 'bg':
-                if (totales.precio === 0) {
-                    return 'white'
-                } else {
-                    return '#ebebeb'
-                };
-                break;
-            case 'cursor':
-                if (totales.precio === 0) {
-                    return 'default'
-                } else {
-                    return 'pointer'
-                };
-                break;
-            case 'color':
-                if (totales.precio === 0) {
-                    return '#959CA9'
-                } else {
-                    return '#111827'
+                    return 'auto'
                 };
                 break;
             default:
         };
+    };
+
+    const checkEnabled = () => {
+        if (
+            cotizacionCabecera &&
+            cotizacionCabecera.cliente &&
+            cotizacionCabecera.of &&
+            cotizacionCabecera.unidades > 0 &&
+            cotizacionCuerpo &&
+            cotizacionCuerpo.sumCuerpo
+        ) {
+            return false
+        } else {
+            return true
+        };
+    };
+
+    const retornaEnabled = () => {
+        if (cotizacionActualizado) {
+            return false
+        } else {
+            return checkEnabled();
+        };
+    };
+
+    const handleChangeAccordion = () => {
+        setExpanded(!expanded);
     };
 
     if (!tableData) {
@@ -300,7 +366,9 @@ function LateralSupCotizacion(props) {
                     elevation={0}
                     square
                     className="border-y-1 pl-8"
-                    disabled={true}
+                    disabled={retornaEnabled()}
+                    expanded={expanded}
+                    onChange={handleChangeAccordion}
                 >
                     <AccordionSummary
                         expandIcon={<FuseSvgIcon>heroicons-outline:chevron-down</FuseSvgIcon >}
@@ -316,7 +384,6 @@ function LateralSupCotizacion(props) {
                                 startIcon={<FuseSvgIcon size={20}>heroicons-outline:plus-circle</FuseSvgIcon>}
                                 size="small"
                                 className="-mb-12 mr-12 px-16"
-                                disabled={totales.precio === 0 ? true : false}
                             >
                                 Añadir concepto
                             </Button>
@@ -379,11 +446,11 @@ function LateralSupCotizacion(props) {
                                         },
                                         sx: {
                                             '&:hover': {
-                                                backgroundColor: gestionCeldaTotales(Number(cell.row.id), 'bg'),
+                                                backgroundColor: '#ebebeb',
                                             },
                                             backgroundColor: 'white',
-                                            cursor: gestionCeldaTotales(Number(cell.row.id), 'cursor'),
-                                            color: gestionCeldaTotales(Number(cell.row.id), 'color'),
+                                            cursor: 'pointer',
+                                            color: '#111827',
                                             pointerEvents: gestionCeldaTotales(Number(cell.row.id), 'pointer')
                                         },
                                     }),
