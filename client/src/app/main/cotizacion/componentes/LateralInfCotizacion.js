@@ -7,198 +7,194 @@ import TableContainer from '@mui/material/TableContainer';
 import Typography from '@mui/material/Typography';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import Box from '@mui/system/Box';
+import Button from '@mui/material/Button';
+
+//constantes
+import { REDONDEADO } from 'constantes';
 
 //importacion acciones
 import {
     generarPropsTabla,
     formateado
 } from 'app/logica/produccion/logicaProduccion';
+import { selectObjetoCotizacionActualizado } from 'app/redux/produccion/cotizacionSlice';
 import {
-    setObjetoCotizacionLateralInf,
-    selectObjetoCotizacionActualizado
-} from 'app/redux/produccion/cotizacionSlice';
+    calculosTablaLateralInf,
+    actualizarTablaLateralInf
+} from 'app/logica/produccion/logicaCotizacion';
+//importacion acciones
+import { showMessage } from 'app/redux/fuse/messageSlice';
 
 function LateralInfCotizacion(props) {
-    const { cotizacionLateralInf, cotizacionLateralSup, cotizacionCabecera } = props;
+    const { cotizacionLateralInf, cotizacionLateralSup, cotizacionCabecera, cotizacionCuerpo } = props;
     const dispatch = useDispatch();
-    const [tableData1, setTableData1] = useState(null);
-    const [changedData1, setChangedData1] = useState(false);
-    const [tableData2, setTableData2] = useState(null);
-    const [changedData2, setChangedData2] = useState(false);
+    const [tableData, setTableData] = useState(null);
+    const [changedData, setChangedData] = useState(false);
     const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
+    const [totales, setTotales] = useState({ precio: 0 });
+    const [reCalculado, setReCalculado] = useState({ estado: false, tipo: null });
 
     //useEffect  
 
     useEffect(() => {
-        if (!tableData1 && !tableData2) {
-            setTableData1(null);
-            setTableData2(null);
+        if (!tableData) {
+            setTableData(null);
             generarDatos();
         };
-    }, [tableData1, tableData2]);
+    }, [tableData]);
 
     useEffect(() => {
-        if (cotizacionLateralSup && cotizacionCabecera) {
-            calculosTabla(tableData1, tableData2, true);
+        if (cotizacionLateralSup && cotizacionCabecera && cotizacionCuerpo) {
+            calculosTabla(tableData, true, reCalculado);
         };
-    }, [cotizacionLateralSup, cotizacionCabecera]);
+    }, [cotizacionLateralSup, cotizacionCabecera, cotizacionCuerpo]);
 
     useEffect(() => {
-        setTableData1(null);
-        setTableData2(null);
+        setTableData(null);
         generarDatos();
     }, [cotizacionActualizado]);
 
     //funciones
 
     const generarDatos = () => {
-        const arrayDatos1 = [];
-        let arrayDatos2 = [];
-        let objetoDatos1;
+        const arrayDatos = [];
+        let objetoDatos;
+        let precio = 0;
         if (cotizacionActualizado) {
-            objetoDatos1 = {
+            objetoDatos = {
                 cu: cotizacionActualizado.cu,
                 precio_venta: cotizacionActualizado.precio_venta,
                 mc: cotizacionActualizado.mc,
                 mc_porcentaje: cotizacionActualizado.mc_porcentaje
             };
-            arrayDatos1.push(objetoDatos1);
-            arrayDatos2 = [
-                // { concepto: 'Porcentaje deseado', unidades: cotizacionActualizado.porcentaje },
-                // { concepto: 'JALP (0 %)', unidades: cotizacionActualizado.jalp },
-                // { concepto: 'TOTAL', unidades: cotizacionActualizado.total },
-                { concepto: 'Precio Venta', unidades: cotizacionActualizado.precio_venta_total }
-            ];
         } else {
-            objetoDatos1 = {
+            objetoDatos = {
                 cu: 0,
-                precio_venta: 139.76,
+                precio_venta: 0,
                 mc: 0,
                 mc_porcentaje: 0
             };
-            arrayDatos1.push(objetoDatos1);
-            arrayDatos2 = [
-                // { concepto: 'Porcentaje deseado', unidades: 15.4 },
-                // { concepto: 'JALP (0 %)', unidades: 0 },
-                // { concepto: 'TOTAL', unidades: 0 },
-                { concepto: 'Precio Venta', unidades: 0 }
-            ];
         };
-        setTableData1(arrayDatos1);
-        setTableData2(arrayDatos2);
+        precio = _.round((objetoDatos.cu / (100 - objetoDatos.mc_porcentaje) * 100), REDONDEADO);
+        setTotales({
+            precio
+        });
+        arrayDatos.push(objetoDatos);
+        setTableData(arrayDatos);
     };
 
-    const calculosTabla = (tabla1, tabla2, update) => {
-        const arrayTabla1 = [];
-        const arrayTabla2 = [];
-        let objetoFila1, objetoFila2;
-        let sumLateralSup, unidades, precioVenta;
-        if (cotizacionActualizado) {
-            cotizacionLateralSup && cotizacionLateralSup.sumLateralSup ? sumLateralSup = cotizacionLateralSup.sumLateralSup : sumLateralSup = cotizacionActualizado.sumLateralSup;
-            cotizacionCabecera && cotizacionCabecera.unidades ? unidades = cotizacionCabecera.unidades : unidades = cotizacionActualizado.unidades;
-        } else {
-            cotizacionLateralSup && cotizacionLateralSup.sumLateralSup ? sumLateralSup = cotizacionLateralSup.sumLateralSup : sumLateralSup = 0;
-            cotizacionCabecera && cotizacionCabecera.unidades ? unidades = cotizacionCabecera.unidades : unidades = 0;
-        };
-        tabla1.map((fila, index) => {
-            objetoFila1 = { ...fila };
-            objetoFila1.cu = unidades > 0 ? _.round((sumLateralSup / unidades), 2) : 0;
-            objetoFila1.precio_venta = Number(objetoFila1.precio_venta);
-            objetoFila1.mc = sumLateralSup > 0 ? _.round((objetoFila1.precio_venta - objetoFila1.cu), 2) : 0;
-            objetoFila1.mc_porcentaje = sumLateralSup > 0 ? _.round(((objetoFila1.mc / objetoFila1.precio_venta) * 100), 2) : 0;
-            arrayTabla1.push(objetoFila1);
+    const calculosTabla = (tabla, update, objetoReCalculado) => {
+        setReCalculado(objetoReCalculado);
+        const { arrayTabla, precio } = dispatch(calculosTablaLateralInf(tabla, objetoReCalculado));
+        setTotales({
+            precio
         });
-        if (cotizacionActualizado) {
-            cotizacionLateralSup && cotizacionLateralSup.sumLateralSup ? precioVenta = (sumLateralSup / (100 - arrayTabla1[0].mc_porcentaje)) * 100 : precioVenta = (cotizacionActualizado.sumLateralSup / (100 - arrayTabla1[0].mc_porcentaje)) * 100;
-        } else {
-            cotizacionLateralSup && cotizacionLateralSup.sumLateralSup ? precioVenta = (sumLateralSup / (100 - arrayTabla1[0].mc_porcentaje)) * 100 : precioVenta = 0;
-        };
-        tabla2.map((fila, index) => {
-            objetoFila2 = { ...fila };
-            switch (index) {
-                case 0:
-                    objetoFila2.unidades = precioVenta === Infinity ? arrayTabla1[0].precio_venta : _.round(precioVenta, 2);
-                    break;
-                default:
-                // case 0:
-                //     objetoFila2.unidades = fila.unidades;
-                //     break;
-                // case 1:
-                //     objetoFila2.concepto = `JALP (${arrayTabla1[0].mc_porcentaje} %)`;
-                //     objetoFila2.unidades = precioVenta === Infinity ? arrayTabla1[0].precio_venta : _.round((precioVenta - sumLateralSup), 2);
-                //     break;
-                // case 2:
-                //     objetoFila2.unidades = precioVenta === Infinity ? arrayTabla1[0].precio_venta : _.round(sumLateralSup + (precioVenta - sumLateralSup), 2);
-                //     break;
-                // case 3:
-                //     objetoFila2.unidades = precioVenta === Infinity ? arrayTabla1[0].precio_venta : _.round(precioVenta, 2);
-                //     break;
-                // default:
-            };
-            arrayTabla2.push(objetoFila2);
-        });
-        setTableData1(arrayTabla1);
-        setTableData2(arrayTabla2);
+        setTableData(arrayTabla);
         if (update) {
-            actualizarTabla(arrayTabla1, arrayTabla2);
+            dispatch(actualizarTablaLateralInf(arrayTabla));
         };
     };
 
-    const actualizarTabla = (arrayTabla1, arrayTabla2) => {
-        let datosCotizacionUpdate = {};
-        if (cotizacionLateralInf) {
-            datosCotizacionUpdate = { ...cotizacionLateralInf };
-        };
-        datosCotizacionUpdate = {
-            cu: arrayTabla1[0].cu,
-            precio_venta: arrayTabla1[0].precio_venta,
-            mc: arrayTabla1[0].mc,
-            mc_porcentaje: arrayTabla1[0].mc_porcentaje,
-        };
-        arrayTabla2.map((fila, index) => {
-            switch (index) {
-                case 0:
-                    datosCotizacionUpdate.precio_venta_total = fila.unidades;
-                    break;
-                default:
-                // case 0:
-                //     datosCotizacionUpdate.porcentaje = fila.unidades;
-                //     break;
-                // case 1:
-                //     datosCotizacionUpdate.jalp = fila.unidades;
-                //     break;
-                // case 2:
-                //     datosCotizacionUpdate.total = fila.unidades;
-                //     break;
-                // case 3:
-                //     datosCotizacionUpdate.precio_venta_total = fila.unidades;
-                //     break;
-                // default:
-            };
-        });
-        dispatch(setObjetoCotizacionLateralInf(datosCotizacionUpdate));
-    };
-
-    const handleChangeCell1 = (cell, event) => {
-        setChangedData1(true);
-        const tabla = [...tableData1];
+    const handleChangeCell = (cell, event) => {
+        setChangedData(true);
+        const tabla = [...tableData];
         const rowIndex = Number(cell.row.id);
         const columna = cell.column.id;
-        let valor = event.target.value;
+        let valor = Number(event.target.value);
         !valor && (valor = 0);
+        if (columna === "mc_porcentaje") {
+            if (valor > 100) {
+                dispatch(showMessage({ message: "El porcentaje de margen de contribución debe ser menor que 100.", variant: "error" }));
+                valor = 0
+            };
+        };
         tabla[rowIndex][columna] = valor;
-        calculosTabla(tabla, tableData2, false);
+        let objetoReCalculado;
+        switch (columna) {
+            case "precio_venta":
+                objetoReCalculado = { estado: true, tipo: "precioVenta" };
+                break;
+            case "mc":
+                objetoReCalculado = { estado: true, tipo: "mc" };
+                break;
+            case "mc_porcentaje":
+                objetoReCalculado = { estado: true, tipo: "mcPorcentaje" };
+                break;
+            default:
+        };
+        calculosTabla(tabla, true, objetoReCalculado);
     };
 
-    const handleExitCell1 = (cell) => {
-        const tabla = [...tableData1];
-        if (changedData1) {
-            calculosTabla(tabla, tableData2, true);
-            setChangedData1(false);
+    const handleExitCell = (cell) => {
+        const tabla = [...tableData];
+        const columna = cell.column.id;
+        if (changedData) {
+            let objetoReCalculado;
+            switch (columna) {
+                case "precio_venta":
+                    objetoReCalculado = { estado: true, tipo: "precioVenta" };
+                    break;
+                case "mc":
+                    objetoReCalculado = { estado: true, tipo: "mc" };
+                    break;
+                case "mc_porcentaje":
+                    objetoReCalculado = { estado: true, tipo: "mcPorcentaje" };
+                    break;
+                default:
+            };
+            calculosTabla(tabla, true, objetoReCalculado);
+            setChangedData(false);
+        } else {
+            if (!cell.getValue()) {
+                const rowIndex = Number(cell.row.id);
+                const columna = cell.column.id;
+                tabla[rowIndex][columna] = 0;
+                setTableData(tabla);
+            };
         };
     };
 
-    if (!tableData1 && !tableData2) {
+    const retornaDisplay = () => {
+        if (cotizacionActualizado) {
+            return ""
+        } else {
+            if (
+                cotizacionCabecera &&
+                cotizacionCabecera.cliente &&
+                cotizacionCabecera.of &&
+                cotizacionCabecera.unidades > 0 &&
+                cotizacionCuerpo &&
+                cotizacionCuerpo.sumCuerpo
+            ) {
+                return ""
+            } else {
+                return "none!important"
+            };
+        };
+    };
+
+    const clickCelda = (cell, table) => {
+        if (cell.getValue() === 0) {
+            const tabla = [...table.options.data];
+            const rowIndex = Number(cell.row.id);
+            const columna = cell.column.id;
+            tabla[rowIndex][columna] = "";
+            setTableData(tabla);
+        };
+        table.setEditingCell(cell);
+    };
+
+    const handleClickReset = () => {
+        const tabla = [{
+            cu: tableData[0].cu,
+            precio_venta: 0,
+            mc: 0,
+            mc_porcentaje: 0
+        }];
+        calculosTabla(tabla, true, { estado: false, tipo: null });
+    };
+
+    if (!tableData) {
         return null
     };
 
@@ -210,8 +206,8 @@ function LateralInfCotizacion(props) {
                 style={{
                     borderTopLeftRadius: '0px',
                     borderTopRightRadius: '0px',
-                    borderBottomLeftRadius: '0px',
-                    borderBottomRightRadius: '0px'
+                    borderBottomLeftRadius: '16px',
+                    borderBottomRightRadius: '16px'
                 }}
             >
                 <MaterialReactTable
@@ -240,12 +236,13 @@ function LateralInfCotizacion(props) {
                                 sx: {
                                     paddingLeft: '24px',
                                     backgroundColor: 'white',
-                                    cursor: 'default',
+                                    cursor: 'default'
                                 },
                             },
                             Cell: ({ cell, row }) => (
                                 <Typography
                                     variant="body1"
+                                    className="whitespace-nowrap"
                                 >
                                     {`${formateado(cell.getValue())} €`}
                                 </Typography>
@@ -253,17 +250,18 @@ function LateralInfCotizacion(props) {
                             size: 50
                         },
                         {
-                            header: 'Precio venta',
+                            header: 'Precio.V',
                             accessorKey: 'precio_venta',
                             enableSorting: false,
                             enableColumnFilter: false,
                             enableEditing: true,
                             muiTableBodyCellEditTextFieldProps: {
                                 type: 'number',
+                                autoFocus: true
                             },
                             muiTableBodyCellProps: ({ cell, table }) => ({
                                 onClick: () => {
-                                    table.setEditingCell(cell);
+                                    clickCelda(cell, table);
                                 },
                                 sx: {
                                     '&:hover': {
@@ -284,6 +282,7 @@ function LateralInfCotizacion(props) {
                                 <Typography
                                     variant="body1"
                                     color={cell.getValue() < 0 && "error"}
+                                    className="whitespace-nowrap"
                                 >
                                     {`${formateado(cell.getValue())} €`}
                                 </Typography>
@@ -295,13 +294,37 @@ function LateralInfCotizacion(props) {
                             accessorKey: 'mc',
                             enableSorting: false,
                             enableColumnFilter: false,
-                            enableEditing: false,
+                            enableEditing: true,
+                            muiTableBodyCellEditTextFieldProps: {
+                                type: 'number',
+                                autoFocus: true
+                            },
+                            muiTableBodyCellProps: ({ cell, table }) => ({
+                                onClick: () => {
+                                    clickCelda(cell, table);
+                                },
+                                sx: {
+                                    '&:hover': {
+                                        backgroundColor: '#ebebeb',
+                                    },
+                                    backgroundColor: 'white',
+                                },
+                            }),
+                            Header: ({ column }) => (
+                                <div className='flex flex-row items-center'>
+                                    <FuseSvgIcon className="mr-4" size={20}>material-outline:edit_note</FuseSvgIcon>
+                                    <div>
+                                        {column.columnDef.header}
+                                    </div>
+                                </div>
+                            ),
                             Cell: ({ cell, row }) => (
                                 <Typography
                                     variant="body1"
                                     color={cell.getValue() < 0 && "error"}
+                                    className="whitespace-nowrap"
                                 >
-                                    {`${cell.getValue()} €`}
+                                    {`${formateado(cell.getValue())} €`}
                                 </Typography>
                             ),
                             size: 50,
@@ -311,11 +334,35 @@ function LateralInfCotizacion(props) {
                             accessorKey: 'mc_porcentaje',
                             enableSorting: false,
                             enableColumnFilter: false,
-                            enableEditing: false,
+                            enableEditing: true,
+                            muiTableBodyCellEditTextFieldProps: {
+                                type: 'number',
+                                autoFocus: true
+                            },
+                            muiTableBodyCellProps: ({ cell, table }) => ({
+                                onClick: () => {
+                                    clickCelda(cell, table);
+                                },
+                                sx: {
+                                    '&:hover': {
+                                        backgroundColor: '#ebebeb',
+                                    },
+                                    backgroundColor: 'white',
+                                },
+                            }),
+                            Header: ({ column }) => (
+                                <div className='flex flex-row items-center'>
+                                    <FuseSvgIcon className="mr-4" size={20}>material-outline:edit_note</FuseSvgIcon>
+                                    <div>
+                                        {column.columnDef.header}
+                                    </div>
+                                </div>
+                            ),
                             Cell: ({ cell, row }) => (
                                 <Typography
                                     variant="body1"
                                     color={cell.getValue() < 0 && "error"}
+                                    className="whitespace-nowrap"
                                 >
                                     {`${formateado(cell.getValue())} %`}
                                 </Typography>
@@ -323,26 +370,21 @@ function LateralInfCotizacion(props) {
                             size: 50,
                         }
                     ]}
-                    data={tableData1}
+                    data={tableData}
                     enableTopToolbar={false}
                     muiTableBodyCellProps={({ cell }) => ({
                         onChange: (event) => {
-                            handleChangeCell1(cell, event);
+                            handleChangeCell(cell, event);
                         },
                         onBlur: () => {
-                            handleExitCell1(cell);
+                            handleExitCell(cell);
                         },
                         sx: {
                             backgroundColor: 'white',
                             cursor: 'default'
                         }
                     })}
-                    muiBottomToolbarProps={{
-                        sx: {
-                            backgroundColor: 'white',
-                            minHeight: '10px',
-                        }
-                    }}
+                    enableBottomToolbar={false}
                     muiTableHeadCellProps={{
                         sx: {
                             paddingBottom: '5px'
@@ -350,118 +392,36 @@ function LateralInfCotizacion(props) {
                     }}
                     muiTableProps={{
                         sx: {
-                            display: 'none',
+                            display: retornaDisplay(),
                         }
-                    }}   
+                    }}
                 />
-                 {/* <Box className="flex flex-row items-center w-full py-16 px-24">
-                <div className="flex flex-row gap-8">
-                    <Typography className="text-2xl tracking-tight leading-tight">
-                        Precio Venta
-                    </Typography>
-                    <Typography className="text-2xl font-extrabold tracking-tight leading-tight">
-                        {`0 €`}
-                    </Typography>
-                </div>
-            </Box> */}
-            </TableContainer>           
-            <TableContainer
-                component={Paper}
-                className="relative flex flex-col flex-auto w-full overflow-hidden"
-                style={{
-                    borderTopLeftRadius: '0px',
-                    borderTopRightRadius: '0px',
-                    borderBottomLeftRadius: '16px',
-                    borderBottomRightRadius: '16px'
-                }}
-            >
-                <MaterialReactTable
-                    {...dispatch(generarPropsTabla(
-                        false,
-                        false,
-                        '',
-                        '',
-                        null,
-                        '',
-                        false
-                    ))}
-                    columns={[
-                        {
-                            header: '',
-                            accessorKey: 'concepto',
-                            enableSorting: false,
-                            enableColumnFilter: false,
-                            enableEditing: false,
-                            muiTableHeadCellProps: {
-                                sx: {
-                                    paddingLeft: '24px'
-                                },
-                            },
-                            muiTableBodyCellProps: ({ cell }) => ({
-                                sx: {
-                                    backgroundColor: cell.id === "1_concepto" ? '#e3f2fd' : 'white',
-                                    paddingLeft: '24px',
-                                    cursor: 'default',
-                                },
-                            }),
-                            Cell: ({ cell, row }) => (
-                                <Typography
-                                className="text-2xl font-extrabold tracking-tight leading-tight"
-                                >
-                                    <span className="font-bold">
-                                        {cell.getValue()}
-                                    </span>
-                                </Typography>
-                            ),
-                            size: 50
-                        },
-                        {
-                            header: '',
-                            accessorKey: 'unidades',
-                            enableSorting: false,
-                            enableColumnFilter: false,
-                            muiTableBodyCellEditTextFieldProps: {
-                                type: 'number',
-                            },
-                            muiTableBodyCellProps: ({ cell, table }) => ({
-                                onClick: () => {
-                                    cell.id === "0_unidades" && (table.setEditingCell(cell));
-                                },
-                                sx: {
-                                    '&:hover': {
-                                        backgroundColor: cell.id === "1_unidades" ? '#bbdefb' : 'white',
-                                    },
-                                    backgroundColor: cell.id === "1_unidades" ? '#e3f2fd' : 'white',
-                                    pointerEvents: cell.id === "1_unidades" ? 'auto' : 'none'
-                                },
-                            }),
-                            Cell: ({ cell, row }) => (
-                                <Typography
-                                    className="text-2xl font-extrabold tracking-tight leading-tight"
-                                >
-                                    {/* {cell.id === '0_unidades' ? `${formateado(cell.getValue())} %` : `${formateado(cell.getValue())} €`} */}
-                                    {`${formateado(cell.getValue())} €`}
-                                </Typography>
-                            ),
-                            size: 50
-                        },
-                    ]}
-                    data={tableData2}
-                    enableTopToolbar={false}
-                    muiTableBodyCellProps={({ cell }) => ({
-                        // onChange: (event) => {
-                        //     handleChangeCell2(cell, event);
-                        // },
-                        // onBlur: () => {
-                        //     handleExitCell2(cell);
-                        // },                       
-                    })}  
-                    muiTableProps={{
-                        sx: {
-                            display: 'none',
-                        }
-                    }}                    
-                />
+                <Box className="flex flex-row items-center w-full py-16 px-24 justify-between" >
+                    <div className="flex flex-row gap-8">
+                        <Typography className="text-2xl font-extrabold tracking-tight leading-tight pb-8"
+                            sx={{
+                                display: retornaDisplay(),
+                            }}
+                        >
+                            {`Precio venta: ${formateado(totales.precio)} €`}
+                        </Typography>
+                    </div>
+                    <Button
+                        color="primary"
+                        disableElevation
+                        onClick={handleClickReset}
+                        size="small"
+                        className="-mt-8"
+                        sx={{
+                            display: retornaDisplay(),
+                        }}
+                        disabled={reCalculado.estado ? false : true}
+                    >
+                        <span className="mx-12">
+                            Resetear cálculos
+                        </span>
+                    </Button>
+                </Box>
             </TableContainer>
         </>
     );

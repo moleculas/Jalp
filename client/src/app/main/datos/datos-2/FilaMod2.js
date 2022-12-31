@@ -12,11 +12,15 @@ import FormControl from '@mui/material/FormControl';
 import InputAdornment from '@mui/material/InputAdornment';
 import ToggleButton from '@mui/material/ToggleButton';
 
+//constantes
+import { REDONDEADO } from 'constantes';
+
 function FilaMod2(props) {
     const { producto, registrarFila, borrarFila, index } = props;
     const [valoresProducto, setValoresProducto] = useState(null);
     const [disabledGrabar, setDisabledGrabar] = useState(true);
     const [disabledModificado, setDisabledModificado] = useState(true);
+    const [tipoClavo, setTipoClavo] = useState(null);
 
     //useEffect 
 
@@ -29,8 +33,10 @@ function FilaMod2(props) {
                 categoria: producto.categoria,
                 precioUnitario: producto.precioUnitario,
                 historico: producto.historico,
-                activo: producto.activo
+                activo: producto.activo,
+                especialClavos: producto.especialClavos
             });
+            setTipoClavo(producto.categoria);
         };
     }, [producto]);
 
@@ -52,8 +58,73 @@ function FilaMod2(props) {
 
     const handleChange = (event, tipo) => {
         let valor = event.target.value;
-        tipo === "precioUnitario" && (valor = Number(event.target.value));
-        setValoresProducto({ ...valoresProducto, [tipo]: valor });
+        if (tipo === "precioBobina" || tipo === "unidadesBobina" || tipo === "precioKg" || tipo === "unidadesKg") {
+            let objetoEspecialClavos, precioBobina, unidadesBobina, precioKg, unidadesKg, precioUnitario;
+            valor = Number(event.target.value);
+            if (tipo === "precioBobina" || tipo === "unidadesBobina") {
+                if (valoresProducto && valoresProducto.especialClavos) {
+                    objetoEspecialClavos = {
+                        ...valoresProducto.especialClavos
+                    };
+                    valoresProducto.especialClavos.precioBobina ? precioBobina = valoresProducto.especialClavos.precioBobina : 0;
+                    valoresProducto.especialClavos.unidadesBobina ? unidadesBobina = valoresProducto.especialClavos.unidadesBobina : 0;
+                } else {
+                    objetoEspecialClavos = {
+                        precioKg: null,
+                        unidadesKg: null,
+                    };
+                    precioBobina = 0;
+                    unidadesBobina = 0;
+                };
+                if (tipo === "precioBobina") {
+                    objetoEspecialClavos.precioBobina = valor;
+                    precioBobina = valor;
+                    unidadesBobina ? (precioUnitario = precioBobina / unidadesBobina) : precioUnitario = 0;
+                };
+                if (tipo === "unidadesBobina") {
+                    objetoEspecialClavos.unidadesBobina = valor;
+                    unidadesBobina = valor;
+                    precioUnitario = precioBobina / unidadesBobina;
+                };
+                setValoresProducto({
+                    ...valoresProducto,
+                    especialClavos: objetoEspecialClavos,
+                    precioUnitario: _.round(precioUnitario, REDONDEADO)
+                });
+            };
+            if (tipo === "precioKg" || tipo === "unidadesKg") {
+                if (valoresProducto && valoresProducto.especialClavos) {
+                    objetoEspecialClavos = {
+                        ...valoresProducto.especialClavos
+                    };
+                    valoresProducto.especialClavos.precioKg ? precioKg = valoresProducto.especialClavos.precioKg : 0;
+                    valoresProducto.especialClavos.unidadesKg ? unidadesKg = valoresProducto.especialClavos.unidadesKg : 0;
+                } else {
+                    objetoEspecialClavos = {
+                        precioMillar: null
+                    };
+                    precioKg = 0;
+                    unidadesKg = 0;
+                };
+                if (tipo === "precioKg") {
+                    objetoEspecialClavos.precioKg = valor;
+                    precioKg = valor;
+                    unidadesKg ? (precioUnitario = precioKg / unidadesKg) : precioUnitario = 0;
+                };
+                if (tipo === "unidadesKg") {
+                    objetoEspecialClavos.unidadesKg = valor;
+                    unidadesKg = valor;
+                    precioUnitario = precioKg / unidadesKg;
+                };
+                setValoresProducto({
+                    ...valoresProducto,
+                    especialClavos: objetoEspecialClavos,
+                    precioUnitario: _.round(precioUnitario, REDONDEADO)
+                });
+            };
+        } else {
+            setValoresProducto({ ...valoresProducto, [tipo]: valor });
+        };
         producto._id && (setDisabledModificado(false));
     };
 
@@ -63,7 +134,7 @@ function FilaMod2(props) {
     };
 
     const retornaTitleTooltipGrabar = () => {
-        if (producto._id) {           
+        if (producto._id) {
             if (!disabledModificado) {
                 return "Actualizar datos"
             } else {
@@ -75,6 +146,91 @@ function FilaMod2(props) {
             } else {
                 return ""
             };
+        };
+    };
+
+    const retornaFormatoCasillas = () => {
+        let valorCasillaPrecioBobina = "";
+        let valorCasillaUnidadesBobina = "";
+        let valorCasillaPrecioKg = "";
+        let valorCasillaUnidadesKg = "";
+        switch (tipoClavo) {
+            case 'granel':
+                if (valoresProducto && valoresProducto.especialClavos) {
+                    if (valoresProducto.especialClavos.precioKg) {
+                        valorCasillaPrecioKg = valoresProducto.especialClavos.precioKg;
+                    };
+                    if (valoresProducto.especialClavos.unidadesKg) {
+                        valorCasillaUnidadesKg = valoresProducto.especialClavos.unidadesKg;
+                    };
+                };
+                return (
+                    <>
+                        <TextField
+                            label="Uds/Kg"
+                            value={valorCasillaUnidadesKg}
+                            onChange={(event) => handleChange(event, 'unidadesKg')}
+                            variant="outlined"
+                            className="w-full md:w-[50%] xl:w-[25%]"
+                            type="number"
+                        />
+                        <TextField
+                            label="Precio Kg"
+                            value={valorCasillaPrecioKg}
+                            onChange={(event) => handleChange(event, 'precioKg')}
+                            variant="outlined"
+                            className="w-full md:w-[50%] xl:w-[25%]"
+                            type="number"
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end">€</InputAdornment>
+                            }}
+                        />
+                    </>
+                )
+                break;
+            case 'bobina':
+                if (valoresProducto && valoresProducto.especialClavos) {
+                    if (valoresProducto.especialClavos.precioBobina) {
+                        valorCasillaPrecioBobina = valoresProducto.especialClavos.precioBobina;
+                    };
+                    if (valoresProducto.especialClavos.unidadesBobina) {
+                        valorCasillaUnidadesBobina = valoresProducto.especialClavos.unidadesBobina;
+                    };
+                };
+                return (
+                    <>
+                        <TextField
+                            label="Uds/bobina"
+                            value={valorCasillaUnidadesBobina}
+                            onChange={(event) => handleChange(event, 'unidadesBobina')}
+                            variant="outlined"
+                            className="w-full md:w-[50%] xl:w-[25%]"
+                            type="number"
+                        />
+                        <TextField
+                            label="Precio bobina"
+                            value={valorCasillaPrecioBobina}
+                            onChange={(event) => handleChange(event, 'precioBobina')}
+                            variant="outlined"
+                            className="w-full md:w-[50%] xl:w-[25%]"
+                            type="number"
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end">€</InputAdornment>
+                            }}
+                        />
+                    </>
+                )
+                break;
+            default:
+                return (
+                    <TextField
+                        label="Cálculo"
+                        value=""
+                        variant="outlined"
+                        className="w-full md:w-[50%] xl:w-[50%]"
+                        disabled={true}
+                    />
+                )
         };
     };
 
@@ -90,7 +246,7 @@ function FilaMod2(props) {
                     value={valoresProducto.descripcion}
                     onChange={(event) => handleChange(event, 'descripcion')}
                     variant="outlined"
-                    className="w-full md:w-[50%] xl:w-[100%]"
+                    className="w-full md:w-[50%] xl:w-[50%]"
                 />
                 <TextField
                     label="SAGE"
@@ -104,25 +260,26 @@ function FilaMod2(props) {
                     <Select
                         label="Formato"
                         value={valoresProducto.categoria}
-                        onChange={(event) => handleChange(event, 'categoria')}
+                        onChange={(event) => { handleChange(event, 'categoria'); setTipoClavo(event.target.value) }}
                     >
                         <MenuItem value="">
                             <em>Formato</em>
                         </MenuItem>
                         <MenuItem value={'granel'}>Granel</MenuItem>
-                        <MenuItem value={'peso'}>Peso</MenuItem>
+                        <MenuItem value={'bobina'}>Bobina</MenuItem>
                     </Select>
                 </FormControl>
+                {retornaFormatoCasillas()}
                 <TextField
-                    label="Precio"
+                    label="Precio ud."
                     value={valoresProducto.precioUnitario || ""}
-                    onChange={(event) => handleChange(event, 'precioUnitario')}
                     variant="outlined"
                     className="w-full md:w-[50%] xl:w-[25%]"
-                    type="number"
                     InputProps={{
                         endAdornment: <InputAdornment position="end">€</InputAdornment>,
+                        readOnly: true,
                     }}
+                    disabled={tipoClavo ? false : true}
                 />
                 <div className="flex items-center">
                     <Tooltip

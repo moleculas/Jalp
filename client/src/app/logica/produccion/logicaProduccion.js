@@ -10,6 +10,7 @@ import Box from '@mui/material/Box';
 import clsx from 'clsx';
 import { styled, alpha } from '@mui/material/styles';
 import Menu from '@mui/material/Menu';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 
 //constantes
 import { REDONDEADO } from 'constantes';
@@ -205,12 +206,7 @@ export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, ti
                 },
             },
             'mrt-row-expand': {
-                muiTableHeadCellProps: {
-                    display: 'none!important'
-                },
-                muiTableBodyCellProps: {
-                    display: 'none!important'
-                },
+                size: 2
             },
         },
         localization: {
@@ -349,6 +345,18 @@ export const StyledMenu = styled((props) => (
                 ),
             },
         },
+    },
+}));
+
+export const LightTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+        backgroundColor: theme.palette.common.white,
+        color: 'rgba(0, 0, 0, 0.87)',
+        boxShadow: theme.shadows[1],
+        fontSize: 11,
+        maxWidth: 'none',
     },
 }));
 

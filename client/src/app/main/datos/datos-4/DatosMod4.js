@@ -46,7 +46,7 @@ function DatosMod4(props) {
         rightSidebarOpen && (rightSidebarToggle());
         dispatch(setProductos(null));
         setProductosControllers([]);
-        dispatch(getProductos({ familia: 'costeHoraTrabajador', min: false })).then(({ payload }) => {
+        dispatch(getProductos({ familia: 'costesHoraTrabajador', min: false })).then(({ payload }) => {
             gestionaProductos(payload);
         });
     }, []);
@@ -99,10 +99,11 @@ function DatosMod4(props) {
             fecha: new Date()
         });
         objeto.historico = arrayHistorico;
-        objeto.familia = "costeHoraTrabajador";
+        objeto.familia = "costesHoraTrabajador";
+        // objeto.categoria = ["random"];
         if (!productoRetornado._id) {
             dispatch(addProducto(objeto)).then(({ payload }) => {
-                dispatch(getProductos({ familia: 'costeHoraTrabajador', min: false })).then(({ payload }) => {
+                dispatch(getProductos({ familia: 'costesHoraTrabajador', min: false })).then(({ payload }) => {
                     gestionaProductos(payload);
                 });
             });
@@ -112,7 +113,7 @@ function DatosMod4(props) {
                 producto: objeto
             };
             dispatch(updateProducto(datosActualizar)).then(({ payload }) => {
-                dispatch(getProductos({ familia: 'costeHoraTrabajador', min: false })).then(({ payload }) => {
+                dispatch(getProductos({ familia: 'costesHoraTrabajador', min: false })).then(({ payload }) => {
                     gestionaProductos(payload);
                 });
             });
@@ -122,7 +123,7 @@ function DatosMod4(props) {
     const borrarFila = (id, index) => {
         if (id) {
             dispatch(deleteProducto(id)).then(({ payload }) => {
-                dispatch(getProductos({ familia: 'costeHoraTrabajador', min: false })).then(({ payload }) => {
+                dispatch(getProductos({ familia: 'costesHoraTrabajador', min: false })).then(({ payload }) => {
                     gestionaProductos(payload);
                 });
             });

@@ -381,6 +381,20 @@ function PanelPedidos(props) {
                         </Tooltip>
                     </Box>
                 )}
+                muiTableBodyProps={{
+                    sx: {
+                        '&::after': {
+                            content: '"Totales"',
+                            width: '100%',
+                            borderTop: '1px solid #e2e8f0',
+                            position: 'absolute',
+                            paddingLeft: '24px',
+                            paddingTop: '8px',
+                            fontSize: '12px',
+                            fontWeight: 'bold'
+                        },
+                    }
+                }}
             />
         </TableContainer>
     );

@@ -4,15 +4,15 @@ const ProductoSchema = new mongoose.Schema(
     {
         descripcion: {
             type: String,
-            required: true,
         },
         familia: {
             type: String,
-            enum: ['clavos', 'costeHoraTrabajador', 'clientes', 'maderas'],
+            enum: ['clavos', 'costesHoraTrabajador', 'clientes', 'maderas', 'costesProcesos', 'proveedores', 'transportes'],
         },
         tipoPedido: {
             type: [String],
-        },        
+            default: undefined
+        },
         largo: {
             type: Number,
         },
@@ -23,12 +23,16 @@ const ProductoSchema = new mongoose.Schema(
             type: Number,
         },
         categoria: {
-            type: [String]
-        },       
+            type: [String],
+            default: undefined
+        },
         sage: {
             type: String,
         },
         precioUnitario: {
+            type: Number,
+        },
+        precioProductoProveedor: {
             type: Number,
         },
         historico: {
@@ -41,11 +45,47 @@ const ProductoSchema = new mongoose.Schema(
                 },
                 fecha: {
                     type: Date
-                }
+                },
+                precioProductoProveedor: {
+                    type: Number,
+                },
+                destino: {
+                    type: String,
+                },
+                vehiculo: {
+                    type: String,
+                    enum: ['camion', 'trailer', 'trenCarretera'],
+                },
             }]
         },
         activo: {
             type: Boolean,
+        },
+        especialClavos: {
+            precioKg: {
+                type: Number
+            },
+            unidadesKg: {
+                type: Number
+            },
+            precioBobina: {
+                type: Number
+            },
+            unidadesBobina: {
+                type: Number
+            },
+        },
+        especialTransportes: {
+            destino: {
+                type: String,
+            },
+            vehiculo: {
+                type: String,
+                enum: ['camion', 'trailer', 'trenCarretera'],
+            },
+            unidadesVehiculo: {
+                type: Number
+            },
         },
     },
     {

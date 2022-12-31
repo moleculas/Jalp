@@ -85,6 +85,47 @@ export const getProductos = async (req, res) => {
                     };
                 });
             };
+            if (familia === "costesHoraTrabajador") {
+                productos.map((producto) => {
+                    if (producto.activo) {
+                        productosARetornar.push({
+                            precioUnitario: producto.precioUnitario,
+                            categoria: producto.categoria
+                        });
+                    };
+                });
+            };
+            if (familia === "proveedores") {
+                productos.map((producto) => {
+                    if (producto.activo) {
+                        productosARetornar.push({
+                            descripcion: producto.descripcion,
+                            precioProductoProveedor: producto.precioProductoProveedor
+                        });
+                    };
+                });
+            };
+            if (familia === "transportes") {
+                productos.map((producto) => {
+                    if (producto.activo) {
+                        productosARetornar.push({
+                            _id: producto._id,
+                            especialTransportes: producto.especialTransportes,
+                            precioUnitario: producto.precioUnitario,
+                        });
+                    };
+                });
+            };
+            if (familia === "costesProcesos") {
+                productos.map((producto) => {
+                    if (producto.activo) {
+                        productosARetornar.push({
+                            precioUnitario: producto.precioUnitario,
+                            categoria: producto.categoria
+                        });
+                    };
+                });
+            };
             return res.json(productosARetornar);
         } else {
             return res.json(productos);

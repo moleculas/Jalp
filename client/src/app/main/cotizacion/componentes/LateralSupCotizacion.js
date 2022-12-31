@@ -15,9 +15,6 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import clsx from 'clsx';
 
-//constantes
-import { REDONDEADO } from 'constantes';
-
 //importacion acciones
 import {
     generarPropsTabla,
@@ -25,12 +22,19 @@ import {
     removeArrayByIndex
 } from 'app/logica/produccion/logicaProduccion';
 import {
-    setObjetoCotizacionLateralSup,
     selectObjetoCotizacionActualizado,
     openNoteDialog,
     setRegistraIntervencionDialog,
-    selectRegistraIntervencionDialog,
+    selectRegistraIntervencionDialog
 } from 'app/redux/produccion/cotizacionSlice';
+import {
+    calculosTablaLateralSup,
+    actualizarTablaLateralSup
+} from 'app/logica/produccion/logicaCotizacion';
+import {
+    getProductos,
+    setProductos
+} from 'app/redux/produccion/productoSlice';
 
 function LateralSupCotizacion(props) {
     const { cotizacionLateralSup, cotizacionCabecera, cotizacionCuerpo } = props;
@@ -40,10 +44,19 @@ function LateralSupCotizacion(props) {
     const conceptos = ["clavos", "corte_madera", "montaje", "patines", "transporte", "tratamiento", "merma"];
     const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
     const registraIntervencionDialog = useSelector(selectRegistraIntervencionDialog);
-    const [totales, setTotales] = useState({ volumen: 0, precio: 0 });
+    const [totales, setTotales] = useState({ volumen: 0, precio: 0, tratamiento: 0 });
     const [expanded, setExpanded] = useState(false);
+    const conceptoCosteProcesos = "tratamiento";
 
     //useEffect  
+
+    useEffect(() => {
+        dispatch(setProductos(null));
+        dispatch(getProductos({ familia: 'costesProcesos', min: true })).then(({ payload }) => {
+            const objetoCosteTratamiento = payload.filter(objeto => objeto.categoria.includes(conceptoCosteProcesos));
+            setTotales({ ...totales, tratamiento: objetoCosteTratamiento[0].precioUnitario });
+        });
+    }, []);
 
     useEffect(() => {
         if (!tableData) {
@@ -69,7 +82,13 @@ function LateralSupCotizacion(props) {
     }, [cotizacionActualizado]);
 
     useEffect(() => {
-        if (registraIntervencionDialog === "clavos") {
+        if (
+            registraIntervencionDialog === "clavos" ||
+            registraIntervencionDialog === "corte_madera" ||
+            registraIntervencionDialog === "montaje" ||
+            registraIntervencionDialog === "patines" ||
+            registraIntervencionDialog === "transporte"
+        ) {
             calculosTabla(tableData, true);
             dispatch(setRegistraIntervencionDialog(null));
         };
@@ -85,10 +104,10 @@ function LateralSupCotizacion(props) {
         if (cotizacionActualizado) {
             if (cotizacionCuerpo) {
                 precio = cotizacionCuerpo.sumCuerpo;
-                volumen = (cotizacionCuerpo.sumVolumen - cotizacionCuerpo.sumVolumenMerma);
+                volumen = cotizacionCuerpo.sumVolumen;
             } else {
                 precio = cotizacionActualizado.sumCuerpo;
-                volumen = (cotizacionActualizado.sumVolumen - cotizacionActualizado.sumVolumenMerma);
+                volumen = cotizacionActualizado.sumVolumen;
             };
             //TODO
         } else {
@@ -102,64 +121,14 @@ function LateralSupCotizacion(props) {
         };
         setTableData(arrayDatos);
         setTotales({
+            ...totales,
             precio,
             volumen
         });
     };
 
     const calculosTabla = (tabla, update) => {
-        const arrayTabla = [];
-        let objetoFila = null;
-        let sumCuerpo, unidades, sumPrecioMerma, sumClavos;
-        if (cotizacionActualizado) {
-            if (cotizacionCuerpo) {
-                sumCuerpo = cotizacionCuerpo.sumCuerpo;
-                sumPrecioMerma = cotizacionCuerpo.sumPrecioMerma;
-            } else {
-                sumCuerpo = cotizacionActualizado.sumCuerpo;
-                sumPrecioMerma = cotizacionActualizado.sumPrecioMerma;
-            };
-            if (cotizacionCabecera) {
-                unidades = cotizacionCabecera.unidades;
-            } else {
-                unidades = cotizacionActualizado.unidades;
-            };
-            if (cotizacionLateralSup) {
-                sumClavos = cotizacionLateralSup.sumClavos ? cotizacionLateralSup.sumClavos : 0;
-            } else {
-                sumClavos = cotizacionActualizado.sumClavos ? cotizacionActualizado.sumClavos : 0;
-            };
-        } else {
-            if (cotizacionCabecera && cotizacionCuerpo) {
-                sumCuerpo = cotizacionCuerpo.sumCuerpo;
-                unidades = cotizacionCabecera.unidades;
-                sumPrecioMerma = cotizacionCuerpo.sumPrecioMerma;
-            } else {
-                sumCuerpo = 0;
-                unidades = 0;
-                sumPrecioMerma = 0;
-            };
-            if (cotizacionLateralSup) {
-                sumClavos = cotizacionLateralSup.sumClavos ? cotizacionLateralSup.sumClavos : 0;
-            } else {
-                sumClavos = 0;
-            };
-        };
-        tabla.map((fila, index) => {
-            objetoFila = { ...fila };
-            switch (fila.concepto) {
-                case "merma":
-                    objetoFila.total = sumPrecioMerma * unidades;
-                    break;
-                case "clavos":
-                    objetoFila.total = sumClavos * unidades;
-                    break;
-                default:
-                    objetoFila.total = Number(fila.total);
-                    objetoFila.concepto = _.deburr(fila.concepto).replaceAll(/[ .]/g, "_").toLowerCase();;
-            };
-            arrayTabla.push(objetoFila);
-        });
+        const arrayTabla = dispatch(calculosTablaLateralSup(tabla, totales.tratamiento));
         setTableData(arrayTabla);
         if (update) {
             actualizarTabla(arrayTabla);
@@ -167,47 +136,9 @@ function LateralSupCotizacion(props) {
     };
 
     const actualizarTabla = (arrayTabla) => {
-        const arrayFilasExtra = [];
-        let objetoFilasExtra;
-        arrayTabla.forEach((fila, index) => {
-            if (index > 6) {
-                objetoFilasExtra = {
-                    concepto: fila.concepto,
-                    precio_total: fila.total
-                };
-                arrayFilasExtra.push(objetoFilasExtra);
-            };
-        });
-        let sumatoriofilasExtra = 0;
-        if (arrayFilasExtra.length > 0) {
-            sumatoriofilasExtra = arrayFilasExtra.reduce((sum, { precio_total }) => sum + precio_total, 0);
-        };
-        const sumLateralSup = arrayTabla.reduce((sum, { total }) => sum + total, 0);
-        let datosCotizacionUpdate = {};
-        let precio, volumen;
-        if (cotizacionActualizado) {
-            if (cotizacionLateralSup) {
-                datosCotizacionUpdate = { ...cotizacionLateralSup };
-            } else {
-                datosCotizacionUpdate = {};
-            };
-            if (cotizacionCuerpo) {
-                precio = cotizacionCuerpo.sumCuerpo;
-                volumen = (cotizacionCuerpo.sumVolumen - cotizacionCuerpo.sumVolumenMerma);
-            } else {
-                precio = cotizacionActualizado.sumCuerpo;
-                volumen = (cotizacionActualizado.sumVolumen - cotizacionActualizado.sumVolumenMerma);
-            };
-        } else {
-            datosCotizacionUpdate = { ...cotizacionLateralSup };
-            precio = cotizacionCuerpo.sumCuerpo;
-            volumen = (cotizacionCuerpo.sumVolumen - cotizacionCuerpo.sumVolumenMerma);
-        };
-        datosCotizacionUpdate.sumLateralSup = _.round(sumLateralSup, REDONDEADO);
-        datosCotizacionUpdate.filasExtra = arrayFilasExtra;
-        precio -= (datosCotizacionUpdate.sumLateralSup + sumatoriofilasExtra);
-        dispatch(setObjetoCotizacionLateralSup(datosCotizacionUpdate));
+        const { precio, volumen } = dispatch(actualizarTablaLateralSup(arrayTabla));
         setTotales({
+            ...totales,
             precio,
             volumen
         });
@@ -240,24 +171,6 @@ function LateralSupCotizacion(props) {
                 };
                 setTableData(tabla);
             };
-        };
-    };
-
-    const retornaTotales = (table, columna) => {
-        switch (columna) {
-            case 'total':
-                if (table.options.data[0].total > 0) {
-                    const sumatorioTotales = table.options.data.reduce((sum, { total }) => sum + total, 0);
-                    return (
-                        <Typography variant="body1">
-                            <span className="font-bold">
-                                {`${formateado(sumatorioTotales)} €`}
-                            </span>
-                        </Typography>
-                    )
-                };
-                break;
-            default:
         };
     };
 
@@ -298,7 +211,7 @@ function LateralSupCotizacion(props) {
                 handleOpenNotedialog(rowId);
                 break;
             case 'pointer':
-                if (rowId === 6) {
+                if (rowId === 6 || rowId === 5) {
                     return 'none'
                 } else {
                     return 'auto'
@@ -353,7 +266,7 @@ function LateralSupCotizacion(props) {
             <Box className="flex flex-row items-center w-full pt-16 pb-12 px-24">
                 <div className="flex flex-row gap-8">
                     <Typography className="text-[15px] font-bold">
-                        Volumen total
+                        Volumen total:
                     </Typography>
                     <Typography variant="body1">
                         {`${formateado(totales.volumen)} m³`}
@@ -503,10 +416,10 @@ function LateralSupCotizacion(props) {
                     </AccordionDetails>
                 </Accordion>
             </div>
-            <Box className="flex flex-row items-center w-full py-16 px-24">
+            <Box className="flex flex-row items-center w-full py-14 px-24 border-b-1">
                 <div className="flex flex-row gap-8">
                     <Typography className="text-[15px] font-bold">
-                        Precio total
+                        Precio total:
                     </Typography>
                     <Typography variant="body1">
                         {`${formateado(totales.precio)} €`}

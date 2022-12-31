@@ -37,13 +37,16 @@ const CotizacionSchema = new mongoose.Schema(
                 vol_total: {
                     type: Number
                 },
-                precio_unitario: {
+                proveedor: {
+                    type: String,
+                },
+                precio_m3: {
                     type: Number
                 },
                 precio_total: {
                     type: Number
                 },
-                filaMerma:{
+                filaMerma: {
                     type: [{
                         unidades: {
                             type: Number,
@@ -70,11 +73,16 @@ const CotizacionSchema = new mongoose.Schema(
         sumVolumen: {
             type: Number,
         },
-        sumPrecioMerma: {
-            type: Number,
-        },
-        sumVolumenMerma: {
-            type: Number,
+        merma: {
+            sumPrecioMerma: {
+                type: Number,
+            },
+            sumVolumenMerma: {
+                type: Number,
+            },
+            filasMerma: {
+                type: Number,
+            }
         },
         filasClavos: {
             type: [{
@@ -93,6 +101,76 @@ const CotizacionSchema = new mongoose.Schema(
             }]
         },
         sumClavos: {
+            type: Number
+        },
+        filaCorteMadera: {
+            type: [{
+                cantidadPrecioHora: {
+                    type: Number,
+                },
+                operarios: {
+                    type: Number,
+                },
+                productividad: {
+                    type: Number,
+                },
+                precio_total: {
+                    type: Number,
+                }
+            }]
+        },
+        sumCorteMadera: {
+            type: Number
+        },
+        filaMontaje: {
+            type: [{
+                cantidadPrecioHora: {
+                    type: Number,
+                },
+                operarios: {
+                    type: Number,
+                },
+                productividad: {
+                    type: Number,
+                },
+                precio_total: {
+                    type: Number,
+                }
+            }]
+        },
+        sumMontaje: {
+            type: Number
+        },
+        filaPatines: {
+            type: [{
+                cantidadPrecioHora: {
+                    type: Number,
+                },
+                operarios: {
+                    type: Number,
+                },
+                precio_total: {
+                    type: Number,
+                }
+            }]
+        },
+        sumPatines: {
+            type: Number
+        },
+        filaTransporte: {
+            type: [{
+                transporte: {
+                    type: String,
+                },
+                precio_total: {
+                    type: Number,
+                }
+            }]
+        },
+        sumTransporte: {
+            type: Number
+        },
+        sumTratamiento: {
             type: Number
         },
         filasExtra: {

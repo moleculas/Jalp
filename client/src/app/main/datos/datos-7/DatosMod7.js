@@ -7,7 +7,7 @@ import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import { motion } from 'framer-motion';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
-import FilaMod2 from './FilaMod2';
+import FilaMod7 from './FilaMod7';
 import Chip from '@mui/material/Chip';
 
 //importacion acciones
@@ -23,7 +23,7 @@ import {
     removeArrayByIndex
 } from 'app/logica/produccion/logicaProduccion';
 
-function DatosMod2(props) {
+function DatosMod7(props) {
     const { leftSidebarToggle, rightSidebarToggle, rightSidebarOpen } = props;
     const dispatch = useDispatch();
     const productos = useSelector(selectProductos);
@@ -46,7 +46,7 @@ function DatosMod2(props) {
         rightSidebarOpen && (rightSidebarToggle());
         dispatch(setProductos(null));
         setProductosControllers([]);
-        dispatch(getProductos({ familia: 'clavos', min: false })).then(({ payload }) => {
+        dispatch(getProductos({ familia: 'transportes', min: false })).then(({ payload }) => {
             gestionaProductos(payload);
         });
     }, []);
@@ -59,13 +59,12 @@ function DatosMod2(props) {
             respuesta.forEach((producto, index) => {
                 let objetoProducto = {
                     _id: producto._id,
-                    descripcion: producto.descripcion,
-                    sage: producto.sage,
-                    categoria: producto.categoria[0],
+                    destino: producto.especialTransportes.destino,
+                    vehiculo: producto.especialTransportes.vehiculo,
+                    unidadesVehiculo: producto.especialTransportes.unidadesVehiculo,
                     precioUnitario: producto.precioUnitario,
                     historico: producto.historico,
-                    activo: producto.activo,
-                    especialClavos: producto.especialClavos
+                    activo: producto.activo
                 };
                 arrayProductos.push(objetoProducto);
             });
@@ -77,13 +76,12 @@ function DatosMod2(props) {
         const arrayProductos = [...productosControllers];
         let objetoProducto = {
             _id: null,
-            descripcion: "",
-            sage: "",
-            categoria: "",
+            destino: "",
+            vehiculo: "",
+            unidadesVehiculo: null,
             precioUnitario: null,
             historico: [],
-            activo: true,
-            especialClavos: null
+            activo: true
         };
         arrayProductos.push(objetoProducto);
         setProductosControllers(arrayProductos);
@@ -91,24 +89,29 @@ function DatosMod2(props) {
 
     const registrarFila = (productoRetornado) => {
         const objeto = {
-            descripcion: productoRetornado.descripcion,
-            sage: productoRetornado.sage,
-            categoria: [productoRetornado.categoria],
+            especialTransportes: {
+                destino: productoRetornado.destino,
+                vehiculo: productoRetornado.vehiculo,
+                unidadesVehiculo: productoRetornado.unidadesVehiculo,
+            },
             precioUnitario: productoRetornado.precioUnitario,
-            activo: productoRetornado.activo,
-            especialClavos: productoRetornado.especialClavos
+            activo: productoRetornado.activo
         };
         let arrayHistorico = [...productoRetornado.historico];
         arrayHistorico.push({
+            especialTransportes: {
+                destino: productoRetornado.destino,
+                vehiculo: productoRetornado.vehiculo,
+            },
             precioUnitario: productoRetornado.precioUnitario,
             activo: productoRetornado.activo,
             fecha: new Date()
         });
         objeto.historico = arrayHistorico;
-        objeto.familia = "clavos";
+        objeto.familia = "transportes";
         if (!productoRetornado._id) {
             dispatch(addProducto(objeto)).then(({ payload }) => {
-                dispatch(getProductos({ familia: 'clavos', min: false })).then(({ payload }) => {
+                dispatch(getProductos({ familia: 'transportes', min: false })).then(({ payload }) => {
                     gestionaProductos(payload);
                 });
             });
@@ -118,7 +121,7 @@ function DatosMod2(props) {
                 producto: objeto
             };
             dispatch(updateProducto(datosActualizar)).then(({ payload }) => {
-                dispatch(getProductos({ familia: 'clavos', min: false })).then(({ payload }) => {
+                dispatch(getProductos({ familia: 'transportes', min: false })).then(({ payload }) => {
                     gestionaProductos(payload);
                 });
             });
@@ -128,7 +131,7 @@ function DatosMod2(props) {
     const borrarFila = (id, index) => {
         if (id) {
             dispatch(deleteProducto(id)).then(({ payload }) => {
-                dispatch(getProductos({ familia: 'clavos', min: false })).then(({ payload }) => {
+                dispatch(getProductos({ familia: 'transportes', min: false })).then(({ payload }) => {
                     gestionaProductos(payload);
                 });
             });
@@ -161,7 +164,7 @@ function DatosMod2(props) {
                             )}
                             <div>
                                 <Typography className="text-2xl font-extrabold tracking-tight leading-tight">
-                                    Producto: Clavos
+                                    Concepto: Transporte
                                 </Typography>
                                 <div className="mt-2 font-medium">
                                     <Typography>Registro en base de datos para cálculos.</Typography>
@@ -174,7 +177,7 @@ function DatosMod2(props) {
                                     <Chip
                                         label={
                                             <Typography className="ml-8">
-                                                Histórico producto
+                                                Histórico concepto
                                             </Typography>
                                         }
                                         onClick={rightSidebarToggle}
@@ -209,7 +212,7 @@ function DatosMod2(props) {
                         ) : (
                             productosControllers.map((producto, index) => {
                                 return (
-                                    <FilaMod2
+                                    <FilaMod7
                                         key={'prod' + index}
                                         index={index}
                                         producto={producto}
@@ -230,4 +233,4 @@ function DatosMod2(props) {
     )
 }
 
-export default DatosMod2;
+export default DatosMod7;

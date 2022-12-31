@@ -18,7 +18,6 @@ import TextField from '@mui/material/TextField';
 import { generarPropsTabla } from 'app/logica/produccion/logicaProduccion';
 import {
     setAnadirFilaIdCotizacion,
-    setObjetoCotizacionCabecera,
     getOf,
     selectObjetoCotizacionActualizado,
 } from 'app/redux/produccion/cotizacionSlice';
@@ -27,6 +26,10 @@ import {
     getProductos,
     setProductos
 } from 'app/redux/produccion/productoSlice';
+import {
+    calculosTablaCabecera,
+    actualizarTablaCabecera
+} from 'app/logica/produccion/logicaCotizacion';
 
 function CabeceraCotizacion(props) {
     const { cotizacionCabecera } = props;
@@ -246,30 +249,16 @@ function CabeceraCotizacion(props) {
     };
 
     const calculosTabla = (tabla, update) => {
-        const arrayTabla = [];
-        let objetoFila = null;
-        tabla.map((fila, index) => {
-            objetoFila = { ...fila };
-            objetoFila.of = objetoFila.of ? objetoFila.of : '';
-            objetoFila.unidades = Number(objetoFila.unidades);
-            arrayTabla.push(objetoFila);
-        });
+        const objetoCabecera = {
+            ...tabla[0],
+            of: tabla[0].of,
+            unidades: Number(tabla[0].unidades)
+        };
+        const arrayTabla = dispatch(calculosTablaCabecera(objetoCabecera));
         setTableData(arrayTabla);
         if (update) {
-            actualizarTabla(arrayTabla);
+            dispatch(actualizarTablaCabecera(arrayTabla, descripcion));
         };
-    };
-
-    const actualizarTabla = (arrayTabla) => {
-        let datosCotizacionUpdate = {};
-        datosCotizacionUpdate = {
-            descripcion: descripcion ? descripcion : 'Sin descripción',
-            fecha: arrayTabla[0].fecha,
-            cliente: arrayTabla[0].cliente,
-            of: arrayTabla[0].of,
-            unidades: arrayTabla[0].unidades,
-        };
-        dispatch(setObjetoCotizacionCabecera(datosCotizacionUpdate));
     };
 
     const handleChangeCell = (cell, event) => {

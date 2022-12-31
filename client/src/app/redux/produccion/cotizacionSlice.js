@@ -101,9 +101,9 @@ const initialState = {
     openFormCotizacion: false,
     cotizaciones: null,
     noteDialogId: null,
-    mermaIndex: null,
+    dialogIndex: null,
     registraIntervencionDialog: null,
-    anadirFila: false
+    anadirFila: false,
 };
 
 const cotizacionSlice = createSlice({
@@ -117,8 +117,8 @@ const cotizacionSlice = createSlice({
             state.objetoCotizacionCabecera = action.payload;
         },
         setObjetoCotizacionCuerpo: (state, action) => {
-            state.objetoCotizacionCuerpo = action.payload;
-        },
+            state.objetoCotizacionCuerpo = action.payload;             
+        },  
         setObjetoCotizacionLateralSup: (state, action) => {
             state.objetoCotizacionLateralSup = action.payload;
         },
@@ -140,12 +140,12 @@ const cotizacionSlice = createSlice({
         closeNoteDialog: (state, action) => {
             state.noteDialogId = action.null;
         },
-        setMermaIndex: (state, action) => {
-            state.mermaIndex = action.payload;
+        setDialogIndex: (state, action) => {
+            state.dialogIndex = action.payload;
         },
         setRegistraIntervencionDialog: (state, action) => {
             state.registraIntervencionDialog = action.payload;
-        }
+        },       
     },
     extraReducers: {
         [addCotizacion.fulfilled]: (state, action) => {
@@ -174,8 +174,8 @@ export const {
     setCotizaciones,
     openNoteDialog,
     closeNoteDialog,
-    setMermaIndex,
-    setRegistraIntervencionDialog
+    setDialogIndex,
+    setRegistraIntervencionDialog,   
 } = cotizacionSlice.actions;
 
 export const selectAnadirFilaIdCotizacion = ({ produccionSeccion }) => produccionSeccion.cotizacion.anadirFilaIdCotizacion;
@@ -187,7 +187,7 @@ export const selectObjetoCotizacionActualizado = ({ produccionSeccion }) => prod
 export const selectOpenFormCotizacion = ({ produccionSeccion }) => produccionSeccion.cotizacion.openFormCotizacion;
 export const selectCotizaciones = ({ produccionSeccion }) => produccionSeccion.cotizacion.cotizaciones;
 export const selectNoteDialogId = ({ produccionSeccion }) => produccionSeccion.cotizacion.noteDialogId;
-export const selectMermaIndex = ({ produccionSeccion }) => produccionSeccion.cotizacion.mermaIndex;
+export const selectDialogIndex = ({ produccionSeccion }) => produccionSeccion.cotizacion.dialogIndex;
 export const selectRegistraIntervencionDialog = ({ produccionSeccion }) => produccionSeccion.cotizacion.registraIntervencionDialog;
 
 export const vaciarDatosGeneral = (actualizacion) => (dispatch, getState) => {

@@ -6,7 +6,14 @@ const navigationData = [
         title: 'Clientes',
         type: 'item',
         url: '/datos/mod-1',
-        icon: 'material-outline:checklist',        
+        icon: 'material-outline:checklist',
+    },
+    {
+        id: 'panel-datos-4',
+        title: 'Proveedores',
+        type: 'item',
+        url: '/datos/mod-6',
+        icon: 'material-outline:checklist',
     },
     {
         id: 'panel-datos-2',
@@ -20,23 +27,45 @@ const navigationData = [
                 subtitle: '',
                 type: 'item',
                 url: '/datos/mod-2',
-            },  
+            },
             {
                 id: 'panel-datos-2.2',
                 title: 'Maderas',
                 subtitle: '',
                 type: 'item',
                 url: '/datos/mod-3',
-            },               
+            },
         ]
-    },  
+    },
     {
         id: 'panel-datos-3',
-        title: 'Coste horas',
-        type: 'item',
-        url: '/datos/mod-4',
-        icon: 'material-outline:checklist',        
-    },  
+        title: 'Costes',
+        type: 'collapse',
+        icon: 'material-outline:checklist',
+        children: [
+            {
+                id: 'panel-datos-3.1',
+                title: 'Horas operario',
+                subtitle: '',
+                type: 'item',
+                url: '/datos/mod-4',
+            },
+            {
+                id: 'panel-datos-3.2',
+                title: 'Procesos',
+                subtitle: '',
+                type: 'item',
+                url: '/datos/mod-5',
+            },
+            {
+                id: 'panel-datos-3.3',
+                title: 'Transporte',
+                subtitle: '',
+                type: 'item',
+                url: '/datos/mod-7',
+            },
+        ]
+    },
 ];
 
 function SidebarDatos() {

@@ -113,11 +113,19 @@ function CotizacionContent() {
         objetoCotizacion.filasCuerpo = cotizacionCuerpo.filasCuerpo;
         objetoCotizacion.sumCuerpo = cotizacionCuerpo.sumCuerpo;
         objetoCotizacion.sumVolumen = cotizacionCuerpo.sumVolumen;
-        objetoCotizacion.sumPrecioMerma = cotizacionCuerpo.sumPrecioMerma;
-        objetoCotizacion.sumVolumenMerma = cotizacionCuerpo.sumVolumenMerma;
+        objetoCotizacion.merma = cotizacionCuerpo.merma;
         //cotizacionLateralSup    
         objetoCotizacion.filasClavos = cotizacionLateralSup.filasClavos;
         objetoCotizacion.sumClavos = cotizacionLateralSup.sumClavos;
+        objetoCotizacion.filaCorteMadera = cotizacionLateralSup.filaCorteMadera;
+        objetoCotizacion.sumCorteMadera = cotizacionLateralSup.sumCorteMadera;
+        objetoCotizacion.filaMontaje = cotizacionLateralSup.filaMontaje;
+        objetoCotizacion.sumMontaje = cotizacionLateralSup.sumMontaje;
+        objetoCotizacion.filaPatines = cotizacionLateralSup.filaPatines;
+        objetoCotizacion.sumPatines = cotizacionLateralSup.sumPatines;
+        objetoCotizacion.filaTransporte = cotizacionLateralSup.filaTransporte;
+        objetoCotizacion.sumTransporte = cotizacionLateralSup.sumTransporte;
+        objetoCotizacion.sumTratamiento = cotizacionLateralSup.sumTratamiento;
         objetoCotizacion.sumLateralSup = cotizacionLateralSup.sumLateralSup;
         objetoCotizacion.filasExtra = cotizacionLateralSup.filasExtra;
         //cotizacionLateralInf       
@@ -147,11 +155,19 @@ function CotizacionContent() {
         objetoCotizacion.filasCuerpo = cotizacionCuerpo ? cotizacionCuerpo.filasCuerpo : cotizacionActualizado.filasCuerpo;
         objetoCotizacion.sumCuerpo = cotizacionCuerpo ? cotizacionCuerpo.sumCuerpo : cotizacionActualizado.sumCuerpo;
         objetoCotizacion.sumVolumen = cotizacionCuerpo ? cotizacionCuerpo.sumVolumen : cotizacionActualizado.sumVolumen;
-        objetoCotizacion.sumPrecioMerma = cotizacionCuerpo ? cotizacionCuerpo.sumPrecioMerma : cotizacionActualizado.sumPrecioMerma;
-        objetoCotizacion.sumVolumenMerma = cotizacionCuerpo ? cotizacionCuerpo.sumVolumenMerma : cotizacionActualizado.sumVolumenMerma;
+        objetoCotizacion.merma = cotizacionCuerpo ? cotizacionCuerpo.merma : cotizacionActualizado.merma;
         //cotizacionLateralSup    
         objetoCotizacion.filasClavos = cotizacionLateralSup ? cotizacionLateralSup.filasClavos : cotizacionActualizado.filasClavos;
         objetoCotizacion.sumClavos = cotizacionLateralSup ? cotizacionLateralSup.sumClavos : cotizacionActualizado.sumClavos;
+        objetoCotizacion.filaCorteMadera = cotizacionLateralSup ? cotizacionLateralSup.filaCorteMadera : cotizacionActualizado.filaCorteMadera;
+        objetoCotizacion.sumCorteMadera = cotizacionLateralSup ? cotizacionLateralSup.sumCorteMadera : cotizacionActualizado.sumCorteMadera;
+        objetoCotizacion.filaMontaje = cotizacionLateralSup ? cotizacionLateralSup.filaMontaje : cotizacionActualizado.filaMontaje;
+        objetoCotizacion.sumMontaje = cotizacionLateralSup ? cotizacionLateralSup.sumMontaje : cotizacionActualizado.sumMontaje;
+        objetoCotizacion.filaPatines = cotizacionLateralSup ? cotizacionLateralSup.filaPatines : cotizacionActualizado.filaPatines;
+        objetoCotizacion.sumPatines = cotizacionLateralSup ? cotizacionLateralSup.sumPatines : cotizacionActualizado.sumPatines;
+        objetoCotizacion.filaTransporte = cotizacionLateralSup ? cotizacionLateralSup.filaTransporte : cotizacionActualizado.filaTransporte;
+        objetoCotizacion.sumTransporte = cotizacionLateralSup ? cotizacionLateralSup.sumTransporte : cotizacionActualizado.sumTransporte;
+        objetoCotizacion.sumTratamiento = cotizacionLateralSup ? cotizacionLateralSup.sumTratamiento : cotizacionActualizado.sumTratamiento;
         objetoCotizacion.sumLateralSup = cotizacionLateralSup ? cotizacionLateralSup.sumLateralSup : cotizacionActualizado.sumLateralSup;
         objetoCotizacion.filasExtra = cotizacionLateralSup ? cotizacionLateralSup.filasExtra : cotizacionActualizado.filasExtra;
         //cotizacionLateralInf       
@@ -198,12 +214,12 @@ function CotizacionContent() {
     return (
         <>
             <motion.div
-                className="grid grid-cols-1 md:grid-cols-1 gap-24 p-24 w-full"
+                className="w-full p-24"
                 variants={container}
                 initial="hidden"
                 animate="show"
             >
-                <div className="flex flex-wrap w-full p-12">
+                <div className="w-full p-12">
                     <div className="flex flex-col sm:flex-row flex-1 items-center px-12 justify-between mb-24 space-y-16 sm:space-y-0">
                         <div>
                             <Typography className="text-2xl font-extrabold tracking-tight leading-tight">
@@ -281,8 +297,8 @@ function CotizacionContent() {
                             </StyledMenu>
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-4 md:gap-24 w-full">
-                        <div className="w-full col-span-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 md:gap-24">
+                        <div className="w-full col-span-2">
                             <motion.div variants={item1} className="w-full flex flex-col">
                                 <CabeceraCotizacion
                                     cotizacionCabecera={cotizacionCabecera}
@@ -305,12 +321,13 @@ function CotizacionContent() {
                                         cotizacionLateralInf={cotizacionLateralInf}
                                         cotizacionLateralSup={cotizacionLateralSup}
                                         cotizacionCabecera={cotizacionCabecera}
+                                        cotizacionCuerpo={cotizacionCuerpo}
                                     />
                                 </motion.div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>     
             </motion.div>
         </>
     );
