@@ -72,7 +72,7 @@ function NavbarStyle1(props) {
           }}
         >
           <NavbarStyle1Content />
-        </StyledNavBarMobile>
+        </StyledNavBarMobile>    
       </Hidden>
     </>
   );

@@ -149,6 +149,9 @@ const CotizacionSchema = new mongoose.Schema(
                 operarios: {
                     type: Number,
                 },
+                productividad: {
+                    type: Number,
+                },
                 precio_total: {
                     type: Number,
                 }
@@ -198,18 +201,9 @@ const CotizacionSchema = new mongoose.Schema(
         mc_porcentaje: {
             type: Number
         },
-        porcentaje: {
+        precio: {
             type: Number
-        },
-        jalp: {
-            type: Number
-        },
-        total: {
-            type: Number
-        },
-        precio_venta_total: {
-            type: Number
-        },
+        },       
     },
     {
         timestamps: true,

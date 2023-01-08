@@ -11,7 +11,7 @@ import {
     formateado
 } from 'app/logica/produccion/logicaProduccion';
 import {
-    selectObjetoCotizacionActualizado,
+    selectActualizandoCotizacion,
     selectObjetoCotizacionCuerpo
 } from 'app/redux/produccion/cotizacionSlice';
 import {
@@ -25,7 +25,7 @@ function MedidasCuerpoCotDialog(props) {
     const [tableColumns, setTableColumns] = useState(null);
     const [tableData, setTableData] = useState(null);
     const [changedData, setChangedData] = useState(false);
-    const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
+    const actualizandoCotizacion = useSelector(selectActualizandoCotizacion);
     const cotizacionCuerpo = useSelector(selectObjetoCotizacionCuerpo);
     const [updateState, setUpdateState] = useState({ estado: false, objeto: null });
 
@@ -43,9 +43,11 @@ function MedidasCuerpoCotDialog(props) {
     }, [tableColumns]);
 
     useEffect(() => {
-        setTableData(null);
-        generarDatos();
-    }, [cotizacionActualizado]);
+        if (actualizandoCotizacion.estado) {
+            setTableData(null);
+            generarDatos();
+        };
+    }, [actualizandoCotizacion]);
 
     useEffect(() => {
         if (updateState.estado) {
@@ -196,13 +198,8 @@ function MedidasCuerpoCotDialog(props) {
     const generarDatos = () => {
         const arrayDatos = [];
         let objetoDatos;
-        if (cotizacionActualizado || cotizacionCuerpo) {
-            let arrayFilas;
-            if (cotizacionActualizado && !cotizacionCuerpo) {
-                arrayFilas = cotizacionActualizado.filasCuerpo;
-            } else {
-                arrayFilas = cotizacionCuerpo.filasCuerpo;
-            };
+        if (cotizacionCuerpo) {
+            let arrayFilas = cotizacionCuerpo.filasCuerpo;
             objetoDatos = {
                 largo: arrayFilas[index].largo ? arrayFilas[index].largo : 0,
                 ancho: arrayFilas[index].ancho ? arrayFilas[index].ancho : 0,

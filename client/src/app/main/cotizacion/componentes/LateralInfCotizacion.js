@@ -17,7 +17,10 @@ import {
     generarPropsTabla,
     formateado
 } from 'app/logica/produccion/logicaProduccion';
-import { selectObjetoCotizacionActualizado } from 'app/redux/produccion/cotizacionSlice';
+import {
+    selectActualizandoCotizacion,
+    setActualizandoCotizacion
+} from 'app/redux/produccion/cotizacionSlice';
 import {
     calculosTablaLateralInf,
     actualizarTablaLateralInf
@@ -30,7 +33,7 @@ function LateralInfCotizacion(props) {
     const dispatch = useDispatch();
     const [tableData, setTableData] = useState(null);
     const [changedData, setChangedData] = useState(false);
-    const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
+    const actualizandoCotizacion = useSelector(selectActualizandoCotizacion);
     const [totales, setTotales] = useState({ precio: 0 });
     const [reCalculado, setReCalculado] = useState({ estado: false, tipo: null });
 
@@ -50,9 +53,11 @@ function LateralInfCotizacion(props) {
     }, [cotizacionLateralSup, cotizacionCabecera, cotizacionCuerpo]);
 
     useEffect(() => {
-        setTableData(null);
-        generarDatos();
-    }, [cotizacionActualizado]);
+        if (actualizandoCotizacion.estado) {
+            setTableData(null);
+            generarDatos();
+        };
+    }, [actualizandoCotizacion]);
 
     //funciones
 
@@ -60,13 +65,14 @@ function LateralInfCotizacion(props) {
         const arrayDatos = [];
         let objetoDatos;
         let precio = 0;
-        if (cotizacionActualizado) {
+        if (actualizandoCotizacion.estado) {
             objetoDatos = {
-                cu: cotizacionActualizado.cu,
-                precio_venta: cotizacionActualizado.precio_venta,
-                mc: cotizacionActualizado.mc,
-                mc_porcentaje: cotizacionActualizado.mc_porcentaje
+                cu: cotizacionLateralInf.cu,
+                precio_venta: cotizacionLateralInf.precio_venta,
+                mc: cotizacionLateralInf.mc,
+                mc_porcentaje: cotizacionLateralInf.mc_porcentaje
             };
+            dispatch(setActualizandoCotizacion({ ...actualizandoCotizacion, estado: false }));
         } else {
             objetoDatos = {
                 cu: 0,
@@ -91,7 +97,7 @@ function LateralInfCotizacion(props) {
         });
         setTableData(arrayTabla);
         if (update) {
-            dispatch(actualizarTablaLateralInf(arrayTabla));
+            dispatch(actualizarTablaLateralInf(arrayTabla, precio));
         };
     };
 
@@ -155,7 +161,7 @@ function LateralInfCotizacion(props) {
     };
 
     const retornaDisplay = () => {
-        if (cotizacionActualizado) {
+        if (actualizandoCotizacion.objeto) {
             return ""
         } else {
             if (

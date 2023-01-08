@@ -27,7 +27,7 @@ export const addCotizacion = createAsyncThunk(
             const response = await axios.post('/cotizacion', formData);
             const data = await response.data;
             dispatch(showMessage({ message: "Datos registrados con éxito.", variant: "success" }));
-            return data;
+            dispatch(clasificaCotizacion(data));
         } catch (err) {
             dispatch(showMessage({ message: err.response.data.message, variant: "error" }));
             return;
@@ -40,8 +40,7 @@ export const deleteCotizacion = createAsyncThunk(
         try {
             const response = await axios.delete(`/cotizacion/${id}`);
             const data = await response.data;
-            dispatch(showMessage({ message: data.message, variant: "success" }));
-            return data;
+            dispatch(showMessage({ message: data.message, variant: "success" }));            
         } catch (err) {
             dispatch(showMessage({ message: err.response.data.message, variant: "error" }));
             return;
@@ -58,7 +57,7 @@ export const updateCotizacion = createAsyncThunk(
             const response = await axios.put(`/cotizacion/${datosActualizar.id}`, formData);
             const data = await response.data;
             dispatch(showMessage({ message: "Datos actualizados con éxito.", variant: "success" }));
-            return data;
+            dispatch(clasificaCotizacion(data));
         } catch (err) {
             dispatch(showMessage({ message: err.response.data.message, variant: "error" }));
             return;
@@ -84,7 +83,7 @@ export const getCotizacion = createAsyncThunk(
         try {
             const response = await axios.get('/cotizacion/' + id);
             const data = await response.data;
-            return data;
+            dispatch(clasificaCotizacion(data));
         } catch (err) {
             dispatch(showMessage({ message: err.response.data.message, variant: "error" }));
             return;
@@ -97,13 +96,13 @@ const initialState = {
     objetoCotizacionCuerpo: null,
     objetoCotizacionLateralSup: null,
     objetoCotizacionLateralInf: null,
-    objetoCotizacionActualizado: null,
-    openFormCotizacion: false,
+    openSidebarCotizacion: {estado: false, objeto: null},
     cotizaciones: null,
     noteDialogId: null,
-    dialogIndex: null,
+    dialogIndex: null,    
     registraIntervencionDialog: null,
     anadirFila: false,
+    actualizandoCotizacion: { estado: false, objeto: false, id: null },
 };
 
 const cotizacionSlice = createSlice({
@@ -117,8 +116,8 @@ const cotizacionSlice = createSlice({
             state.objetoCotizacionCabecera = action.payload;
         },
         setObjetoCotizacionCuerpo: (state, action) => {
-            state.objetoCotizacionCuerpo = action.payload;             
-        },  
+            state.objetoCotizacionCuerpo = action.payload;
+        },
         setObjetoCotizacionLateralSup: (state, action) => {
             state.objetoCotizacionLateralSup = action.payload;
         },
@@ -128,8 +127,8 @@ const cotizacionSlice = createSlice({
         setObjetoCotizacionActualizado: (state, action) => {
             state.objetoCotizacionActualizado = action.payload;
         },
-        setOpenFormCotizacion: (state, action) => {
-            state.openFormCotizacion = action.payload;
+        setOpenSidebarCotizacion: (state, action) => {
+            state.openSidebarCotizacion = action.payload;
         },
         setCotizaciones: (state, action) => {
             state.cotizaciones = action.payload;
@@ -142,23 +141,17 @@ const cotizacionSlice = createSlice({
         },
         setDialogIndex: (state, action) => {
             state.dialogIndex = action.payload;
-        },
+        },       
         setRegistraIntervencionDialog: (state, action) => {
             state.registraIntervencionDialog = action.payload;
-        },       
+        },
+        setActualizandoCotizacion: (state, action) => {
+            state.actualizandoCotizacion = action.payload;
+        },
     },
-    extraReducers: {
-        [addCotizacion.fulfilled]: (state, action) => {
-            state.objetoCotizacionActualizado = action.payload;
-        },
-        [updateCotizacion.fulfilled]: (state, action) => {
-            state.objetoCotizacionActualizado = action.payload;
-        },
+    extraReducers: {       
         [getCotizaciones.fulfilled]: (state, action) => {
             state.cotizaciones = action.payload;
-        },
-        [getCotizacion.fulfilled]: (state, action) => {
-            state.objetoCotizacionActualizado = action.payload;
         },
     },
 });
@@ -169,13 +162,13 @@ export const {
     setObjetoCotizacionCuerpo,
     setObjetoCotizacionLateralSup,
     setObjetoCotizacionLateralInf,
-    setObjetoCotizacionActualizado,
-    setOpenFormCotizacion,
+    setOpenSidebarCotizacion,
     setCotizaciones,
     openNoteDialog,
     closeNoteDialog,
-    setDialogIndex,
-    setRegistraIntervencionDialog,   
+    setDialogIndex,   
+    setRegistraIntervencionDialog,
+    setActualizandoCotizacion
 } = cotizacionSlice.actions;
 
 export const selectAnadirFilaIdCotizacion = ({ produccionSeccion }) => produccionSeccion.cotizacion.anadirFilaIdCotizacion;
@@ -183,19 +176,66 @@ export const selectObjetoCotizacionCabecera = ({ produccionSeccion }) => producc
 export const selectObjetoCotizacionCuerpo = ({ produccionSeccion }) => produccionSeccion.cotizacion.objetoCotizacionCuerpo;
 export const selectObjetoCotizacionLateralSup = ({ produccionSeccion }) => produccionSeccion.cotizacion.objetoCotizacionLateralSup;
 export const selectObjetoCotizacionLateralInf = ({ produccionSeccion }) => produccionSeccion.cotizacion.objetoCotizacionLateralInf;
-export const selectObjetoCotizacionActualizado = ({ produccionSeccion }) => produccionSeccion.cotizacion.objetoCotizacionActualizado;
-export const selectOpenFormCotizacion = ({ produccionSeccion }) => produccionSeccion.cotizacion.openFormCotizacion;
+export const selectOpenSidebarCotizacion = ({ produccionSeccion }) => produccionSeccion.cotizacion.openSidebarCotizacion;
 export const selectCotizaciones = ({ produccionSeccion }) => produccionSeccion.cotizacion.cotizaciones;
 export const selectNoteDialogId = ({ produccionSeccion }) => produccionSeccion.cotizacion.noteDialogId;
 export const selectDialogIndex = ({ produccionSeccion }) => produccionSeccion.cotizacion.dialogIndex;
 export const selectRegistraIntervencionDialog = ({ produccionSeccion }) => produccionSeccion.cotizacion.registraIntervencionDialog;
+export const selectActualizandoCotizacion = ({ produccionSeccion }) => produccionSeccion.cotizacion.actualizandoCotizacion;
 
-export const vaciarDatosGeneral = (actualizacion) => (dispatch, getState) => {
-    !actualizacion && dispatch(setObjetoCotizacionActualizado(null));
+export const vaciarDatosGeneral = () => (dispatch, getState) => {   
+    dispatch(setActualizandoCotizacion({ estado: false, objeto: false, id: null }));
     dispatch(setObjetoCotizacionCabecera(null));
     dispatch(setObjetoCotizacionCuerpo(null));
     dispatch(setObjetoCotizacionLateralSup(null));
     dispatch(setObjetoCotizacionLateralInf(null));
+};
+
+const clasificaCotizacion = (data) => (dispatch, getState) => {
+    dispatch(setActualizandoCotizacion({ estado: true, objeto: true, id: data._id }));
+    //cotizacionCabecera
+    let objetoCotizacionCabecera = {
+        descripcion: data.descripcion,
+        fecha: data.fecha,
+        cliente: data.cliente,
+        of: data.of,
+        unidades: data.unidades
+    };
+    dispatch(setObjetoCotizacionCabecera(objetoCotizacionCabecera));
+    //cotizacionCuerpo
+    let objetoCotizacionCuerpo = {
+        filasCuerpo: data.filasCuerpo,
+        sumCuerpo: data.sumCuerpo,
+        sumVolumen: data.sumVolumen,
+        merma: data.merma
+    };
+    dispatch(setObjetoCotizacionCuerpo(objetoCotizacionCuerpo));
+    //cotizacionLateralSup    
+    let objetoCotizacionLateralSup = {
+        filasClavos: data.filasClavos,
+        sumClavos: data.sumClavos,
+        filaCorteMadera: data.filaCorteMadera,
+        sumCorteMadera: data.sumCorteMadera,
+        filaMontaje: data.filaMontaje,
+        sumMontaje: data.sumMontaje,
+        filaPatines: data.filaPatines,
+        sumPatines: data.sumPatines,
+        filaTransporte: data.filaTransporte,
+        sumTransporte: data.sumTransporte,
+        sumTratamiento: data.sumTratamiento,
+        sumLateralSup: data.sumLateralSup,
+        filasExtra: data.filasExtra
+    };
+    dispatch(setObjetoCotizacionLateralSup(objetoCotizacionLateralSup));
+    //cotizacionLateralInf     
+    let objetoCotizacionLateralInf = {
+        cu: data.cu,
+        precio_venta: data.precio_venta,
+        mc: data.mc,
+        mc_porcentaje: data.mc_porcentaje,
+        precio: data.precio,
+    };
+    dispatch(setObjetoCotizacionLateralInf(objetoCotizacionLateralInf));
 };
 
 export default cotizacionSlice.reducer;

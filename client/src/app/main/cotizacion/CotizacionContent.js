@@ -17,13 +17,14 @@ import {
     selectObjetoCotizacionCuerpo,
     selectObjetoCotizacionLateralSup,
     selectObjetoCotizacionLateralInf,
-    selectObjetoCotizacionActualizado,
     addCotizacion,
     deleteCotizacion,
     updateCotizacion,
-    setOpenFormCotizacion,
-    vaciarDatosGeneral
+    setOpenSidebarCotizacion,
+    vaciarDatosGeneral,
+    selectActualizandoCotizacion,
 } from 'app/redux/produccion/cotizacionSlice';
+import { openDialogPdf } from 'app/redux/fuse/pdfSlice';
 import { StyledMenu } from 'app/logica/produccion/logicaProduccion';
 
 function CotizacionContent() {
@@ -32,7 +33,7 @@ function CotizacionContent() {
     const cotizacionCuerpo = useSelector(selectObjetoCotizacionCuerpo);
     const cotizacionLateralSup = useSelector(selectObjetoCotizacionLateralSup);
     const cotizacionLateralInf = useSelector(selectObjetoCotizacionLateralInf);
-    const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
+    const actualizandoCotizacion = useSelector(selectActualizandoCotizacion);
     const container = {
         show: {
             transition: {
@@ -58,7 +59,7 @@ function CotizacionContent() {
     //useEffect  
 
     useEffect(() => {
-        vaciarDatos(false);
+        vaciarDatos();
     }, []);
 
     useEffect(() => {
@@ -77,7 +78,7 @@ function CotizacionContent() {
     }, [cotizacionCabecera, cotizacionCuerpo, cotizacionLateralSup, cotizacionLateralInf]);
 
     useEffect(() => {
-        if (cotizacionActualizado) {
+        if (actualizandoCotizacion.objeto) {
             setDisabledBorrar(false);
             setDisabledNuevo(false);
             setDisabledGuardar(false);
@@ -86,21 +87,21 @@ function CotizacionContent() {
             setDisabledGuardar(true);
             setDisabledNuevo(true);
         };
-    }, [cotizacionActualizado]);
+    }, [actualizandoCotizacion]);
 
     //funciones
 
-    const vaciarDatos = (actualizacion) => {
+    const vaciarDatos = () => {
         setActivoView(false);
         const clearData = async () => {
-            await dispatch(vaciarDatosGeneral(actualizacion));
+            await dispatch(vaciarDatosGeneral());
         };
         clearData().then(() => {
             setActivoView(true);
         });
     };
 
-    const addCotizacionBtn = () => {
+    const addCotizacionBtn = (actualizacion) => {
         handleCloseMenu();
         let objetoCotizacion = {};
         //cotizacionCabecera
@@ -133,63 +134,21 @@ function CotizacionContent() {
         objetoCotizacion.precio_venta = cotizacionLateralInf.precio_venta;
         objetoCotizacion.mc = cotizacionLateralInf.mc;
         objetoCotizacion.mc_porcentaje = cotizacionLateralInf.mc_porcentaje;
-        objetoCotizacion.porcentaje = cotizacionLateralInf.porcentaje;
-        objetoCotizacion.jalp = cotizacionLateralInf.jalp;
-        objetoCotizacion.total = cotizacionLateralInf.total;
-        objetoCotizacion.precio_venta_total = cotizacionLateralInf.precio_venta_total;
-        dispatch(addCotizacion(objetoCotizacion)).then(() => {
-            vaciarDatos(true);
-        });
+        objetoCotizacion.precio = cotizacionLateralInf.precio;      
+        if (actualizacion) {
+            const datosActualizar = { objeto: objetoCotizacion, id: actualizandoCotizacion.id };
+            dispatch(vaciarDatosGeneral());
+            dispatch(updateCotizacion(datosActualizar));
+        } else {
+            dispatch(vaciarDatosGeneral());
+            dispatch(addCotizacion(objetoCotizacion));
+        };
     };
 
-    const actualizarCotizacionBtn = () => {
+    const deleteCotizacionBtn = (id) => {
+        vaciarDatos();
         handleCloseMenu();
-        let objetoCotizacion = {};
-        //cotizacionCabecera
-        objetoCotizacion.descripcion = cotizacionCabecera ? cotizacionCabecera.descripcion : cotizacionActualizado.descripcion;
-        objetoCotizacion.fecha = cotizacionCabecera ? cotizacionCabecera.fecha : cotizacionActualizado.fecha;
-        objetoCotizacion.cliente = cotizacionCabecera ? cotizacionCabecera.cliente : cotizacionActualizado.cliente;
-        objetoCotizacion.of = cotizacionCabecera ? cotizacionCabecera.of : cotizacionActualizado.of;
-        objetoCotizacion.unidades = cotizacionCabecera ? cotizacionCabecera.unidades : cotizacionActualizado.unidades;
-        //cotizacionCuerpo
-        objetoCotizacion.filasCuerpo = cotizacionCuerpo ? cotizacionCuerpo.filasCuerpo : cotizacionActualizado.filasCuerpo;
-        objetoCotizacion.sumCuerpo = cotizacionCuerpo ? cotizacionCuerpo.sumCuerpo : cotizacionActualizado.sumCuerpo;
-        objetoCotizacion.sumVolumen = cotizacionCuerpo ? cotizacionCuerpo.sumVolumen : cotizacionActualizado.sumVolumen;
-        objetoCotizacion.merma = cotizacionCuerpo ? cotizacionCuerpo.merma : cotizacionActualizado.merma;
-        //cotizacionLateralSup    
-        objetoCotizacion.filasClavos = cotizacionLateralSup ? cotizacionLateralSup.filasClavos : cotizacionActualizado.filasClavos;
-        objetoCotizacion.sumClavos = cotizacionLateralSup ? cotizacionLateralSup.sumClavos : cotizacionActualizado.sumClavos;
-        objetoCotizacion.filaCorteMadera = cotizacionLateralSup ? cotizacionLateralSup.filaCorteMadera : cotizacionActualizado.filaCorteMadera;
-        objetoCotizacion.sumCorteMadera = cotizacionLateralSup ? cotizacionLateralSup.sumCorteMadera : cotizacionActualizado.sumCorteMadera;
-        objetoCotizacion.filaMontaje = cotizacionLateralSup ? cotizacionLateralSup.filaMontaje : cotizacionActualizado.filaMontaje;
-        objetoCotizacion.sumMontaje = cotizacionLateralSup ? cotizacionLateralSup.sumMontaje : cotizacionActualizado.sumMontaje;
-        objetoCotizacion.filaPatines = cotizacionLateralSup ? cotizacionLateralSup.filaPatines : cotizacionActualizado.filaPatines;
-        objetoCotizacion.sumPatines = cotizacionLateralSup ? cotizacionLateralSup.sumPatines : cotizacionActualizado.sumPatines;
-        objetoCotizacion.filaTransporte = cotizacionLateralSup ? cotizacionLateralSup.filaTransporte : cotizacionActualizado.filaTransporte;
-        objetoCotizacion.sumTransporte = cotizacionLateralSup ? cotizacionLateralSup.sumTransporte : cotizacionActualizado.sumTransporte;
-        objetoCotizacion.sumTratamiento = cotizacionLateralSup ? cotizacionLateralSup.sumTratamiento : cotizacionActualizado.sumTratamiento;
-        objetoCotizacion.sumLateralSup = cotizacionLateralSup ? cotizacionLateralSup.sumLateralSup : cotizacionActualizado.sumLateralSup;
-        objetoCotizacion.filasExtra = cotizacionLateralSup ? cotizacionLateralSup.filasExtra : cotizacionActualizado.filasExtra;
-        //cotizacionLateralInf       
-        objetoCotizacion.cu = cotizacionLateralInf ? cotizacionLateralInf.cu : cotizacionActualizado.cu;
-        objetoCotizacion.precio_venta = cotizacionLateralInf ? cotizacionLateralInf.precio_venta : cotizacionActualizado.precio_venta;
-        objetoCotizacion.mc = cotizacionLateralInf ? cotizacionLateralInf.mc : cotizacionActualizado.mc;
-        objetoCotizacion.mc_porcentaje = cotizacionLateralInf ? cotizacionLateralInf.mc_porcentaje : cotizacionActualizado.mc_porcentaje;
-        objetoCotizacion.porcentaje = cotizacionLateralInf ? cotizacionLateralInf.porcentaje : cotizacionActualizado.porcentaje;
-        objetoCotizacion.jalp = cotizacionLateralInf ? cotizacionLateralInf.jalp : cotizacionActualizado.jalp;
-        objetoCotizacion.total = cotizacionLateralInf ? cotizacionLateralInf.total : cotizacionActualizado.total;
-        objetoCotizacion.precio_venta_total = cotizacionLateralInf ? cotizacionLateralInf.precio_venta_total : cotizacionActualizado.precio_venta_total;
-        const datosActualizar = { objeto: objetoCotizacion, id: cotizacionActualizado._id };
-        dispatch(updateCotizacion(datosActualizar)).then(() => {
-            vaciarDatos(true);
-        });
-    };
-
-    const deleteCotizacionBtn = () => {
-        handleCloseMenu();
-        dispatch(deleteCotizacion(cotizacionActualizado._id)).then(() => {
-            vaciarDatos(false);
-        });
+        dispatch(deleteCotizacion(id));
     };
 
     const handleClickMenu = (event) => {
@@ -200,10 +159,10 @@ function CotizacionContent() {
         setAnchorElMenu(null);
     };
 
-    const cerrarMenuRegistro = () => {
+    const abrirSidebar = (objeto) => {
         handleCloseMenu();
         setTimeout(() => {
-            dispatch(setOpenFormCotizacion(true));
+            dispatch(setOpenSidebarCotizacion({ estado: true, objeto }));
         }, 200);
     };
 
@@ -256,15 +215,15 @@ function CotizacionContent() {
                             >
                                 <MenuItem
                                     disabled={disabledGuardar}
-                                    onClick={cotizacionActualizado ? actualizarCotizacionBtn : addCotizacionBtn}
+                                    onClick={() => actualizandoCotizacion.objeto ? addCotizacionBtn(true) : addCotizacionBtn(false)}
                                     disableRipple
                                 >
                                     <FuseSvgIcon size={20}>material-outline:save</FuseSvgIcon>
-                                    {cotizacionActualizado ? 'Actualizar' : 'Guardar'}
+                                    {actualizandoCotizacion.objeto ? 'Actualizar' : 'Guardar'}
                                 </MenuItem>
                                 <MenuItem
                                     disabled={disabledNuevo}
-                                    onClick={() => { handleCloseMenu(); vaciarDatos(false) }}
+                                    onClick={() => { handleCloseMenu(); vaciarDatos() }}
                                     disableRipple
                                 >
                                     <FuseSvgIcon size={20}>heroicons-outline:plus</FuseSvgIcon>
@@ -272,7 +231,7 @@ function CotizacionContent() {
                                 </MenuItem>
                                 <MenuItem
                                     disabled={disabledGuardar}
-                                    onClick={handleCloseMenu}
+                                    onClick={() => { handleCloseMenu(); dispatch(openDialogPdf('cotizacion')) }}
                                     disableRipple
                                 >
                                     <FuseSvgIcon size={20}>heroicons-outline:printer</FuseSvgIcon>
@@ -280,7 +239,7 @@ function CotizacionContent() {
                                 </MenuItem>
                                 <MenuItem
                                     disabled={disabledBorrar}
-                                    onClick={deleteCotizacionBtn}
+                                    onClick={() => deleteCotizacionBtn(actualizandoCotizacion.id)}
                                     disableRipple
                                 >
                                     <FuseSvgIcon className="text-red-400" size={20}>heroicons-outline:trash</FuseSvgIcon>
@@ -288,7 +247,7 @@ function CotizacionContent() {
                                 </MenuItem>
                                 <Divider sx={{ my: 0.5 }} />
                                 <MenuItem
-                                    onClick={cerrarMenuRegistro}
+                                    onClick={() => abrirSidebar("registro")}
                                     disableRipple
                                 >
                                     <FuseSvgIcon size={20}>material-outline:folder</FuseSvgIcon>
@@ -327,7 +286,7 @@ function CotizacionContent() {
                             </div>
                         </div>
                     </div>
-                </div>     
+                </div>
             </motion.div>
         </>
     );

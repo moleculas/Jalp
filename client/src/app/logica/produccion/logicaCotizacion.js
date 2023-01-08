@@ -40,20 +40,11 @@ export const actualizarTablaCabecera = (arrayTabla, descripcion) => (dispatch, g
 //CUERPO
 
 export const calculosTablaCuerpo = (tabla) => (dispatch, getState) => {
-    const cotizacionActualizado = getState().produccionSeccion.cotizacion.objetoCotizacionActualizado;
     const cotizacionCuerpo = getState().produccionSeccion.cotizacion.objetoCotizacionCuerpo;
     const arrayTabla = [];
     let arrayFilas = [];
-    if (cotizacionActualizado) {
-        if (cotizacionCuerpo && cotizacionCuerpo.filasCuerpo.length > 0) {
-            arrayFilas = cotizacionCuerpo.filasCuerpo;
-        } else {
-            arrayFilas = cotizacionActualizado.filasCuerpo;
-        };
-    } else {
-        if (cotizacionCuerpo && cotizacionCuerpo.filasCuerpo.length > 0) {
-            arrayFilas = cotizacionCuerpo.filasCuerpo;
-        };
+    if (cotizacionCuerpo && cotizacionCuerpo.filasCuerpo.length > 0) {
+        arrayFilas = cotizacionCuerpo.filasCuerpo;
     };
     tabla.map((fila, index) => {
         let objetoFila = {};
@@ -188,7 +179,6 @@ export const calculosTablaMerma = (objetoMerma) => (dispatch, getState) => {
 };
 
 export const actualizarTablaMerma = (arrayTabla, index) => (dispatch, getState) => {
-    const cotizacionActualizado = getState().produccionSeccion.cotizacion.objetoCotizacionActualizado;
     const cotizacionCuerpo = getState().produccionSeccion.cotizacion.objetoCotizacionCuerpo;
     const datosMermaUpdate = [{
         unidades: arrayTabla[0].unidades,
@@ -200,19 +190,9 @@ export const actualizarTablaMerma = (arrayTabla, index) => (dispatch, getState) 
     let datosCotizacionUpdate = {};
     let objetoFilasCuerpo = {};
     let arrayFilasCuerpo = [];
-    if (cotizacionActualizado) {
-        if (cotizacionCuerpo) {
-            arrayFilasCuerpo = [...cotizacionCuerpo.filasCuerpo];
-            datosCotizacionUpdate = { ...cotizacionCuerpo };
-        } else {
-            arrayFilasCuerpo = [...cotizacionActualizado.filasCuerpo];
-            datosCotizacionUpdate = { ...cotizacionActualizado };
-        };
-    } else {
-        if (cotizacionCuerpo) {
-            arrayFilasCuerpo = [...cotizacionCuerpo.filasCuerpo];
-            datosCotizacionUpdate = { ...cotizacionCuerpo };
-        };
+    if (cotizacionCuerpo) {
+        arrayFilasCuerpo = [...cotizacionCuerpo.filasCuerpo];
+        datosCotizacionUpdate = { ...cotizacionCuerpo };
     };
     if (arrayFilasCuerpo[index]) {
         objetoFilasCuerpo = { ...arrayFilasCuerpo[index] };
@@ -244,24 +224,13 @@ export const calculosTablaProveedores = (objetoProveedores) => (dispatch, getSta
 };
 
 export const actualizarTablaProveedores = (arrayTabla, index) => (dispatch, getState) => {
-    const cotizacionActualizado = getState().produccionSeccion.cotizacion.objetoCotizacionActualizado;
     const cotizacionCuerpo = getState().produccionSeccion.cotizacion.objetoCotizacionCuerpo;
     let datosCotizacionUpdate = {};
     let objetoFilasCuerpo = {};
     let arrayFilasCuerpo = [];
-    if (cotizacionActualizado) {
-        if (cotizacionCuerpo) {
-            arrayFilasCuerpo = [...cotizacionCuerpo.filasCuerpo];
-            datosCotizacionUpdate = { ...cotizacionCuerpo };
-        } else {
-            arrayFilasCuerpo = [...cotizacionActualizado.filasCuerpo];
-            datosCotizacionUpdate = { ...cotizacionActualizado };
-        };
-    } else {
-        if (cotizacionCuerpo) {
-            arrayFilasCuerpo = [...cotizacionCuerpo.filasCuerpo];
-            datosCotizacionUpdate = { ...cotizacionCuerpo };
-        };
+    if (cotizacionCuerpo) {
+        arrayFilasCuerpo = [...cotizacionCuerpo.filasCuerpo];
+        datosCotizacionUpdate = { ...cotizacionCuerpo };
     };
     if (arrayFilasCuerpo[index]) {
         objetoFilasCuerpo = { ...arrayFilasCuerpo[index] };
@@ -293,24 +262,13 @@ export const calculosTablaMedidas = (objetoMedidas) => (dispatch, getState) => {
 };
 
 export const actualizarTablaMedidas = (arrayTabla, index) => (dispatch, getState) => {
-    const cotizacionActualizado = getState().produccionSeccion.cotizacion.objetoCotizacionActualizado;
     const cotizacionCuerpo = getState().produccionSeccion.cotizacion.objetoCotizacionCuerpo;
     let datosCotizacionUpdate = {};
     let objetoFilasCuerpo = {};
     let arrayFilasCuerpo = [];
-    if (cotizacionActualizado) {
-        if (cotizacionCuerpo) {
-            arrayFilasCuerpo = [...cotizacionCuerpo.filasCuerpo];
-            datosCotizacionUpdate = { ...cotizacionCuerpo };
-        } else {
-            arrayFilasCuerpo = [...cotizacionActualizado.filasCuerpo];
-            datosCotizacionUpdate = { ...cotizacionActualizado };
-        };
-    } else {
-        if (cotizacionCuerpo) {
-            arrayFilasCuerpo = [...cotizacionCuerpo.filasCuerpo];
-            datosCotizacionUpdate = { ...cotizacionCuerpo };
-        };
+    if (cotizacionCuerpo) {
+        arrayFilasCuerpo = [...cotizacionCuerpo.filasCuerpo];
+        datosCotizacionUpdate = { ...cotizacionCuerpo };
     };
     if (arrayFilasCuerpo[index]) {
         objetoFilasCuerpo = { ...arrayFilasCuerpo[index] };
@@ -336,75 +294,42 @@ export const actualizarTablaMedidas = (arrayTabla, index) => (dispatch, getState
 
 //LAT. SUPERIOR
 
-export const calculosTablaLateralSup = (tabla, tratamiento) => (dispatch, getState) => {
-    const cotizacionActualizado = getState().produccionSeccion.cotizacion.objetoCotizacionActualizado;
+export const calculosTablaLateralSup = (tabla, tratamiento, actualizacionInicial) => (dispatch, getState) => {
     const cotizacionCuerpo = getState().produccionSeccion.cotizacion.objetoCotizacionCuerpo;
     const cotizacionLateralSup = getState().produccionSeccion.cotizacion.objetoCotizacionLateralSup;
     const cotizacionCabecera = getState().produccionSeccion.cotizacion.objetoCotizacionCabecera;
     const arrayTabla = [];
     let objetoFila = null;
-    let sumCuerpo, unidades, sumPrecioMerma, sumClavos, sumCorteMadera, sumMontaje, sumPatines, filasMerma, sumTransporte, sumTratamiento, sumVolumen;
-    if (cotizacionActualizado) {
-        if (cotizacionCuerpo) {
-            sumCuerpo = cotizacionCuerpo.sumCuerpo;
-            sumPrecioMerma = cotizacionCuerpo.merma.sumPrecioMerma;
-            filasMerma = cotizacionCuerpo.merma.filasMerma;
-            sumVolumen = cotizacionCuerpo.sumVolumen;
-        } else {
-            sumCuerpo = cotizacionActualizado.sumCuerpo;
-            sumPrecioMerma = cotizacionActualizado.merma.sumPrecioMerma;
-            filasMerma = cotizacionActualizado.merma.filasMerma;
-            sumVolumen = cotizacionActualizado.sumVolumen;
-        };
-        if (cotizacionCabecera) {
-            unidades = cotizacionCabecera.unidades;
-        } else {
-            unidades = cotizacionActualizado.unidades;
-        };
-        if (cotizacionLateralSup) {
-            sumClavos = cotizacionLateralSup.sumClavos ? cotizacionLateralSup.sumClavos : 0;
-            sumCorteMadera = cotizacionLateralSup.sumCorteMadera ? cotizacionLateralSup.sumCorteMadera : 0;
-            sumMontaje = cotizacionLateralSup.sumMontaje ? cotizacionLateralSup.sumMontaje : 0;
-            sumPatines = cotizacionLateralSup.sumPatines ? cotizacionLateralSup.sumPatines : 0;
-            sumTransporte = cotizacionLateralSup.sumTransporte ? cotizacionLateralSup.sumTransporte : 0;
-            sumTratamiento = cotizacionLateralSup.sumTratamiento ? cotizacionLateralSup.sumTratamiento : _.round((sumVolumen * tratamiento), REDONDEADO);
-        } else {
-            sumClavos = cotizacionActualizado.sumClavos ? cotizacionActualizado.sumClavos : 0;
-            sumCorteMadera = cotizacionActualizado.sumCorteMadera ? cotizacionActualizado.sumCorteMadera : 0;
-            sumMontaje = cotizacionActualizado.sumMontaje ? cotizacionActualizado.sumMontaje : 0;
-            sumPatines = cotizacionActualizado.sumPatines ? cotizacionActualizado.sumPatines : 0;
-            sumTransporte = cotizacionActualizado.sumTransporte ? cotizacionActualizado.sumTransporte : 0;
-            sumTratamiento = cotizacionActualizado.sumTratamiento ? cotizacionActualizado.sumTratamiento : _.round((sumVolumen * tratamiento), REDONDEADO);
-        };
+    let sumCuerpo, unidades, sumPrecioMerma, sumClavos, sumCorteMadera, sumMontaje, sumPatines, filasMerma, sumTransporte, sumTratamiento, sumVolumen, filasExtra;
+    if (cotizacionCabecera && cotizacionCuerpo) {
+        sumCuerpo = cotizacionCuerpo.sumCuerpo;
+        unidades = cotizacionCabecera.unidades;
+        sumPrecioMerma = cotizacionCuerpo.merma.sumPrecioMerma;
+        filasMerma = cotizacionCuerpo.merma.filasMerma;
+        sumVolumen = cotizacionCuerpo.sumVolumen;
     } else {
-        if (cotizacionCabecera && cotizacionCuerpo) {
-            sumCuerpo = cotizacionCuerpo.sumCuerpo;
-            unidades = cotizacionCabecera.unidades;
-            sumPrecioMerma = cotizacionCuerpo.merma.sumPrecioMerma;
-            filasMerma = cotizacionCuerpo.merma.filasMerma;
-            sumVolumen = cotizacionCuerpo.sumVolumen;
-        } else {
-            sumCuerpo = 0;
-            unidades = 0;
-            sumPrecioMerma = 0;
-            filasMerma = 0;
-            sumVolumen = 0;
-        };
-        if (cotizacionLateralSup) {
-            sumClavos = cotizacionLateralSup.sumClavos ? cotizacionLateralSup.sumClavos : 0;
-            sumCorteMadera = cotizacionLateralSup.sumCorteMadera ? cotizacionLateralSup.sumCorteMadera : 0;
-            sumMontaje = cotizacionLateralSup.sumMontaje ? cotizacionLateralSup.sumMontaje : 0;
-            sumPatines = cotizacionLateralSup.sumPatines ? cotizacionLateralSup.sumPatines : 0;
-            sumTransporte = cotizacionLateralSup.sumTransporte ? cotizacionLateralSup.sumTransporte : 0;
-            sumTratamiento = cotizacionLateralSup.sumTratamiento ? cotizacionLateralSup.sumTratamiento : _.round((sumVolumen * tratamiento), REDONDEADO);
-        } else {
-            sumClavos = 0;
-            sumCorteMadera = 0;
-            sumMontaje = 0;
-            sumPatines = 0;
-            sumTransporte = 0;
-            sumTratamiento = 0;
-        };
+        sumCuerpo = 0;
+        unidades = 0;
+        sumPrecioMerma = 0;
+        filasMerma = 0;
+        sumVolumen = 0;
+    };
+    if (cotizacionLateralSup) {
+        sumClavos = cotizacionLateralSup.sumClavos ? cotizacionLateralSup.sumClavos : 0;
+        sumCorteMadera = cotizacionLateralSup.sumCorteMadera ? cotizacionLateralSup.sumCorteMadera : 0;
+        sumMontaje = cotizacionLateralSup.sumMontaje ? cotizacionLateralSup.sumMontaje : 0;
+        sumPatines = cotizacionLateralSup.sumPatines ? cotizacionLateralSup.sumPatines : 0;
+        sumTransporte = cotizacionLateralSup.sumTransporte ? cotizacionLateralSup.sumTransporte : 0;
+        sumTratamiento = _.round((sumVolumen * tratamiento), REDONDEADO);
+        filasExtra = cotizacionLateralSup.filasExtra.length > 0 ? cotizacionLateralSup.filasExtra : [];
+    } else {
+        sumClavos = 0;
+        sumCorteMadera = 0;
+        sumMontaje = 0;
+        sumPatines = 0;
+        sumTransporte = 0;
+        sumTratamiento = 0;
+        filasExtra = [];
     };
     tabla.map((fila, index) => {
         objetoFila = { ...fila };
@@ -422,7 +347,7 @@ export const calculosTablaLateralSup = (tabla, tratamiento) => (dispatch, getSta
                 objetoFila.total = sumMontaje * unidades;
                 break;
             case "patines":
-                objetoFila.total = (sumPatines * unidades) * 3;
+                objetoFila.total = (sumPatines * 3) * unidades;
                 break;
             case "transporte":
                 objetoFila.total = sumTransporte * unidades;
@@ -432,20 +357,38 @@ export const calculosTablaLateralSup = (tabla, tratamiento) => (dispatch, getSta
                 break;
             default:
                 objetoFila.total = Number(fila.total);
-                objetoFila.concepto = _.deburr(fila.concepto).replaceAll(/[ .]/g, "_").toLowerCase();;
+                objetoFila.concepto = _.deburr(fila.concepto).replaceAll(/[ .]/g, "_").toLowerCase();
         };
         arrayTabla.push(objetoFila);
-    });
+    });  
+    //revisión tabla si carga por primera vez al actualizar
+    if (arrayTabla.length !== (7 + filasExtra.length) && actualizacionInicial) {
+        let objetoFilasExtra;
+        filasExtra.forEach((fila, index) => {
+            objetoFilasExtra = {
+                concepto: fila.concepto,
+                total: fila.precio_total
+            };
+            arrayTabla.push(objetoFilasExtra);
+        });
+    };
     return arrayTabla
 };
 
 export const actualizarTablaLateralSup = (arrayTabla) => (dispatch, getState) => {
-    const cotizacionActualizado = getState().produccionSeccion.cotizacion.objetoCotizacionActualizado;
     const cotizacionCuerpo = getState().produccionSeccion.cotizacion.objetoCotizacionCuerpo;
     const cotizacionLateralSup = getState().produccionSeccion.cotizacion.objetoCotizacionLateralSup;
     const cotizacionCabecera = getState().produccionSeccion.cotizacion.objetoCotizacionCabecera;
+    let datosCotizacionUpdate = {};
+    let precio, volumen, unidades;
+    datosCotizacionUpdate = { ...cotizacionLateralSup };
+    unidades = cotizacionCabecera.unidades;
+    precio = (cotizacionCuerpo.sumCuerpo) * unidades;
+    volumen = (cotizacionCuerpo.sumVolumen) * unidades;
     const arrayFilasExtra = [];
     let objetoFilasExtra;
+    let sumTratamiento;
+    let sumLateralSup = 0;
     arrayTabla.forEach((fila, index) => {
         if (index > 6) {
             objetoFilasExtra = {
@@ -453,48 +396,57 @@ export const actualizarTablaLateralSup = (arrayTabla) => (dispatch, getState) =>
                 precio_total: fila.total
             };
             arrayFilasExtra.push(objetoFilasExtra);
+            sumLateralSup += (fila.total * unidades);
+        } else {
+            if (index === 5) {
+                sumTratamiento = fila.total / unidades;
+            };
+            sumLateralSup += fila.total;
         };
     });
-    const sumLateralSup = arrayTabla.reduce((sum, { total }) => sum + total, 0);
-    let datosCotizacionUpdate = {};
-    let precio, volumen, unidades;
-    if (cotizacionActualizado) {
-        if (cotizacionCabecera) {
-            unidades = cotizacionCabecera.unidades;
-        } else {
-            unidades = cotizacionActualizado.unidades;
-        };
-        if (cotizacionLateralSup) {
-            datosCotizacionUpdate = { ...cotizacionLateralSup };
-        } else {
-            datosCotizacionUpdate = {};
-        };
-        if (cotizacionCuerpo) {
-            precio = (cotizacionCuerpo.sumCuerpo) * unidades;
-            volumen = (cotizacionCuerpo.sumVolumen) * unidades;
-        } else {
-            precio = cotizacionActualizado.sumCuerpo;
-            volumen = cotizacionActualizado.sumVolumen;
-        };
-    } else {
-        datosCotizacionUpdate = { ...cotizacionLateralSup };
-        unidades = cotizacionCabecera.unidades;
-        precio = (cotizacionCuerpo.sumCuerpo) * unidades;
-        volumen = (cotizacionCuerpo.sumVolumen) * unidades;
+    sumLateralSup = sumLateralSup / unidades;
+    if (!datosCotizacionUpdate.sumClavos) {
+        datosCotizacionUpdate.filasClavos = [];
+        datosCotizacionUpdate.sumClavos = 0;
     };
+    if (!datosCotizacionUpdate.sumCorteMadera) {
+        datosCotizacionUpdate.filaCorteMadera = [];
+        datosCotizacionUpdate.sumCorteMadera = 0;
+    };
+    if (!datosCotizacionUpdate.sumMontaje) {
+        datosCotizacionUpdate.filaMontaje = [];
+        datosCotizacionUpdate.sumMontaje = 0;
+    };
+    if (!datosCotizacionUpdate.sumPatines) {
+        datosCotizacionUpdate.filaPatines = [];
+        datosCotizacionUpdate.sumPatines = 0;
+    };
+    if (!datosCotizacionUpdate.sumTransporte) {
+        datosCotizacionUpdate.filaTransporte = [];
+        datosCotizacionUpdate.sumTransporte = 0;
+    };
+    datosCotizacionUpdate.sumTratamiento = sumTratamiento;
     datosCotizacionUpdate.sumLateralSup = _.round(sumLateralSup, REDONDEADO);
-    precio > 0 && (precio += datosCotizacionUpdate.sumLateralSup);
+    precio > 0 && (precio += (datosCotizacionUpdate.sumLateralSup) * unidades);
+
     datosCotizacionUpdate.filasExtra = arrayFilasExtra;
-    dispatch(setObjetoCotizacionLateralSup(datosCotizacionUpdate));
-    return { precio, volumen }
+    dispatch(setObjetoCotizacionLateralSup(datosCotizacionUpdate));   
+    return { precio, volumen, unidades }
 };
 
-export const calculosTablaClavos = (objetoClavos) => (dispatch, getState) => {
+export const calculosTablaClavos = (tabla) => (dispatch, getState) => {
     const arrayTabla = [];
-    let objetoFila = { ...objetoClavos };
-    objetoFila.unidades = objetoClavos.unidades;
-    objetoFila.precio_total = _.round((objetoFila.unidades * objetoFila.precio_unitario), REDONDEADO);
-    arrayTabla.push(objetoFila);
+    let objetoFila = {};
+    tabla.map((fila, index) => {
+        objetoFila = { ...fila };
+        objetoFila.unidades = Number(fila.unidades);
+        if (objetoFila.unidades > 0) {
+            objetoFila.precio_total = _.round((objetoFila.unidades * objetoFila.precio_unitario), REDONDEADO);
+        } else {
+            objetoFila.precio_total = 0;
+        };
+        arrayTabla.push(objetoFila);
+    });
     return arrayTabla
 };
 
@@ -657,46 +609,27 @@ export const actualizarTablaTransporte = (arrayTabla) => (dispatch, getState) =>
 //LAT. INFERIOR
 
 export const calculosTablaLateralInf = (tabla, objetoReCalculado) => (dispatch, getState) => {
-    const cotizacionActualizado = getState().produccionSeccion.cotizacion.objetoCotizacionActualizado;
     const cotizacionCuerpo = getState().produccionSeccion.cotizacion.objetoCotizacionCuerpo;
     const cotizacionLateralSup = getState().produccionSeccion.cotizacion.objetoCotizacionLateralSup;
     const cotizacionCabecera = getState().produccionSeccion.cotizacion.objetoCotizacionCabecera;
     const arrayTabla = [];
     let objetoFila;
     let sumLateralSup, unidades, sumCuerpo, precio;
-    if (cotizacionActualizado) {
-        if (cotizacionCuerpo) {
-            sumCuerpo = cotizacionCuerpo.sumCuerpo;
-        } else {
-            sumCuerpo = cotizacionActualizado.sumCuerpo;
-        };
-        if (cotizacionCabecera) {
-            unidades = cotizacionCabecera.unidades;
-        } else {
-            unidades = cotizacionActualizado.unidades;
-        };
-        if (cotizacionLateralSup) {
-            sumLateralSup = cotizacionLateralSup.sumLateralSup ? cotizacionLateralSup.sumLateralSup : 0;
-        } else {
-            sumLateralSup = cotizacionActualizado.sumLateralSup ? cotizacionActualizado.sumLateralSup : 0;
-        };
+    if (cotizacionCabecera && cotizacionCuerpo) {
+        sumCuerpo = cotizacionCuerpo.sumCuerpo;
+        unidades = cotizacionCabecera.unidades;
     } else {
-        if (cotizacionCabecera && cotizacionCuerpo) {
-            sumCuerpo = cotizacionCuerpo.sumCuerpo;
-            unidades = cotizacionCabecera.unidades;
-        } else {
-            sumCuerpo = 0;
-            unidades = 0;
-        };
-        if (cotizacionLateralSup) {
-            sumLateralSup = cotizacionLateralSup.sumLateralSup ? cotizacionLateralSup.sumLateralSup : 0;
-        } else {
-            sumLateralSup = 0;
-        };
+        sumCuerpo = 0;
+        unidades = 0;
+    };
+    if (cotizacionLateralSup) {
+        sumLateralSup = cotizacionLateralSup.sumLateralSup ? cotizacionLateralSup.sumLateralSup : 0;
+    } else {
+        sumLateralSup = 0;
     };
     tabla.map((fila, index) => {
         objetoFila = { ...fila };
-        objetoFila.cu = unidades > 0 ? _.round(((sumLateralSup + (sumCuerpo * unidades)) / unidades), REDONDEADO) : 0;
+        objetoFila.cu = unidades > 0 ? _.round((((sumLateralSup * unidades) + (sumCuerpo * unidades)) / unidades), REDONDEADO) : 0;
         if (!objetoReCalculado.estado) {
             objetoFila.precio_venta = Number(objetoFila.precio_venta);
             objetoFila.mc = (sumLateralSup + sumCuerpo) > 0 ? _.round((objetoFila.precio_venta - objetoFila.cu), REDONDEADO) : 0;
@@ -739,13 +672,14 @@ export const calculosTablaLateralInf = (tabla, objetoReCalculado) => (dispatch, 
     return { arrayTabla, precio }
 };
 
-export const actualizarTablaLateralInf = (arrayTabla) => (dispatch, getState) => {
+export const actualizarTablaLateralInf = (arrayTabla, precio) => (dispatch, getState) => {
     let datosCotizacionUpdate = {};
     datosCotizacionUpdate = {
         cu: arrayTabla[0].cu,
         precio_venta: arrayTabla[0].precio_venta,
         mc: arrayTabla[0].mc,
         mc_porcentaje: arrayTabla[0].mc_porcentaje,
+        precio
     };
     dispatch(setObjetoCotizacionLateralInf(datosCotizacionUpdate));
 };

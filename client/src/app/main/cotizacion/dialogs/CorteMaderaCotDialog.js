@@ -12,7 +12,7 @@ import {
     formateado
 } from 'app/logica/produccion/logicaProduccion';
 import {
-    selectObjetoCotizacionActualizado,
+    selectActualizandoCotizacion,
     selectObjetoCotizacionLateralSup,
     selectObjetoCotizacionCuerpo
 } from 'app/redux/produccion/cotizacionSlice';
@@ -31,7 +31,7 @@ function CorteMaderaCotDialog(props) {
     const [tableColumns, setTableColumns] = useState(null);
     const [tableData, setTableData] = useState(null);
     const [changedData, setChangedData] = useState(false);
-    const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
+    const actualizandoCotizacion = useSelector(selectActualizandoCotizacion);
     const cotizacionLateralSup = useSelector(selectObjetoCotizacionLateralSup);
     const cotizacionCuerpo = useSelector(selectObjetoCotizacionCuerpo);
     const [updateState, setUpdateState] = useState({ estado: false, objeto: null });
@@ -45,16 +45,7 @@ function CorteMaderaCotDialog(props) {
         dispatch(getProductos({ familia: 'costesHoraTrabajador', min: true })).then(({ payload }) => {
             const objetoCosteHoraTrabajador = payload.filter(objeto => objeto.categoria.includes(conceptoCosteHoraTrabajador));
             setCantidadPrecioHora(objetoCosteHoraTrabajador[0].precioUnitario);
-            let piezasCorte = 0;
-            if (cotizacionActualizado) {
-                if (cotizacionCuerpo) {
-                    piezasCorte = cotizacionCuerpo.merma.filasMerma;
-                } else {
-                    piezasCorte = cotizacionActualizado.merma.filasMerma;
-                };
-            } else {
-                piezasCorte = cotizacionCuerpo.merma.filasMerma;
-            };
+            let piezasCorte = cotizacionCuerpo.merma.filasMerma;            
             generarColumnas(piezasCorte);
         });
     }, []);
@@ -67,9 +58,11 @@ function CorteMaderaCotDialog(props) {
     }, [tableColumns]);
 
     useEffect(() => {
-        setTableData(null);
-        generarDatos();
-    }, [cotizacionActualizado]);
+        if (actualizandoCotizacion.estado) {
+            setTableData(null);
+            generarDatos();
+        };
+    }, [actualizandoCotizacion]);
 
     useEffect(() => {
         if (updateState.estado) {
@@ -228,17 +221,9 @@ function CorteMaderaCotDialog(props) {
 
     const generarDatos = () => {
         const arrayDatos = [];
-        let objetoDatos, arrayFilas;
-        if (cotizacionActualizado) {
-            if (cotizacionLateralSup) {
-                arrayFilas = cotizacionLateralSup.filaCorteMadera;
-            } else {
-                arrayFilas = cotizacionActualizado.filaCorteMadera;
-            };
-        } else {
-            arrayFilas = cotizacionLateralSup.filaCorteMadera;
-        };
-        if (arrayFilas && arrayFilas.length > 0) {
+        let objetoDatos;
+        let arrayFilas = cotizacionLateralSup.filaCorteMadera;
+        if (arrayFilas?.length > 0) {
             arrayFilas.forEach((fila) => {
                 objetoDatos = {
                     cantidadPrecioHora: fila.cantidadPrecioHora,
@@ -335,7 +320,7 @@ function CorteMaderaCotDialog(props) {
                             height: 200,
                             overflow: 'hidden'
                         },
-                    }}                   
+                    }}
                 />
             </>
         )

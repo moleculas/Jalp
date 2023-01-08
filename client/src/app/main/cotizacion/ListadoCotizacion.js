@@ -1,4 +1,3 @@
-
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import FuseLoading from '@fuse/core/FuseLoading';
@@ -19,7 +18,7 @@ import {
     deleteCotizacion,
     vaciarDatosGeneral,
     getCotizacion,
-    setOpenFormCotizacion,
+    setOpenSidebarCotizacion,
     setCotizaciones
 } from 'app/redux/produccion/cotizacionSlice';
 import { formateado } from 'app/logica/produccion/logicaProduccion';
@@ -31,10 +30,8 @@ const ListadoCotizacion = (props) => {
     //useEffect
 
     useEffect(() => {
-        if (!cotizaciones) {
-            dispatch(getCotizaciones());
-        };
-    }, [cotizaciones]);
+        dispatch(getCotizaciones());
+    }, []);
 
     //funciones
 
@@ -45,9 +42,9 @@ const ListadoCotizacion = (props) => {
     };
 
     const cargarCotizacion = (id) => {
-        dispatch(vaciarDatosGeneral(false));
+        dispatch(vaciarDatosGeneral());
         dispatch(getCotizacion(id)).then(() => {
-            dispatch(setOpenFormCotizacion(false));
+            dispatch(setOpenSidebarCotizacion({estado: false, objeto: null}));
             dispatch(setCotizaciones(null));
         });
     };
@@ -102,7 +99,7 @@ const ListadoCotizacion = (props) => {
                                                     <span className="font-bold">OF: </span>
                                                     {cotizacion.of} - {_.capitalize(cotizacion.cliente)} - {format(new Date(cotizacion.fecha), 'dd/MM/yyyy', { locale: es })} -
                                                     <span className="font-bold"> PV: </span>
-                                                    {formateado(cotizacion.precio_venta_total)} €
+                                                    {cotizacion.precio > 0 ? formateado(cotizacion.precio) : 0} €
                                                 </>
                                             }
                                             secondary={
@@ -115,6 +112,7 @@ const ListadoCotizacion = (props) => {
                                 )
                             })}
                         </List>
+                        
                     </div>
                 )}
             </motion.div>

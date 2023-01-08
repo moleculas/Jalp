@@ -11,7 +11,7 @@ import {
     formateado
 } from 'app/logica/produccion/logicaProduccion';
 import {
-    selectObjetoCotizacionActualizado,
+    selectActualizandoCotizacion,
     selectObjetoCotizacionLateralSup
 } from 'app/redux/produccion/cotizacionSlice';
 import {
@@ -29,7 +29,7 @@ function PatinesCotDialog(props) {
     const [tableColumns, setTableColumns] = useState(null);
     const [tableData, setTableData] = useState(null);
     const [changedData, setChangedData] = useState(false);
-    const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
+    const actualizandoCotizacion = useSelector(selectActualizandoCotizacion);
     const cotizacionLateralSup = useSelector(selectObjetoCotizacionLateralSup);
     const [updateState, setUpdateState] = useState({ estado: false, objeto: null });
     const conceptoCosteHoraTrabajador = "patines";
@@ -54,9 +54,11 @@ function PatinesCotDialog(props) {
     }, [tableColumns]);
 
     useEffect(() => {
-        setTableData(null);
-        generarDatos();
-    }, [cotizacionActualizado]);
+        if (actualizandoCotizacion.estado) {
+            setTableData(null);
+            generarDatos();
+        };
+    }, [actualizandoCotizacion]);
 
     useEffect(() => {
         if (updateState.estado) {
@@ -211,15 +213,9 @@ function PatinesCotDialog(props) {
 
     const generarDatos = () => {
         const arrayDatos = [];
-        let objetoDatos;
-        if (cotizacionActualizado || cotizacionLateralSup) {
-            let arrayFilas;
-            if (cotizacionActualizado && !cotizacionLateralSup) {
-                arrayFilas = cotizacionActualizado.filaPatines;
-            } else {
-                arrayFilas = cotizacionLateralSup.filaPatines;
-            };
-            if (arrayFilas && arrayFilas.length > 0) {
+        let objetoDatos;       
+            let arrayFilas = cotizacionLateralSup.filaPatines;
+            if (arrayFilas?.length > 0) {
                 arrayFilas.forEach((fila) => {
                     objetoDatos = {
                         cantidadPrecioHora: fila.cantidadPrecioHora,
@@ -237,8 +233,7 @@ function PatinesCotDialog(props) {
                     precio_total: 0,
                 };
                 arrayDatos.push(objetoDatos);
-            };
-        };
+            };       
         setTableData(arrayDatos);
     };
 

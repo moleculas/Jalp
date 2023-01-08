@@ -8,6 +8,7 @@ import CotizacionHeader from './CotizacionHeader';
 import CotizacionContent from './CotizacionContent';
 import CotizacionSidebarContenedor from './CotizacionSidebarContenedor';
 import CotizacionDialog from './dialogs/CotizacionDialog';
+import DialogPdf from '../componentes-app/DialogPdf';
 
 const Root = styled(FusePageSimple)(({ theme }) => ({
   '& .FusePageSimple-header': {
@@ -30,6 +31,7 @@ function Cotizacion(props) {
         <div className="w-full">
           <CotizacionContent />
           <CotizacionDialog />
+          <DialogPdf />
         </div>
       }
       ref={pageLayout}

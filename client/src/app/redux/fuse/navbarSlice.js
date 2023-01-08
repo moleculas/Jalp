@@ -28,10 +28,10 @@ const navbarSlice = createSlice({
     navbarClose: (state, action) => {
       state.open = false;
     },
-    navbarOpen: (state, action) => {
+    navbarOpen: (state, action) => {     
       state.open = true;
     },
-    navbarToggle: (state, action) => {
+    navbarToggle: (state, action) => {     
       state.open = !state.open;
     },
   },

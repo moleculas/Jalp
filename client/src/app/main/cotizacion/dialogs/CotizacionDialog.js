@@ -55,7 +55,7 @@ function CotizacionDialog(props) {
             case 'medidas':
                 return (<MedidasCuerpoCotDialog index={dialogIndex} />)
                 break;
-            default:
+            default:                
         };
     };
 

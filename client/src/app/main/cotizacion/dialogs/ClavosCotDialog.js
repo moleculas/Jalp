@@ -21,7 +21,7 @@ import {
 import {
     setAnadirFilaIdCotizacion,
     selectAnadirFilaIdCotizacion,
-    selectObjetoCotizacionActualizado,
+    selectActualizandoCotizacion,
     selectObjetoCotizacionLateralSup,
 } from 'app/redux/produccion/cotizacionSlice';
 import {
@@ -40,7 +40,7 @@ function ClavosCotDialog(props) {
     const [tableData, setTableData] = useState(null);
     const [changedData, setChangedData] = useState(false);
     const anadirFilaIdCotizacion = useSelector(selectAnadirFilaIdCotizacion);
-    const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
+    const actualizandoCotizacion = useSelector(selectActualizandoCotizacion);
     const cotizacionLateralSup = useSelector(selectObjetoCotizacionLateralSup);
     const [updateState, setUpdateState] = useState({ estado: false, objeto: null });
 
@@ -61,9 +61,11 @@ function ClavosCotDialog(props) {
     }, [tableColumns]);
 
     useEffect(() => {
-        setTableData(null);
-        generarDatos();
-    }, [cotizacionActualizado]);
+        if (actualizandoCotizacion.estado) {
+            setTableData(null);
+            generarDatos();
+        };
+    }, [actualizandoCotizacion]);
 
     useEffect(() => {
         if (updateState.estado) {
@@ -244,42 +246,31 @@ function ClavosCotDialog(props) {
     const generarDatos = () => {
         const arrayDatos = [];
         let objetoDatos;
-        if (cotizacionActualizado || cotizacionLateralSup) {
-            let arrayFilas;
-            if (cotizacionActualizado && !cotizacionLateralSup) {
-                arrayFilas = cotizacionActualizado.filasClavos;
-            } else {
-                arrayFilas = cotizacionLateralSup.filasClavos;
-            };
-            if (arrayFilas && arrayFilas.length > 0) {
-                arrayFilas.forEach((fila) => {
-                    objetoDatos = {
-                        clavo: fila.clavo,
-                        precio_unitario: fila.precio_unitario,
-                        unidades: fila.unidades,
-                        precio_total: fila.precio_total,
-                    };
-                    arrayDatos.push(objetoDatos);
-                });
-            } else {
+        let arrayFilas = cotizacionLateralSup.filasClavos;
+        if (arrayFilas?.length > 0) {
+            arrayFilas.forEach((fila) => {
                 objetoDatos = {
-                    clavo: "",
-                    precio_unitario: 0,
-                    unidades: 0,
-                    precio_total: 0
+                    clavo: fila.clavo,
+                    precio_unitario: fila.precio_unitario,
+                    unidades: fila.unidades,
+                    precio_total: fila.precio_total,
                 };
                 arrayDatos.push(objetoDatos);
+            });
+        } else {
+            objetoDatos = {
+                clavo: "",
+                precio_unitario: 0,
+                unidades: 0,
+                precio_total: 0
             };
+            arrayDatos.push(objetoDatos);
         };
         setTableData(arrayDatos);
     };
 
     const calculosTabla = (tabla, update, row) => {
-        const objetoClavos = {
-            ...tabla[0],
-            unidades: Number(tabla[0].unidades)
-        };
-        const arrayTabla = dispatch(calculosTablaClavos(objetoClavos));
+        const arrayTabla = dispatch(calculosTablaClavos(tabla));
         setTableData(arrayTabla);
         setUpdateState({ estado: true, objeto: arrayTabla });
     };

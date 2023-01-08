@@ -19,7 +19,7 @@ import { generarPropsTabla } from 'app/logica/produccion/logicaProduccion';
 import {
     setAnadirFilaIdCotizacion,
     getOf,
-    selectObjetoCotizacionActualizado,
+    selectActualizandoCotizacion
 } from 'app/redux/produccion/cotizacionSlice';
 import { showMessage } from 'app/redux/fuse/messageSlice';
 import {
@@ -37,7 +37,7 @@ function CabeceraCotizacion(props) {
     const [tableData, setTableData] = useState(null);
     const [tableColumns, setTableColumns] = useState(null);
     const [changedData, setChangedData] = useState(false);
-    const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
+    const actualizandoCotizacion = useSelector(selectActualizandoCotizacion);
     const [descripcion, setDescripcion] = useState("");
 
     //useEffect  
@@ -57,9 +57,11 @@ function CabeceraCotizacion(props) {
     }, [tableColumns]);
 
     useEffect(() => {
-        setTableData(null);
-        generarDatos();
-    }, [cotizacionActualizado]);
+        if (actualizandoCotizacion.estado) {
+            setTableData(null);
+            generarDatos();
+        };
+    }, [actualizandoCotizacion]);
 
     //funciones
 
@@ -226,15 +228,15 @@ function CabeceraCotizacion(props) {
     const generarDatos = () => {
         const arrayDatos = [];
         let objetoDatos;
-        if (cotizacionActualizado) {
+        if (actualizandoCotizacion.estado) {
             objetoDatos = {
-                descripcion: cotizacionActualizado.descripcion,
-                fecha: cotizacionActualizado.fecha,
-                cliente: cotizacionActualizado.cliente,
-                of: cotizacionActualizado.of,
-                unidades: cotizacionActualizado.unidades
+                descripcion: cotizacionCabecera.descripcion,
+                fecha: cotizacionCabecera.fecha,
+                cliente: cotizacionCabecera.cliente,
+                of: cotizacionCabecera.of,
+                unidades: cotizacionCabecera.unidades
             };
-            setDescripcion(cotizacionActualizado.descripcion);
+            setDescripcion(cotizacionCabecera.descripcion);
         } else {
             objetoDatos = {
                 descripcion,
@@ -305,6 +307,7 @@ function CabeceraCotizacion(props) {
 
     const handleChangeDescripcion = (e) => {
         setDescripcion(e.target.value);
+        dispatch(actualizarTablaCabecera(tableData, e.target.value));
     };
 
     const clickCelda = (cell, table) => {
@@ -318,7 +321,7 @@ function CabeceraCotizacion(props) {
     };
 
     const retornaDisplay = () => {
-        if (cotizacionActualizado) {
+        if (actualizandoCotizacion.objeto) {
             return ""
         } else {
             if (tableData[0].cliente && tableData[0].of && tableData[0].unidades > 0) {

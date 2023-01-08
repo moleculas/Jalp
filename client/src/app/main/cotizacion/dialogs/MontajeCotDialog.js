@@ -11,7 +11,7 @@ import {
     formateado
 } from 'app/logica/produccion/logicaProduccion';
 import {
-    selectObjetoCotizacionActualizado,
+    selectActualizandoCotizacion,
     selectObjetoCotizacionLateralSup
 } from 'app/redux/produccion/cotizacionSlice';
 import {
@@ -29,7 +29,7 @@ function MontajeCotDialog(props) {
     const [tableColumns, setTableColumns] = useState(null);
     const [tableData, setTableData] = useState(null);
     const [changedData, setChangedData] = useState(false);
-    const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
+    const actualizandoCotizacion = useSelector(selectActualizandoCotizacion);
     const cotizacionLateralSup = useSelector(selectObjetoCotizacionLateralSup);
     const [updateState, setUpdateState] = useState({ estado: false, objeto: null });
     const conceptoCosteHoraTrabajador = "montaje";
@@ -54,9 +54,11 @@ function MontajeCotDialog(props) {
     }, [tableColumns]);
 
     useEffect(() => {
-        setTableData(null);
-        generarDatos();
-    }, [cotizacionActualizado]);
+        if (actualizandoCotizacion.estado) {
+            setTableData(null);
+            generarDatos();
+        };
+    }, [actualizandoCotizacion]);
 
     useEffect(() => {
         if (updateState.estado) {
@@ -212,32 +214,25 @@ function MontajeCotDialog(props) {
     const generarDatos = () => {
         const arrayDatos = [];
         let objetoDatos;
-        if (cotizacionActualizado || cotizacionLateralSup) {
-            let arrayFilas;
-            if (cotizacionActualizado && !cotizacionLateralSup) {
-                arrayFilas = cotizacionActualizado.filaMontaje;
-            } else {
-                arrayFilas = cotizacionLateralSup.filaMontaje;
-            };
-            if (arrayFilas && arrayFilas.length > 0) {
-                arrayFilas.forEach((fila) => {
-                    objetoDatos = {
-                        cantidadPrecioHora: fila.cantidadPrecioHora,
-                        operarios: fila.operarios ? fila.operarios : 0,
-                        productividad: fila.productividad ? fila.productividad : 0,
-                        precio_total: fila.precio_total,
-                    };
-                    arrayDatos.push(objetoDatos);
-                });
-            } else {
+        let arrayFilas = cotizacionLateralSup.filaMontaje;
+        if (arrayFilas?.length > 0) {
+            arrayFilas.forEach((fila) => {
                 objetoDatos = {
-                    cantidadPrecioHora,
-                    operarios: 0,
-                    productividad: 0,
-                    precio_total: 0,
+                    cantidadPrecioHora: fila.cantidadPrecioHora,
+                    operarios: fila.operarios ? fila.operarios : 0,
+                    productividad: fila.productividad ? fila.productividad : 0,
+                    precio_total: fila.precio_total,
                 };
                 arrayDatos.push(objetoDatos);
+            });
+        } else {
+            objetoDatos = {
+                cantidadPrecioHora,
+                operarios: 0,
+                productividad: 0,
+                precio_total: 0,
             };
+            arrayDatos.push(objetoDatos);
         };
         setTableData(arrayDatos);
     };
@@ -316,7 +311,7 @@ function MontajeCotDialog(props) {
                             height: 200,
                             overflow: 'hidden'
                         },
-                    }}                   
+                    }}
                 />
             </>
         )

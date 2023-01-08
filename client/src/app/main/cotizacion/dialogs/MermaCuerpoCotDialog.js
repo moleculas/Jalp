@@ -11,7 +11,7 @@ import {
     formateado
 } from 'app/logica/produccion/logicaProduccion';
 import {
-    selectObjetoCotizacionActualizado,
+    selectActualizandoCotizacion,
     selectObjetoCotizacionCuerpo,
 } from 'app/redux/produccion/cotizacionSlice';
 import {
@@ -25,7 +25,7 @@ function MermaCuerpoCotDialog(props) {
     const [tableColumns, setTableColumns] = useState(null);
     const [tableData, setTableData] = useState(null);
     const [changedData, setChangedData] = useState(false);
-    const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
+    const actualizandoCotizacion = useSelector(selectActualizandoCotizacion);
     const cotizacionCuerpo = useSelector(selectObjetoCotizacionCuerpo);
     const [updateState, setUpdateState] = useState({ estado: false, objeto: null });
     const [variablesCalculoMerma, setVariablesCalculoMerma] = useState({ vol_total: null, precio_m3: null });
@@ -44,9 +44,11 @@ function MermaCuerpoCotDialog(props) {
     }, [tableColumns]);
 
     useEffect(() => {
-        setTableData(null);
-        generarDatos();
-    }, [cotizacionActualizado]);
+        if (actualizandoCotizacion.estado) {
+            setTableData(null);
+            generarDatos();
+        };
+    }, [actualizandoCotizacion]);
 
     useEffect(() => {
         if (updateState.estado) {
@@ -247,13 +249,8 @@ function MermaCuerpoCotDialog(props) {
     const generarDatos = () => {
         const arrayDatos = [];
         let objetoDatos;
-        if (cotizacionActualizado || cotizacionCuerpo) {
-            let arrayFilas;
-            if (cotizacionActualizado && !cotizacionCuerpo) {
-                arrayFilas = cotizacionActualizado.filasCuerpo;
-            } else {
-                arrayFilas = cotizacionCuerpo.filasCuerpo;
-            };
+        if (cotizacionCuerpo) {
+            let arrayFilas = cotizacionCuerpo.filasCuerpo;
             setVariablesCalculoMerma({
                 vol_total: arrayFilas[index].vol_total,
                 precio_m3: arrayFilas[index].precio_m3

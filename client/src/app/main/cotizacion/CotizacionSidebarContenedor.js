@@ -7,11 +7,10 @@ import ListadoCotizacion from './ListadoCotizacion';
 
 //importación acciones
 import {
-    setOpenFormCotizacion,
-    selectOpenFormCotizacion,
+    setOpenSidebarCotizacion,
+    selectOpenSidebarCotizacion,
     setCotizaciones
 } from 'app/redux/produccion/cotizacionSlice';
-
 
 const StyledSwipeableDrawer = styled(SwipeableDrawer)(({ theme }) => ({
     '& .MuiDrawer-paper': {
@@ -22,19 +21,19 @@ const StyledSwipeableDrawer = styled(SwipeableDrawer)(({ theme }) => ({
 
 function CotizacionSidebarContenedor(props) {
     const dispatch = useDispatch();
-    const openFormCotizacion = useSelector(selectOpenFormCotizacion);
+    const openSidebarCotizacion = useSelector(selectOpenSidebarCotizacion);
 
     //funciones
 
     const cerrarSwipe = () => {
-        dispatch(setOpenFormCotizacion(false));
+        dispatch(setOpenSidebarCotizacion({ estado: false, objeto: null }));
         dispatch(setCotizaciones(null));
     };
 
     return (
         <>
             <StyledSwipeableDrawer
-                open={openFormCotizacion ? true : false}
+                open={openSidebarCotizacion.estado ? true : false}
                 anchor="right"
                 onOpen={(ev) => { }}
                 onClose={cerrarSwipe}
@@ -54,7 +53,7 @@ function CotizacionSidebarContenedor(props) {
                         width: {
                             sm: '100%',
                             md: 640
-                        }
+                        },
                     },
                 }}
             >
@@ -64,7 +63,9 @@ function CotizacionSidebarContenedor(props) {
                         <FuseSvgIcon>heroicons-outline:x</FuseSvgIcon>
                     </IconButton>
                 </div>
-                <ListadoCotizacion />
+                {openSidebarCotizacion.objeto === "registro" && (
+                    <ListadoCotizacion />
+                )}
             </StyledSwipeableDrawer>
         </>
     );

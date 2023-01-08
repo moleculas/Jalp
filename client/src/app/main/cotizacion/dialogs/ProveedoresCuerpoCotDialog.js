@@ -13,7 +13,7 @@ import {
     formateado
 } from 'app/logica/produccion/logicaProduccion';
 import {
-    selectObjetoCotizacionActualizado,
+    selectActualizandoCotizacion,
     selectObjetoCotizacionCuerpo
 } from 'app/redux/produccion/cotizacionSlice';
 import {
@@ -30,7 +30,7 @@ function ProveedoresCuerpoCotDialog(props) {
     const dispatch = useDispatch();
     const [tableColumns, setTableColumns] = useState(null);
     const [tableData, setTableData] = useState(null);
-    const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
+    const actualizandoCotizacion = useSelector(selectActualizandoCotizacion);
     const cotizacionCuerpo = useSelector(selectObjetoCotizacionCuerpo);
 
     //useEffect  
@@ -50,9 +50,11 @@ function ProveedoresCuerpoCotDialog(props) {
     }, [tableColumns]);
 
     useEffect(() => {
-        setTableData(null);
-        generarDatos();
-    }, [cotizacionActualizado]);
+        if (actualizandoCotizacion.estado) {
+            setTableData(null);
+            generarDatos();
+        };
+    }, [actualizandoCotizacion]);
 
     //funciones
 
@@ -134,16 +136,11 @@ function ProveedoresCuerpoCotDialog(props) {
     const generarDatos = () => {
         const arrayDatos = [];
         let objetoDatos;
-        if (cotizacionActualizado || cotizacionCuerpo) {
-            let arrayFilas;
-            if (cotizacionActualizado && !cotizacionCuerpo) {
-                arrayFilas = cotizacionActualizado.filasCuerpo;
-            } else {
-                arrayFilas = cotizacionCuerpo.filasCuerpo;
-            };
+        if (cotizacionCuerpo) {
+            let arrayFilas = cotizacionCuerpo.filasCuerpo;
             objetoDatos = {
-                proveedor: arrayFilas[index].proveedor ? arrayFilas[index].proveedor : "",
-                precio_m3: arrayFilas[index].precio_m3 ? arrayFilas[index].precio_m3 : 0
+                proveedor: arrayFilas[index]?.proveedor ? arrayFilas[index].proveedor : "",
+                precio_m3: arrayFilas[index]?.precio_m3 ? arrayFilas[index].precio_m3 : 0
             };
         } else {
             objetoDatos = {

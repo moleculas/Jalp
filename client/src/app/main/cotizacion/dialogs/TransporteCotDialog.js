@@ -13,7 +13,7 @@ import {
     formateado
 } from 'app/logica/produccion/logicaProduccion';
 import {
-    selectObjetoCotizacionActualizado,
+    selectActualizandoCotizacion,
     selectObjetoCotizacionLateralSup
 } from 'app/redux/produccion/cotizacionSlice';
 import {
@@ -31,7 +31,7 @@ function TransporteCotDialog(props) {
     const [tableColumns, setTableColumns] = useState(null);
     const [tableData, setTableData] = useState(null);
     const [changedData, setChangedData] = useState(false);
-    const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
+    const actualizandoCotizacion = useSelector(selectActualizandoCotizacion);
     const cotizacionLateralSup = useSelector(selectObjetoCotizacionLateralSup);
 
     //useEffect  
@@ -51,9 +51,11 @@ function TransporteCotDialog(props) {
     }, [tableColumns]);
 
     useEffect(() => {
-        setTableData(null);
-        generarDatos();
-    }, [cotizacionActualizado]);
+        if (actualizandoCotizacion.estado) {
+            setTableData(null);
+            generarDatos();
+        };
+    }, [actualizandoCotizacion]);
 
     //funciones
 
@@ -124,17 +126,9 @@ function TransporteCotDialog(props) {
 
     const generarDatos = () => {
         const arrayDatos = [];
-        let objetoDatos, arrayFilas;
-        if (cotizacionActualizado) {
-            if (cotizacionLateralSup) {
-                arrayFilas = cotizacionLateralSup.filaTransporte;
-            } else {
-                arrayFilas = cotizacionActualizado.filaTransporte;
-            };
-        } else {
-            arrayFilas = cotizacionLateralSup.filaTransporte;
-        };
-        if (arrayFilas && arrayFilas.length > 0) {
+        let objetoDatos;
+        let arrayFilas = cotizacionLateralSup.filaTransporte;
+        if (arrayFilas?.length > 0) {
             arrayFilas.forEach((fila) => {
                 objetoDatos = {
                     transporte: fila.transporte,

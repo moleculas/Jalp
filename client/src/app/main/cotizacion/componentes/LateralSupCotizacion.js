@@ -22,10 +22,10 @@ import {
     removeArrayByIndex
 } from 'app/logica/produccion/logicaProduccion';
 import {
-    selectObjetoCotizacionActualizado,
     openNoteDialog,
     setRegistraIntervencionDialog,
-    selectRegistraIntervencionDialog
+    selectRegistraIntervencionDialog,
+    selectActualizandoCotizacion
 } from 'app/redux/produccion/cotizacionSlice';
 import {
     calculosTablaLateralSup,
@@ -42,9 +42,9 @@ function LateralSupCotizacion(props) {
     const [tableData, setTableData] = useState(null);
     const [changedData, setChangedData] = useState(false);
     const conceptos = ["clavos", "corte_madera", "montaje", "patines", "transporte", "tratamiento", "merma"];
-    const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
+    const actualizandoCotizacion = useSelector(selectActualizandoCotizacion);
     const registraIntervencionDialog = useSelector(selectRegistraIntervencionDialog);
-    const [totales, setTotales] = useState({ volumen: 0, precio: 0, tratamiento: 0 });
+    const [totales, setTotales] = useState({ volumen: 0, precio: 0, tratamiento: 0, unidades: 0 });
     const [expanded, setExpanded] = useState(false);
     const conceptoCosteProcesos = "tratamiento";
 
@@ -61,13 +61,13 @@ function LateralSupCotizacion(props) {
     useEffect(() => {
         if (!tableData) {
             setTableData(null);
-            generarDatos();
+            generarDatos(false);
         };
     }, [tableData]);
 
     useEffect(() => {
         if (cotizacionCabecera && cotizacionCuerpo) {
-            calculosTabla(tableData, true);
+            !actualizandoCotizacion.estado && (calculosTabla(tableData, true, false));
             if (checkEnabled()) {
                 setExpanded(false);
             };
@@ -75,11 +75,11 @@ function LateralSupCotizacion(props) {
     }, [cotizacionCabecera, cotizacionCuerpo]);
 
     useEffect(() => {
-        if (cotizacionActualizado) {
+        if (actualizandoCotizacion.estado) {           
             setTableData(null);
-            generarDatos();
+            generarDatos(true);
         };
-    }, [cotizacionActualizado]);
+    }, [actualizandoCotizacion]);
 
     useEffect(() => {
         if (
@@ -89,28 +89,22 @@ function LateralSupCotizacion(props) {
             registraIntervencionDialog === "patines" ||
             registraIntervencionDialog === "transporte"
         ) {
-            calculosTabla(tableData, true);
+            calculosTabla(tableData, true, false);
             dispatch(setRegistraIntervencionDialog(null));
         };
     }, [registraIntervencionDialog]);
 
     //funciones   
 
-    const generarDatos = () => {
-        let arrayDatos = [];
-        let objetoDatos;
-        let precio = 0;
-        let volumen = 0;
-        if (cotizacionActualizado) {
-            if (cotizacionCuerpo) {
-                precio = cotizacionCuerpo.sumCuerpo;
-                volumen = cotizacionCuerpo.sumVolumen;
-            } else {
-                precio = cotizacionActualizado.sumCuerpo;
-                volumen = cotizacionActualizado.sumVolumen;
-            };
-            //TODO
+    const generarDatos = (actualizacion) => {
+        if (actualizacion) {
+            calculosTabla(tableData, true, true);
         } else {
+            let arrayDatos = [];
+            let objetoDatos;
+            let precio = 0;
+            let volumen = 0;
+            let unidades = 0;
             conceptos.forEach((concepto, index) => {
                 objetoDatos = {
                     concepto,
@@ -118,17 +112,18 @@ function LateralSupCotizacion(props) {
                 };
                 arrayDatos.push(objetoDatos);
             });
+            setTableData(arrayDatos);
+            setTotales({
+                ...totales,
+                precio,
+                volumen,
+                unidades
+            });
         };
-        setTableData(arrayDatos);
-        setTotales({
-            ...totales,
-            precio,
-            volumen
-        });
     };
 
-    const calculosTabla = (tabla, update) => {
-        const arrayTabla = dispatch(calculosTablaLateralSup(tabla, totales.tratamiento));
+    const calculosTabla = (tabla, update, actualizacionInicial) => {
+        const arrayTabla = dispatch(calculosTablaLateralSup(tabla, totales.tratamiento, actualizacionInicial));
         setTableData(arrayTabla);
         if (update) {
             actualizarTabla(arrayTabla);
@@ -136,11 +131,12 @@ function LateralSupCotizacion(props) {
     };
 
     const actualizarTabla = (arrayTabla) => {
-        const { precio, volumen } = dispatch(actualizarTablaLateralSup(arrayTabla));
+        const { precio, volumen, unidades } = dispatch(actualizarTablaLateralSup(arrayTabla));
         setTotales({
             ...totales,
             precio,
-            volumen
+            volumen,
+            unidades
         });
     };
 
@@ -152,13 +148,13 @@ function LateralSupCotizacion(props) {
         let valor = event.target.value;
         !valor && (valor = 0);
         tabla[rowIndex][columna] = valor;
-        calculosTabla(tabla, false);
+        calculosTabla(tabla, false, false);
     };
 
     const handleExitCell = (cell) => {
         const tabla = [...tableData];
         if (changedData) {
-            calculosTabla(tabla, true);
+            calculosTabla(tabla, true, false);
             setChangedData(false);
         } else {
             if (!cell.getValue()) {
@@ -237,7 +233,7 @@ function LateralSupCotizacion(props) {
     };
 
     const retornaEnabled = () => {
-        if (cotizacionActualizado) {
+        if (actualizandoCotizacion.objeto) {
             return false
         } else {
             return checkEnabled();
@@ -367,18 +363,45 @@ function LateralSupCotizacion(props) {
                                             pointerEvents: gestionCeldaTotales(Number(cell.row.id), 'pointer')
                                         },
                                     }),
-                                    Cell: ({ cell, row }) => (
-                                        <Typography
-                                            variant="body1"
-                                            color={cell.getValue() < 0 && "error"}
-                                            className="whitespace-nowrap"
-                                        >
-                                            {`${formateado(cell.getValue())} €`}
-                                        </Typography>
-                                    ),
+                                    Cell: ({ cell, row }) => {
+                                        if (totales.unidades > 1 && cell.getValue() > 0) {
+                                            if (Number(cell.row.id) <= 6) {
+                                                return (
+                                                    <Typography
+                                                        variant="body1"
+                                                        color={cell.getValue() < 0 && "error"}
+                                                        className="whitespace-nowrap"
+                                                    >
+                                                        {`${formateado(cell.getValue() / totales.unidades)} €`}<span className="text-sm"> x {totales.unidades} uds. = </span>{`${formateado(cell.getValue())} €`}
+                                                    </Typography>
+                                                )
+                                            } else {
+                                                return (
+                                                    <Typography
+                                                        variant="body1"
+                                                        color={cell.getValue() < 0 && "error"}
+                                                        className="whitespace-nowrap"
+                                                    >
+                                                        {`${formateado(cell.getValue())} €`}<span className="text-sm"> x {totales.unidades} uds. = </span>{`${formateado(cell.getValue() * totales.unidades)} €`}
+                                                    </Typography>
+                                                )
+                                            };
+                                        } else {
+                                            return (
+                                                <Typography
+                                                    variant="body1"
+                                                    color={cell.getValue() < 0 && "error"}
+                                                    className="whitespace-nowrap"
+                                                >
+                                                    {`${formateado(cell.getValue())} €`}
+                                                </Typography>
+                                            )
+                                        };
+                                    },
                                     size: 50,
                                 }
                             ]}
+
                             data={tableData}
                             enableTopToolbar={false}
                             enableBottomToolbar={false}

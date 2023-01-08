@@ -200,3 +200,6 @@ db.getCollection('orders').deleteMany({})   -> to select the collection and dele
 #959CA9
 //color defauklt tipografia
 #111827
+
+//ombra
+ boxShadow: "inset 5px -5px 16px -12px rgba(0, 0, 0, 0.5)" ,  

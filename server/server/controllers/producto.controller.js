@@ -141,6 +141,8 @@ export const getProducto = async (req, res) => {
         const producto = await Producto.findById(id, {
             createdAt: 0,
             updatedAt: 0,
+            historico: 0,
+            _id: 0,            
         });
         if (!producto) return res.sendStatus(404);
         return res.json(producto);

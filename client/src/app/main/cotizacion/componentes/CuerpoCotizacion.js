@@ -20,11 +20,11 @@ import {
 import {
     setAnadirFilaIdCotizacion,
     selectAnadirFilaIdCotizacion,
-    selectObjetoCotizacionActualizado,
     openNoteDialog,
     setDialogIndex,
     setRegistraIntervencionDialog,
-    selectRegistraIntervencionDialog
+    selectRegistraIntervencionDialog,
+    selectActualizandoCotizacion
 } from 'app/redux/produccion/cotizacionSlice';
 import {
     calculosTablaCuerpo,
@@ -39,8 +39,8 @@ function CuerpoCotizacion(props) {
     const [tableColumns, setTableColumns] = useState(null);
     const [tableData, setTableData] = useState(null);
     const [changedData, setChangedData] = useState(false);
-    const cotizacionActualizado = useSelector(selectObjetoCotizacionActualizado);
-    const registraIntervencionDialog = useSelector(selectRegistraIntervencionDialog);
+    const actualizandoCotizacion = useSelector(selectActualizandoCotizacion);
+    const registraIntervencionDialog = useSelector(selectRegistraIntervencionDialog);   
 
     //useEffect  
 
@@ -56,9 +56,11 @@ function CuerpoCotizacion(props) {
     }, [tableColumns]);
 
     useEffect(() => {
-        setTableData(null);
-        generarDatos();
-    }, [cotizacionActualizado]);
+        if (actualizandoCotizacion.estado) {
+            setTableData(null);
+            generarDatos();
+        };
+    }, [actualizandoCotizacion]);
 
     useEffect(() => {
         if (anadirFilaIdCotizacion && anadirFilaIdCotizacion === "cuerpo") {
@@ -72,7 +74,7 @@ function CuerpoCotizacion(props) {
                 vol_unitario: 0,
                 vol_total: 0,
                 volumen: "Uni: 0 m³ - Tot: 0 m³",
-                proveedor: "",                
+                proveedor: "",
                 precio_m3: 0,
                 precio_total: 0,
                 precio: "m³: 0 €/m³ - Tot: 0 €",
@@ -299,7 +301,7 @@ function CuerpoCotizacion(props) {
     };
 
     const retornaTotales = (table, columna) => {
-        switch (columna) {           
+        switch (columna) {
             case 'volumen':
                 if (table.options.data[0].precio_total > 0 && table.options.data[0].vol_total > 0) {
                     const sumatorioTotales2 = table.options.data.reduce((sum, { vol_total }) => sum + vol_total, 0);
@@ -352,9 +354,9 @@ function CuerpoCotizacion(props) {
 
     const generarDatos = () => {
         const arrayDatos = [];
-        let objetoDatos;
-        if (cotizacionActualizado) {
-            cotizacionActualizado.filasCuerpo.forEach((fila) => {
+        let objetoDatos;        
+        if (actualizandoCotizacion.estado) {
+            cotizacionCuerpo.filasCuerpo.forEach((fila) => {
                 objetoDatos = {
                     unidades: fila.unidades,
                     largo: fila.largo,
@@ -364,7 +366,7 @@ function CuerpoCotizacion(props) {
                     vol_unitario: fila.vol_unitario,
                     vol_total: fila.vol_total,
                     volumen: `Uni: ${formateado(fila.vol_unitario)} m³ - Tot: ${formateado(fila.vol_total)} m³`,
-                    proveedor: fila.proveedor,                    
+                    proveedor: fila.proveedor,
                     precio_m3: fila.precio_m3,
                     precio_total: fila.precio_total,
                     precio: `m³: ${formateado(fila.precio_m3)} €/m³ - Tot: ${formateado(fila.precio_total)} €`,
@@ -382,7 +384,7 @@ function CuerpoCotizacion(props) {
                 vol_unitario: 0,
                 vol_total: 0,
                 volumen: "Uni: 0 m³ - Tot: 0 m³",
-                proveedor: "",                
+                proveedor: "",
                 precio_m3: 0,
                 precio_total: 0,
                 precio: "m³: 0 €/m³ - Tot: 0 €",
@@ -435,7 +437,7 @@ function CuerpoCotizacion(props) {
     };
 
     const retornaDisplay = () => {
-        if (cotizacionActualizado) {
+        if (actualizandoCotizacion.objeto) {
             return ""
         } else {
             if (cotizacionCabecera && cotizacionCabecera.cliente && cotizacionCabecera.of && cotizacionCabecera.unidades > 0) {
