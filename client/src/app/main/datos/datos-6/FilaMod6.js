@@ -6,7 +6,6 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import ToggleButton from '@mui/material/ToggleButton';
-import InputAdornment from '@mui/material/InputAdornment';
 
 function FilaMod6(props) {
     const { producto, registrarFila, borrarFila, index } = props;
@@ -22,7 +21,7 @@ function FilaMod6(props) {
                 _id: producto._id,
                 descripcion: producto.descripcion,
                 sage: producto.sage,
-                precioProductoProveedor: producto.precioProductoProveedor,
+                codigo: producto.codigo,
                 historico: producto.historico,
                 activo: producto.activo
             });
@@ -34,19 +33,20 @@ function FilaMod6(props) {
             valoresProducto &&
             valoresProducto.descripcion &&
             valoresProducto.sage &&
-            valoresProducto.precioProductoProveedor
+            valoresProducto.codigo
         ) {
             setDisabledGrabar(false);
         } else {
             setDisabledGrabar(true);
+            setDisabledModificado(true);
         };
     }, [valoresProducto]);
 
     //funciones  
 
     const handleChange = (event, tipo) => {
-        let valor = event.target.value;
-        tipo === "precioProductoProveedor" && (valor = Number(event.target.value));
+        let valor = event.target.value;    
+        tipo === "codigo" && (valor = _.deburr(event.target.value).replaceAll(" ", "-").toLowerCase());  
         setValoresProducto({ ...valoresProducto, [tipo]: valor });
         producto._id && (setDisabledModificado(false));
     };
@@ -78,15 +78,11 @@ function FilaMod6(props) {
                     className="w-full md:w-[50%] xl:w-[50%]"
                 />
                 <TextField
-                    label="Precio producto"
-                    value={valoresProducto.precioProductoProveedor || ""}
-                    onChange={(event) => handleChange(event, 'precioProductoProveedor')}
+                    label="Código interno"
+                    value={valoresProducto.codigo || ""}
+                    onChange={(event) => handleChange(event, 'codigo')}
                     variant="outlined"
-                    className="w-full md:w-[50%] xl:w-[50%]"
-                    type="number"
-                    InputProps={{
-                        endAdornment: <InputAdornment position="end">€</InputAdornment>,
-                    }}
+                    className="w-full md:w-[50%] xl:w-[50%]"                    
                 />
                 <div className="flex items-center">
                     <Tooltip

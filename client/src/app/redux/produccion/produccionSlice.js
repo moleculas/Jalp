@@ -141,6 +141,38 @@ export const updateProduccionTabla = createAsyncThunk(
     };
   });
 
+export const getColumnas = createAsyncThunk(
+  'produccionSeccion/produccion/getColumnas',
+  async (datos, { getState, dispatch }) => {
+    try {
+      const formData = new FormData();
+      const losDatos = datos;
+      formData.append("datos", JSON.stringify(losDatos));
+      const response = await axios.post('/produccion/columnas', formData);
+      const data = await response.data;
+      return data;
+    } catch (err) {
+      dispatch(showMessage({ message: err.response.data.message, variant: "error" }));
+      return;
+    };
+  });
+
+export const updateColumnas = createAsyncThunk(
+  'produccionSeccion/produccion/updateColumnas',
+  async (datos, { getState, dispatch }) => {
+    try {
+      const formData = new FormData();
+      const losDatos = datos;
+      formData.append("datos", JSON.stringify(losDatos));
+      const response = await axios.post('/produccion/actualizarColumnas', formData);
+      const data = await response.data;
+      return data;
+    } catch (err) {
+      dispatch(showMessage({ message: err.response.data.message, variant: "error" }));
+      return;
+    };
+  });
+
 const initialState = {
   datosProduccionInicial: null,
   datosProduccionInicialProductos: null,
@@ -150,7 +182,9 @@ const initialState = {
   datosProduccionTabla: null,
   datosProduccionPalet: null,
   datosProduccionSaldo: null,
-  cambioPeriodo: false
+  cambioPeriodo: false,
+  datosColumnasVisibilidad: null,
+  mesSeleccionadoIniciales: null
 };
 
 const produccionSlice = createSlice({
@@ -181,12 +215,18 @@ const produccionSlice = createSlice({
     setDatosProduccionSaldo: (state, action) => {
       state.datosProduccionSaldo = action.payload;
     },
+    setDatosColumnasVisibilidad: (state, action) => {
+      state.datosColumnasVisibilidad = action.payload;
+    },
+    setMesSeleccionadoIniciales: (state, action) => {
+      state.mesSeleccionadoIniciales = action.payload;
+    },
   },
   extraReducers: {
     [updateProduccionLX.fulfilled]: (state, action) => {
       const arrayProduccionLX = [...state.datosProduccionLX];
       const indexSemana = arrayProduccionLX.findIndex(item => item[0].semana.semana === action.payload.semana);
-      const indexProducto = arrayProduccionLX[indexSemana][1].findIndex(item => item._id === action.payload._id);
+      const indexProducto = arrayProduccionLX[indexSemana][1].findIndex(item => item.producto === action.payload.producto);
       arrayProduccionLX[indexSemana][1][indexProducto] = action.payload;
       state.datosProduccionLX = arrayProduccionLX;
     },
@@ -204,6 +244,12 @@ const produccionSlice = createSlice({
       state.datosProduccionTabla = action.payload.tabla;
       state.datosProduccionPalet = action.payload.palet;
     },
+    [getColumnas.fulfilled]: (state, action) => {
+      state.datosColumnasVisibilidad = action.payload;
+    },
+    [updateColumnas.fulfilled]: (state, action) => {
+      state.datosColumnasVisibilidad = action.payload;
+    },
   },
 });
 
@@ -216,6 +262,8 @@ export const {
   setDatosProduccionTabla,
   setDatosProduccionPalet,
   setDatosProduccionSaldo,
+  setDatosColumnasVisibilidad,
+  setMesSeleccionadoIniciales
 } = produccionSlice.actions;
 
 export const selectDatosProduccionLX = ({ produccionSeccion }) => produccionSeccion.produccion.datosProduccionLX;
@@ -226,6 +274,8 @@ export const selectDatosProduccionInicialProductosMesAnterior = ({ produccionSec
 export const selectDatosProduccionTabla = ({ produccionSeccion }) => produccionSeccion.produccion.datosProduccionTabla;
 export const selectDatosProduccionPalet = ({ produccionSeccion }) => produccionSeccion.produccion.datosProduccionPalet;
 export const selectDatosProduccionSaldo = ({ produccionSeccion }) => produccionSeccion.produccion.datosProduccionSaldo;
+export const selectDatosColumnasVisibilidad = ({ produccionSeccion }) => produccionSeccion.produccion.datosColumnasVisibilidad;
+export const selectMesSeleccionadoIniciales = ({ produccionSeccion }) => produccionSeccion.produccion.mesSeleccionadoIniciales;
 
 const clasificaProductos = (data, periodo) => (dispatch, getState) => {
   const objetoClasificados = {

@@ -45,6 +45,7 @@ function FilaMod7(props) {
             setDisabledGrabar(false);
         } else {
             setDisabledGrabar(true);
+            setDisabledModificado(true);
         };
     }, [valoresProducto]);
 

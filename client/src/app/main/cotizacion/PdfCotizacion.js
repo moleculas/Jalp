@@ -13,7 +13,10 @@ import {
     selectObjetoCotizacionLateralSup,
     selectObjetoCotizacionLateralInf,
 } from 'app/redux/produccion/cotizacionSlice';
-import { getProducto } from 'app/redux/produccion/productoSlice';
+import {
+    getProducto,
+    getProductosPayload
+} from 'app/redux/produccion/productoSlice';
 import {
     formateado,
 } from 'app/logica/produccion/logicaProduccion';
@@ -85,36 +88,40 @@ const PdfCotizacion = (props) => {
     const cotizacionLateralInf = useSelector(selectObjetoCotizacionLateralInf);
     const [cargadoDocumento, setCargadoDocumento] = useState(false);
     const [transporte, setTransporte] = useState(null);
+    const [proveedores, setProveedores] = useState(null);
 
     //useEffect
 
     useEffect(() => {
-        if (cotizacionLateralSup.filaTransporte[0]?.transporte) {
-            dispatch(getProducto(cotizacionLateralSup.filaTransporte[0].transporte)).then(({ payload }) => {
-                let vehiculo;
-                switch (payload.especialTransportes.vehiculo) {
-                    case "camion":
-                        vehiculo = "Camión"
-                        break;
-                    case "trailer":
-                        vehiculo = "Tráiler"
-                        break;
-                    case "trenCarretera":
-                        vehiculo = "Tren de carretera"
-                        break;
-                    default:
-                };
-                setTransporte({
-                    destino: payload.especialTransportes.destino,
-                    vehiculo,
-                    unidadesVehiculo: payload.especialTransportes.unidadesVehiculo,
-                    precioUnitario: payload.precioUnitario
+        dispatch(getProductosPayload({ familia: 'proveedores', min: true })).then(({ payload }) => {
+            setProveedores(payload);
+            if (cotizacionLateralSup.filaTransporte[0]?.transporte) {
+                dispatch(getProducto({ id: cotizacionLateralSup.filaTransporte[0].transporte, nombre: null, familia: null })).then(({ payload }) => {
+                    let vehiculo;
+                    switch (payload.especialTransportes.vehiculo) {
+                        case "camion":
+                            vehiculo = "Camión"
+                            break;
+                        case "trailer":
+                            vehiculo = "Tráiler"
+                            break;
+                        case "trenCarretera":
+                            vehiculo = "Tren de carretera"
+                            break;
+                        default:
+                    };
+                    setTransporte({
+                        destino: payload.especialTransportes.destino,
+                        vehiculo,
+                        unidadesVehiculo: payload.especialTransportes.unidadesVehiculo,
+                        precioUnitario: payload.precioUnitario
+                    });
+                    temporizador();
                 });
+            } else {
                 temporizador();
-            });
-        } else {
-            temporizador();
-        };
+            };
+        });
     }, []);
 
     //funciones  
@@ -124,6 +131,11 @@ const PdfCotizacion = (props) => {
             setCargadoDocumento(true);
         }, 1200);
         return () => clearTimeout(timer);
+    };
+
+    const retornaProveedor = (id) => {
+        const proveedor = proveedores[proveedores.findIndex(prov => prov._id === id)].codigo;
+        return _.capitalize(proveedor)
     };
 
     const retornaLineas = () => {
@@ -152,7 +164,7 @@ const PdfCotizacion = (props) => {
                     </Text>
                     <Text style={{ fontFamily: 'InterLight', fontSize: 10 }}>
                         <Text style={{ fontFamily: 'InterSemiBold' }}>Proveedor: </Text>
-                        {fila.proveedor}
+                        {retornaProveedor(fila.proveedor)}
                     </Text>
                     <Text style={{ fontFamily: 'InterLight', fontSize: 10 }}>
                         <Text style={{ fontFamily: 'InterSemiBold' }}>Precio unitario: </Text>
@@ -439,8 +451,8 @@ const PdfCotizacion = (props) => {
 
     const retornaFilasExtra = () => {
         const rows = cotizacionLateralSup.filasExtra.map((fila, index) =>
-            <Fragment>
-                <View style={{ width: '100%', marginTop: 10, marginBottom: 7, flexDirection: 'row' }} key={"lineaExtra-" + index}>
+            <Fragment key={"lineaExtra-" + index}>
+                <View style={{ width: '100%', marginTop: 10, flexDirection: 'row' }}>
                     <Text style={{ fontFamily: 'InterLight', fontSize: 11, marginBottom: 3 }}>
                         <Text style={{ fontFamily: 'InterSemiBold' }}>{7 + (index + 1)}.- {_.capitalize(fila.concepto).replaceAll("_", " ")}: </Text>
                     </Text>
@@ -537,37 +549,37 @@ const PdfCotizacion = (props) => {
                             <View style={{ width: '100%', borderBottom: '0.5px solid #000000', marginTop: 10, paddingBottom: 3 }}>
                                 <Text style={{ fontFamily: 'InterRegular', fontSize: 11 }}>Conceptos Extra</Text>
                             </View>
-                            <View style={{ width: '100%', marginTop: 10, marginBottom: 7, flexDirection: 'row' }}>
+                            <View style={{ width: '100%', marginTop: 10, flexDirection: 'row' }}>
                                 <Text style={{ fontFamily: 'InterLight', fontSize: 11, marginBottom: 3 }}>
                                     <Text style={{ fontFamily: 'InterSemiBold' }}>1.- Clavos: </Text>
                                 </Text>
                             </View>
                             {retornaClavos()}
-                            <View style={{ width: '100%', marginTop: 10, marginBottom: 7, flexDirection: 'row' }}>
+                            <View style={{ width: '100%', marginTop: 10, flexDirection: 'row' }}>
                                 <Text style={{ fontFamily: 'InterLight', fontSize: 11, marginBottom: 3 }}>
                                     <Text style={{ fontFamily: 'InterSemiBold' }}>2.- Corte madera: </Text>
                                 </Text>
                             </View>
                             {retornaCorteMadera()}
-                            <View style={{ width: '100%', marginTop: 10, marginBottom: 7, flexDirection: 'row' }}>
+                            <View style={{ width: '100%', marginTop: 10, flexDirection: 'row' }}>
                                 <Text style={{ fontFamily: 'InterLight', fontSize: 11, marginBottom: 3 }}>
                                     <Text style={{ fontFamily: 'InterSemiBold' }}>3.- Montaje: </Text>
                                 </Text>
                             </View>
                             {retornaMontaje()}
-                            <View style={{ width: '100%', marginTop: 10, marginBottom: 7, flexDirection: 'row' }}>
+                            <View style={{ width: '100%', marginTop: 10, flexDirection: 'row' }}>
                                 <Text style={{ fontFamily: 'InterLight', fontSize: 11, marginBottom: 3 }}>
                                     <Text style={{ fontFamily: 'InterSemiBold' }}>4.- Patines: </Text>
                                 </Text>
                             </View>
                             {retornaPatines()}
-                            <View style={{ width: '100%', marginTop: 10, marginBottom: 7, flexDirection: 'row' }}>
+                            <View style={{ width: '100%', marginTop: 10, flexDirection: 'row' }}>
                                 <Text style={{ fontFamily: 'InterLight', fontSize: 11, marginBottom: 3 }}>
                                     <Text style={{ fontFamily: 'InterSemiBold' }}>5.- Transporte: </Text>
                                 </Text>
                             </View>
                             {retornaTransporte()}
-                            <View style={{ width: '100%', marginTop: 10, marginBottom: 7, flexDirection: 'row' }}>
+                            <View style={{ width: '100%', marginTop: 10, flexDirection: 'row' }}>
                                 <Text style={{ fontFamily: 'InterLight', fontSize: 11, marginBottom: 3 }}>
                                     <Text style={{ fontFamily: 'InterSemiBold' }}>6.- Tratamiento: </Text>
                                 </Text>
@@ -580,7 +592,7 @@ const PdfCotizacion = (props) => {
                                 <Text style={{ fontFamily: 'InterSemiBold' }}>Precio total Tratamiento: </Text>
                                 {`${formateado(cotizacionLateralSup.sumTratamiento)} € x (${cotizacionCabecera.unidades} unidades) = ${formateado(cotizacionLateralSup.sumTratamiento * cotizacionCabecera.unidades)} €`}
                             </Text>
-                            <View style={{ width: '100%', marginTop: 10, marginBottom: 7, flexDirection: 'row' }}>
+                            <View style={{ width: '100%', marginTop: 10, flexDirection: 'row' }}>
                                 <Text style={{ fontFamily: 'InterLight', fontSize: 11, marginBottom: 3 }}>
                                     <Text style={{ fontFamily: 'InterSemiBold' }}>7.- Merma: </Text>
                                 </Text>

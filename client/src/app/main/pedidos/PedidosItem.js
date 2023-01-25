@@ -6,17 +6,20 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import PanelPedidos from '../../componentes/PanelPedidos';
+import PanelPedidos from './componentes/PanelPedidos';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
+import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
+import { IconButton } from '@mui/material';
 
 //importacion acciones
 import {
     setPedido,
     getPedido,
-    selectPedido
+    selectPedido,
+    setSemanaSeleccionadaMenu
 } from 'src/app/redux/produccion/pedidoSlice';
 import { selectSemanasAnyo } from 'app/redux/produccion/inicioSlice';
 import {
@@ -31,7 +34,8 @@ import {
     setProductos
 } from 'app/redux/produccion/productoSlice';
 
-function Pedidos3() {
+function PedidosItem(props) {
+    const { proveedor, leftSidebarToggle } = props;
     const dispatch = useDispatch();
     const semanasAnyo = useSelector(selectSemanasAnyo);
     const datosPedido = useSelector(selectPedido);
@@ -47,35 +51,37 @@ function Pedidos3() {
         show: { opacity: 1, y: 0, transition: { delay: 0.1 } },
     };
     const [semanasCorrespondientesPeriodo, setSemanasCorrespondientesPeriodo] = useState(null);
-    const [periodo, setPeriodo] = useState(1);
+    const [periodoSelect, setPeriodoSelect] = useState(1);
     const { mes, anyo } = dispatch(decMesActual());
-    const tipo = "masova";
     const [tabValue, setTabValue] = useState({});
     const [semanaActual, setSemanaActual] = useState(dispatch(calculoSemanaAnyoActual()));
     const [datosAgrupadosMeses, setDatosAgrupadosMeses] = useState(null);
     const [pedidoProducto, setPedidoProducto] = useState(null);
 
-    //useEffect   
+    //useEffect      
 
     useEffect(() => {
-        dispatch(setPedido(null));
-        dispatch(setProductos(null));
-        dispatch(getProductos({ familia: 'maderas', min: true })).then(({ payload }) => {
-            const pedidoProductoArray = [];
-            payload.map((pedProducto) => {
-                if (pedProducto.tipoPedido.includes(tipo)) {
-                    pedidoProductoArray.push({
-                        producto: pedProducto.descripcion,
-                        largo: pedProducto.largo,
-                        ancho: pedProducto.ancho,
-                        grueso: pedProducto.grueso,
-                        tipo: tipo
-                    });
-                };
+        if (proveedor) {
+            dispatch(setPedido(null));
+            dispatch(setProductos(null));
+            setPedidoProducto(null);
+            dispatch(getProductos({ familia: 'maderas', min: true })).then(({ payload }) => {
+                const pedidoProductoArray = [];
+                payload.map((pedProducto) => {
+                    if (pedProducto.proveedor.includes(proveedor._id)) {
+                        pedidoProductoArray.push({
+                            producto: pedProducto.descripcion,
+                            largo: pedProducto.largo,
+                            ancho: pedProducto.ancho,
+                            grueso: pedProducto.grueso,                           
+                            familia: pedProducto.familia
+                        });
+                    };
+                });
+                setPedidoProducto(pedidoProductoArray);
             });
-            setPedidoProducto(pedidoProductoArray);
-        });
-    }, []);
+        };
+    }, [proveedor]);
 
     useEffect(() => {
         if (!semanasAnyo) {
@@ -93,9 +99,9 @@ function Pedidos3() {
                 mes,
                 anyo
             }));
-            dispatch(getPedido({ periodo, anyo, tipo }));
+            dispatch(getPedido({ periodo, anyo, proveedor: proveedor._id }));
         };
-    }, [semanasCorrespondientesPeriodo]);
+    }, [semanasCorrespondientesPeriodo, proveedor]);
 
     useEffect(() => {
         if (datosPedido && semanasCorrespondientesPeriodo) {
@@ -119,17 +125,21 @@ function Pedidos3() {
         let objetoTabs = { ...tabValue };
         objetoTabs[key] = value;
         setTabValue(objetoTabs);
+        const [, semana] = event.target.innerText.split("Semana ");
+        dispatch(setSemanaSeleccionadaMenu(Number(semana)));
     };
 
     const handleChangeSelect = (e) => {
-        setPeriodo(e.target.value);
+        setDatosAgrupadosMeses(null);
+        setPeriodoSelect(e.target.value);
         setSemanasCorrespondientesPeriodo(dispatch(calculoSemanasPeriodo(e.target.value)));
     };
 
     if (
-        !semanasCorrespondientesPeriodo ||
-        !datosAgrupadosMeses ||
-        !pedidoProducto
+        !semanasCorrespondientesPeriodo &&
+        !datosAgrupadosMeses &&
+        !pedidoProducto &&
+        !datosPedido
     ) {
         return null;
     };
@@ -138,22 +148,32 @@ function Pedidos3() {
         (
             semanasCorrespondientesPeriodo &&
             datosAgrupadosMeses &&
-            pedidoProducto
+            pedidoProducto &&
+            datosPedido
         ) && (
             <motion.div
-                className="grid grid-cols-1 md:grid-cols-1 gap-24 p-24"
+                className="p-24 w-full"
                 variants={container}
                 initial="hidden"
                 animate="show"
             >
                 <div className="flex flex-wrap w-full p-12">
                     <div className="flex flex-col sm:flex-row flex-1 items-center px-12 justify-between mb-24 space-y-16 sm:space-y-0">
-                        <div>
-                            <Typography className="text-2xl font-extrabold tracking-tight leading-tight">
-                                Tabla cálculo pedidos Masova
-                            </Typography>
-                            <div className="mt-2 font-medium">
-                                <Typography>Variables para cálculo de pedidos mensuales.</Typography>
+                        <div className="flex items-center w-full">
+                            {leftSidebarToggle && (
+                                <div className="flex shrink-0 items-center mr-16 -m-12">
+                                    <IconButton onClick={leftSidebarToggle}>
+                                        <FuseSvgIcon>heroicons-outline:menu</FuseSvgIcon>
+                                    </IconButton>
+                                </div>
+                            )}
+                            <div>
+                                <Typography className="text-2xl font-extrabold tracking-tight leading-tight">
+                                    {`Tabla cálculo pedidos ${_.capitalize(proveedor.codigo)}`}
+                                </Typography>
+                                <div className="mt-2 font-medium">
+                                    <Typography>Variables para cálculo de pedidos mensuales.</Typography>
+                                </div>
                             </div>
                         </div>
                         <div className="flex flex-row w-[175px]">
@@ -161,7 +181,7 @@ function Pedidos3() {
                                 <InputLabel>Consulta</InputLabel>
                                 <Select
                                     label="Consulta"
-                                    value={periodo}
+                                    value={periodoSelect}
                                     onChange={handleChangeSelect}
                                 >
                                     <MenuItem value={1}>Mensual</MenuItem>
@@ -173,17 +193,17 @@ function Pedidos3() {
                         </div>
                     </div>
                     <motion.div variants={item1} className="w-full flex flex-col">
-                        {datosAgrupadosMeses.map((mes, indexMes) => {
+                        {datosAgrupadosMeses.map((itemMes, indexMes) => {
                             return (
                                 <Paper
                                     className="rounded-2xl flex grow mb-24"
-                                    key={'mes' + indexMes}
+                                    key={'itemMes-' + indexMes}
                                     sx={{ minHeight: 330 }}
                                 >
                                     <Tabs
                                         orientation="vertical"
-                                        value={tabValue[mes[0].mes]}
-                                        onChange={(event, value, key) => handleChangeTab(event, value, mes[0].mes)}
+                                        value={tabValue[itemMes[0].mes]}
+                                        onChange={(event, value, key) => handleChangeTab(event, value, itemMes[0].mes)}
                                         className="border-r-1 pt-64"
                                         sx={{ minWidth: 130 }}
                                         textColor="inherit"
@@ -191,16 +211,16 @@ function Pedidos3() {
                                         TabIndicatorProps={{
                                             children: (
                                                 <Box
-                                                    sx={{ bgcolor: 'text.disabled' }}
-                                                    className="w-full h-full opacity-20"
+                                                    sx={{ bgcolor: '#e5e9ec' }}
+                                                    className="w-full h-full"
                                                 />
                                             ),
                                         }}
                                     >
-                                        {mes.map((pedido, index) => {
+                                        {itemMes.map((pedido, index) => {
                                             return (
                                                 <Tab
-                                                    className="text-14 font-semibold flex items-start pl-24"
+                                                    className="text-14 font-semibold flex items-start pl-24 z-10"
                                                     key={"tab" + index}
                                                     label={`Semana ${pedido.semana}`}
                                                     disableRipple
@@ -208,12 +228,12 @@ function Pedidos3() {
                                             )
                                         })}
                                     </Tabs>
-                                    {mes.map((pedido, index) => {
+                                    {itemMes.map((pedido, index) => {
                                         const semana = semanasCorrespondientesPeriodo[semanasCorrespondientesPeriodo.findIndex(semana => semana.numeroSemana === pedido.semana)];
                                         return (
                                             <TabPanel
                                                 key={"tabPanel" + index}
-                                                value={tabValue[mes[0].mes]}
+                                                value={tabValue[itemMes[0].mes]}
                                                 index={index}
                                                 className="w-full"
                                                 sx={{ minHeight: 330 }}
@@ -222,7 +242,8 @@ function Pedidos3() {
                                                     datosPedido={pedido}
                                                     semana={semana}
                                                     anyo={anyo}
-                                                    productos={pedidoProducto}
+                                                    pedidoProducto={pedidoProducto}
+                                                    proveedor={proveedor}
                                                 />
                                             </TabPanel>
                                         )
@@ -237,4 +258,4 @@ function Pedidos3() {
     );
 }
 
-export default Pedidos3;
+export default PedidosItem;

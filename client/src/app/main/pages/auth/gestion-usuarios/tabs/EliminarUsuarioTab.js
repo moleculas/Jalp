@@ -66,12 +66,13 @@ function EliminarUsuarioTab() {
                 <span>{usuarioAEliminar.displayName}</span>
               </DialogContentText>
             </DialogContent>
-            <DialogActions>
+            <DialogActions className="pr-24 pb-24">
               <Button
                 onClick={() => {
                   dispatch(closeDialog());
                 }}
                 color="primary"
+                size="small"
                 autoFocus
               >
                 No
@@ -81,8 +82,10 @@ function EliminarUsuarioTab() {
                   handleEliminarUsuario();
                   dispatch(closeDialog());
                 }}
-                color="primary"
+                color="secondary"
                 autoFocus
+                variant="contained"
+                size="small"
               >
                 Sí
               </Button>

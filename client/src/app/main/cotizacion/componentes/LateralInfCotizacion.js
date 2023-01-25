@@ -110,7 +110,7 @@ function LateralInfCotizacion(props) {
         !valor && (valor = 0);
         if (columna === "mc_porcentaje") {
             if (valor > 100) {
-                dispatch(showMessage({ message: "El porcentaje de margen de contribución debe ser menor que 100.", variant: "error" }));
+                dispatch(showMessage({ message: "El porcentaje de margen de contribución debe ser menor que 100.", variant: "error", autoHideDuration: 6000 }));
                 valor = 0
             };
         };
@@ -271,7 +271,7 @@ function LateralInfCotizacion(props) {
                                 },
                                 sx: {
                                     '&:hover': {
-                                        backgroundColor: '#ebebeb',
+                                        backgroundColor: '#e5e9ec',
                                     },
                                     backgroundColor: 'white',
                                 },
@@ -311,7 +311,7 @@ function LateralInfCotizacion(props) {
                                 },
                                 sx: {
                                     '&:hover': {
-                                        backgroundColor: '#ebebeb',
+                                        backgroundColor: '#e5e9ec',
                                     },
                                     backgroundColor: 'white',
                                 },
@@ -351,7 +351,7 @@ function LateralInfCotizacion(props) {
                                 },
                                 sx: {
                                     '&:hover': {
-                                        backgroundColor: '#ebebeb',
+                                        backgroundColor: '#e5e9ec',
                                     },
                                     backgroundColor: 'white',
                                 },

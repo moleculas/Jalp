@@ -12,7 +12,7 @@ import { lighten } from '@mui/material/styles';
 import format from 'date-fns/format';
 import { es } from 'date-fns/locale';
 
-function MaderasTimelineItem({ item, last }) {
+function ObjetivosTimelineItem({ item, last }) {
     return (
         <TimelineItem>
             <TimelineSeparator>
@@ -39,7 +39,10 @@ function MaderasTimelineItem({ item, last }) {
                         return (
                             <div key={'historico-' + index} className="flex flex-col mt-8 sm:mt-4 text-md leading-5">
                                 <Typography className="text-14">
-                                    {`Precio producto: ${cambio.precioUnitario.toLocaleString()} €`}
+                                    {`Palets: ${cambio.objetivos.palets.toLocaleString()}`}
+                                </Typography>
+                                <Typography className="text-14">
+                                    {`Saldo: ${cambio.objetivos.saldo.toLocaleString()} €`}
                                 </Typography>
                                 <div>
                                     <Typography className="text-13" color="text.secondary" component="span">
@@ -59,4 +62,4 @@ function MaderasTimelineItem({ item, last }) {
     );
 }
 
-export default MaderasTimelineItem;
+export default ObjetivosTimelineItem;

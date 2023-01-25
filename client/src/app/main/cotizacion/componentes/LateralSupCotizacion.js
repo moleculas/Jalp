@@ -320,7 +320,7 @@ function LateralSupCotizacion(props) {
                                         onClick: () => Number(cell.row.id) > 6 && (table.setEditingCell(cell)),
                                         sx: {
                                             '&:hover': {
-                                                backgroundColor: '#ebebeb',
+                                                backgroundColor: '#e5e9ec',
                                             },
                                             backgroundColor: 'white',
                                             pointerEvents: Number(cell.row.id) > 6 ? "auto" : "none",
@@ -355,7 +355,7 @@ function LateralSupCotizacion(props) {
                                         },
                                         sx: {
                                             '&:hover': {
-                                                backgroundColor: '#ebebeb',
+                                                backgroundColor: '#e5e9ec',
                                             },
                                             backgroundColor: 'white',
                                             cursor: 'pointer',

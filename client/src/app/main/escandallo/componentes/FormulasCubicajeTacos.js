@@ -79,7 +79,7 @@ function FormulasCubicajeTacos() {
                 onClick: () => clickCelda(cell, table, 1),
                 sx: {
                     '&:hover': {
-                        backgroundColor: '#ebebeb',
+                        backgroundColor: '#e5e9ec',
                     },
                     paddingLeft: '24px',
                     backgroundColor: 'white',
@@ -123,7 +123,7 @@ function FormulasCubicajeTacos() {
                 onClick: () => clickCelda(cell, table, 1),
                 sx: {
                     '&:hover': {
-                        backgroundColor: '#ebebeb',
+                        backgroundColor: '#e5e9ec',
                     },
                     backgroundColor: 'white',
                 },
@@ -161,7 +161,7 @@ function FormulasCubicajeTacos() {
                 onClick: () => clickCelda(cell, table, 1),
                 sx: {
                     '&:hover': {
-                        backgroundColor: '#ebebeb',
+                        backgroundColor: '#e5e9ec',
                     },
                     backgroundColor: 'white',
                 },
@@ -208,7 +208,7 @@ function FormulasCubicajeTacos() {
                 onClick: () => clickCelda(cell, table, 2),
                 sx: {
                     '&:hover': {
-                        backgroundColor: '#ebebeb',
+                        backgroundColor: '#e5e9ec',
                     },
                     paddingLeft: '24px',
                     backgroundColor: 'white',
@@ -252,7 +252,7 @@ function FormulasCubicajeTacos() {
                 onClick: () => clickCelda(cell, table, 2),
                 sx: {
                     '&:hover': {
-                        backgroundColor: '#ebebeb',
+                        backgroundColor: '#e5e9ec',
                     },
                     backgroundColor: 'white',
                 },
@@ -290,7 +290,7 @@ function FormulasCubicajeTacos() {
                 onClick: () => clickCelda(cell, table, 2),
                 sx: {
                     '&:hover': {
-                        backgroundColor: '#ebebeb',
+                        backgroundColor: '#e5e9ec',
                     },
                     backgroundColor: 'white',
                 },

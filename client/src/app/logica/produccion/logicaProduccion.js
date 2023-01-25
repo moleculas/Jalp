@@ -11,6 +11,10 @@ import clsx from 'clsx';
 import { styled, alpha } from '@mui/material/styles';
 import Menu from '@mui/material/Menu';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogActions from '@mui/material/DialogActions';
 
 //constantes
 import { REDONDEADO } from 'constantes';
@@ -19,6 +23,7 @@ import { REDONDEADO } from 'constantes';
 import { setSemanasAnyo } from 'app/redux/produccion/inicioSlice';
 import { setAnadirFilaId } from 'app/redux/produccion/pedidoSlice';
 import { setAnadirFilaIdCotizacion } from 'app/redux/produccion/cotizacionSlice';
+import { closeDialog, openDialog } from 'app/redux/fuse/dialogSlice';
 
 export const decMesActual = () => (dispatch, getState) => {
     const mesActual = getState().produccionSeccion.inicio.produccion.mesActual;
@@ -157,7 +162,8 @@ export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, ti
             sx: {
                 backgroundColor: 'white',
                 boxShadow: 'none!important',
-                cursor: 'default'
+                cursor: 'default',
+                borderTop: '1px solid #e2e8f0',
             },
         },
         muiTopToolbarProps: {
@@ -221,6 +227,7 @@ export const generarPropsTabla = (enableHiding, enableColumnActions, titulo1, ti
             expandAll: 'Expandir todo',
             hideAll: 'Ocultar todo',
             hideColumn: 'Ocultar columna {column}',
+            toggleVisibility: 'Cambiar visibilidad',
             rowActions: 'Acciones de fila',
             save: 'Guardar',
             showAll: 'Mostrar todo',
@@ -378,4 +385,54 @@ export const formateado = (num) => {
 
 export const removeArrayByIndex = (array, index) => {
     return array.slice(0, index).concat(array.slice(index + 1))
+};
+
+export const dialogAsegurar = (nombre, pregunta) => (dispatch, getState) => {
+    let dialogTitle, dialogContextText;
+    switch (pregunta) {
+        case 1:
+            dialogTitle = "¿Estás seguro que quieres eliminar registro?";
+            dialogContextText = `Estás a punto de eliminar el registro: ${nombre}`;
+            break;
+        default:
+    };
+    return new Promise((resolve, reject) => {
+        dispatch(
+            openDialog({
+                children: (
+                    <>
+                        <DialogTitle>{dialogTitle}</DialogTitle>
+                        <DialogContent>
+                            <DialogContentText>{dialogContextText}</DialogContentText>
+                        </DialogContent>
+                        <DialogActions className="pr-24 pb-24">
+                            <Button
+                                onClick={() => {
+                                    dispatch(closeDialog());
+                                    resolve({ payload: false });
+                                }}
+                                color="primary"
+                                size="small"
+                                autoFocus
+                            >
+                                No
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    dispatch(closeDialog());
+                                    resolve({ payload: true });
+                                }}
+                                color="secondary"
+                                autoFocus
+                                variant="contained"
+                                size="small"
+                            >
+                                Sí
+                            </Button>
+                        </DialogActions>
+                    </>
+                ),
+            })
+        );
+    });
 };

@@ -66,6 +66,13 @@ const navigationData = [
             },
         ]
     },
+    {
+        id: 'panel-datos-5',
+        title: 'Objetivos',
+        type: 'item',
+        url: '/datos/mod-8',
+        icon: 'material-outline:checklist',
+    },
 ];
 
 function SidebarDatos() {

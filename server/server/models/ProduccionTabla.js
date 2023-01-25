@@ -18,52 +18,17 @@ const ProduccionTablaSchema = new mongoose.Schema(
         },
         anyo: {
             type: Number,
-        },        
-        serfocat: {
-            type: Number
         },
-        masova: {
-            type: Number
-        },  
-        milieu: {
-            type: Number
-        }, 
-        milieu_sala: {
-            type: Number
-        },
-        arias: {
-            type: Number
+        proveedores: {
+            type: [{
+                proveedor: {
+                    type: String,
+                },
+                cantidad: {
+                    type: Number,
+                }
+            }]
         },       
-        losan: {
-            type: Number
-        },
-        sala: {
-            type: Number
-        }, 
-        faucher: {
-            type: Number
-        },
-        llorente: {
-            type: Number
-        },
-        p_marcos: {
-            type: Number
-        },
-        roncal: {
-            type: Number
-        },
-        alonso: {
-            type: Number
-        },
-        ramon: {
-            type: Number
-        },
-        mp_u_f: {
-            type: Number
-        },
-        saldo: {
-            type: Number
-        },  
     },
     {
         timestamps: true,

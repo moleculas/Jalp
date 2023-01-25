@@ -1,4 +1,4 @@
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import _ from '@lodash';
 import MaterialReactTable from 'material-react-table';
@@ -17,6 +17,7 @@ import {
     formateado
 } from 'app/logica/produccion/logicaProduccion';
 import { updateProduccionLX } from 'app/redux/produccion/produccionSlice';
+import { selectObjSocket } from 'app/redux/socketSlice';
 
 const formulaLX3FR = (cargas, formula) => {
     switch (formula) {
@@ -70,11 +71,12 @@ const formulaTLES = (cargas, formula) => {
 };
 
 function PanelDatosLX(props) {
-    const { datos, semana, anyo } = props;
+    const { datos, semana, anyo, mes } = props;
     const dispatch = useDispatch();
+    const socket = useSelector(selectObjSocket);
     const [tableData, setTableData] = useState(null);
     const [tableColumns, setTableColumns] = useState(null);
-    const [changedData, setChangedData] = useState(false);
+    const [changedData, setChangedData] = useState({ estado: false, item: null });
     const configItems = [
         {
             producto: "LX3FR",
@@ -235,11 +237,11 @@ function PanelDatosLX(props) {
                     type: 'number',
                     autoFocus: true
                 },
-                muiTableBodyCellProps: ({ cell, table }) => ({                    
+                muiTableBodyCellProps: ({ cell, table }) => ({
                     onClick: () => clickCelda(cell, table),
                     sx: {
                         '&:hover': {
-                            backgroundColor: '#ebebeb',
+                            backgroundColor: '#e5e9ec',
                         },
                         backgroundColor: 'white',
                     },
@@ -325,10 +327,11 @@ function PanelDatosLX(props) {
     };
 
     const handleChangeSelect = (row, table, event) => {
+        const item = `${row.id}_config`;
         const arrayTabla = [...table.options.data];
         arrayTabla[row.index].config = event.target.value;
         setTableData(arrayTabla);
-        calculosTabla(arrayTabla, row.index, true);
+        calculosTabla(arrayTabla, row.index, true, item);
     };
 
     const retornaSelect = (cell, row, table) => {
@@ -403,7 +406,7 @@ function PanelDatosLX(props) {
         setTableData(arrayDatos);
     };
 
-    const calculosTabla = (tabla, indice, update) => {
+    const calculosTabla = (tabla, indice, update, item) => {
         const arrayTabla = [];
         let objetoFila = {};
         tabla.map((fila, index) => {
@@ -415,11 +418,15 @@ function PanelDatosLX(props) {
         });
         setTableData(arrayTabla);
         if (update) {
-            actualizarTabla(arrayTabla[indice]);
+            actualizarTabla(arrayTabla[indice], item);
         };
     };
 
-    const actualizarTabla = (elemento) => {
+    const actualizarTabla = (elemento, item) => {
+        let itemFila, itemConcepto;
+        if (item) {
+            [itemFila, itemConcepto] = item.split("_");
+        };
         const id = datos[datos.findIndex(prod => prod.producto === elemento.producto)]._id;
         const linea = {
             _id: id,
@@ -428,28 +435,42 @@ function PanelDatosLX(props) {
             cantidad: elemento.cantidad,
             mensaje: true
         };
-        dispatch(updateProduccionLX({ linea }));
+        dispatch(updateProduccionLX({
+            linea,
+            semana: semana.semana,
+            mes,
+            anyo,
+            producto: elemento.producto
+        })).then(({ payload }) => {
+            if (item) {
+                socket.emit("comunicacion", {
+                    tabla: "updateProduccionLX",
+                    pantalla: null,
+                    item: itemConcepto
+                });
+            };
+        });
     };
 
     const handleChangeCell = (cell, event) => {
-        setChangedData(true);
+        setChangedData({ estado: true, item: cell.id });
         const tabla = [...tableData];
         const rowIndex = Number(cell.row.id);
         const columna = cell.column.id;
         let valor = event.target.value;
         !valor && (valor = 0);
         tabla[rowIndex][columna] = valor;
-        calculosTabla(tabla, rowIndex, false);
+        calculosTabla(tabla, rowIndex, false, null);
     };
 
     const handleExitCell = (cell) => {
         const tabla = [...tableData];
         const rowIndex = Number(cell.row.id);
-        if (changedData) {
-            calculosTabla(tabla, rowIndex, true);
-            setChangedData(false);
+        if (changedData.estado) {
+            calculosTabla(tabla, rowIndex, true, changedData.item);
+            setChangedData({ estado: false, item: null });
         } else {
-            if (!cell.getValue() && cell.id.includes("cargas")) {               
+            if (!cell.getValue() && cell.id.includes("cargas")) {
                 const columna = cell.column.id;
                 tabla[rowIndex][columna] = 0;
                 setTableData(tabla);

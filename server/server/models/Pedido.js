@@ -2,9 +2,8 @@ import mongoose from "mongoose";
 
 const PedidoSchema = new mongoose.Schema(
     {
-        tipo: {
-            type: String,
-            enum: ['xavi', 'sala', 'masova'],
+        proveedor: {
+            type: String,            
         },
         numero: {
             type: Number,

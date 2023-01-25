@@ -4,7 +4,6 @@ import Produccion1 from './tabs/produccion-1/Produccion1';
 import Produccion2 from './tabs/produccion-2/Produccion2';
 import Produccion3 from './tabs/produccion-3/Produccion3';
 import ProduccionLX from './tabs/produccion-lx/ProduccionLX';
-import Objetivos from './tabs/objetivos/Objetivos';
 
 const Produccion = lazy(() => import('./Produccion'));
 
@@ -58,11 +57,7 @@ const ProduccionConfig = {
         {
           path: 'produccion-lx',
           element: <ProduccionLX />,
-        },
-        {
-          path: 'objetivos',
-          element: <Objetivos />,
-        },
+        },       
       ]
     }
   ],

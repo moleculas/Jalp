@@ -118,7 +118,7 @@ function PatinesCotDialog(props) {
                     onClick: () => clickCelda(cell, table),
                     sx: {
                         '&:hover': {
-                            backgroundColor: '#ebebeb',
+                            backgroundColor: '#e5e9ec',
                         },
                         backgroundColor: 'white',
                     },
@@ -155,7 +155,7 @@ function PatinesCotDialog(props) {
                     onClick: () => clickCelda(cell, table),
                     sx: {
                         '&:hover': {
-                            backgroundColor: '#ebebeb',
+                            backgroundColor: '#e5e9ec',
                         },
                         backgroundColor: 'white',
                     },

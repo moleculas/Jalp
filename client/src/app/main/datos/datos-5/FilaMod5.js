@@ -38,6 +38,7 @@ function FilaMod5(props) {
             setDisabledGrabar(false);
         } else {
             setDisabledGrabar(true);
+            setDisabledModificado(true);
         };
     }, [valoresProducto]);
 

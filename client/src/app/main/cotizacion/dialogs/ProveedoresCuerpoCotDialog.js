@@ -18,12 +18,14 @@ import {
 } from 'app/redux/produccion/cotizacionSlice';
 import {
     getProductos,
-    setProductos
+    setProductos,
+    getProductosPayload
 } from 'app/redux/produccion/productoSlice';
 import {
     calculosTablaProveedores,
     actualizarTablaProveedores
 } from 'app/logica/produccion/logicaCotizacion';
+import { showMessage } from 'app/redux/fuse/messageSlice';
 
 function ProveedoresCuerpoCotDialog(props) {
     const { index } = props;
@@ -38,7 +40,11 @@ function ProveedoresCuerpoCotDialog(props) {
     useEffect(() => {
         dispatch(setProductos(null));
         dispatch(getProductos({ familia: 'proveedores', min: true })).then(({ payload }) => {
-            generarColumnas(payload);
+            const prooveedoresPayload = payload;
+            dispatch(getProductosPayload({ familia: 'maderas', min: true })).then(({ payload }) => {
+                const maderasPayload = payload;
+                generarColumnas(prooveedoresPayload, maderasPayload);
+            });
         });
     }, []);
 
@@ -58,7 +64,7 @@ function ProveedoresCuerpoCotDialog(props) {
 
     //funciones
 
-    const generarColumnas = (proveedores) => {
+    const generarColumnas = (proveedores, maderas) => {
         const arrayColumnas = [
             {
                 header: 'Proveedor',
@@ -78,9 +84,24 @@ function ProveedoresCuerpoCotDialog(props) {
                         if (event.target.dataset.value !== undefined) {
                             let precio_m3 = 0;
                             if (event.target.dataset.value !== "") {
-                                precio_m3 = proveedores[proveedores.findIndex(prov => prov.descripcion === event.target.dataset.value)].precioProductoProveedor;
+                                const largo = cotizacionCuerpo.filasCuerpo[index].largo;
+                                const ancho = cotizacionCuerpo.filasCuerpo[index].ancho;
+                                const grueso = cotizacionCuerpo.filasCuerpo[index].grueso;
+                                const indice = maderas.findIndex(madera => (
+                                    madera.proveedor.includes(event.target.dataset.value) &&
+                                    madera.largo === largo &&
+                                    madera.ancho === ancho &&
+                                    madera.grueso === grueso
+                                ));
+                                if (indice >= 0) {
+                                    precio_m3 = maderas[indice].precioUnitario;                             
+                                    handleChangeSelectProveedor(table, event.target.dataset.value, precio_m3);
+                                } else {
+                                    dispatch(showMessage({ message: "El formato de madera no está registrado para el proveedor seleccionado.", variant: "error", autoHideDuration: 6000 }));
+                                };
+                            } else {
+                                handleChangeSelectProveedor(table, event.target.dataset.value, precio_m3);
                             };
-                            handleChangeSelectProveedor(table, event.target.dataset.value, precio_m3);
                         };
                     },
                     sx: {
@@ -97,8 +118,8 @@ function ProveedoresCuerpoCotDialog(props) {
                                 <em>Proveedor</em>
                             </MenuItem>
                             {proveedores.map((option) => (
-                                <MenuItem key={option.descripcion} value={option.descripcion}>
-                                    {option.descripcion}
+                                <MenuItem key={option._id} value={option._id}>
+                                    {_.capitalize(option.codigo)}
                                 </MenuItem>
                             ))}
                         </Select>

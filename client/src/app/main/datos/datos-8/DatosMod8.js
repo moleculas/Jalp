@@ -7,7 +7,7 @@ import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import { motion } from 'framer-motion';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
-import FilaMod1 from './FilaMod1';
+import FilaMod8 from './FilaMod8';
 import Chip from '@mui/material/Chip';
 
 //importacion acciones
@@ -24,7 +24,7 @@ import {
     dialogAsegurar
 } from 'app/logica/produccion/logicaProduccion';
 
-function DatosMod1(props) {
+function DatosMod8(props) {
     const { leftSidebarToggle, rightSidebarToggle, rightSidebarOpen } = props;
     const dispatch = useDispatch();
     const productos = useSelector(selectProductos);
@@ -48,7 +48,7 @@ function DatosMod1(props) {
         rightSidebarOpen && (rightSidebarToggle());
         dispatch(setProductos(null));
         setProductosControllers([]);
-        dispatch(getProductos({ familia: 'clientes', min: false })).then(({ payload }) => {
+        dispatch(getProductos({ familia: 'objetivos', min: false })).then(({ payload }) => {
             gestionaProductos(payload);
         });
     }, []);
@@ -62,7 +62,8 @@ function DatosMod1(props) {
                 let objetoProducto = {
                     _id: producto._id,
                     descripcion: producto.descripcion,
-                    sage: producto.sage,
+                    palets: producto.especialObjetivos.palets,
+                    saldo: producto.especialObjetivos.saldo,
                     historico: producto.historico,
                     activo: producto.activo
                 };
@@ -78,7 +79,8 @@ function DatosMod1(props) {
             {
                 _id: null,
                 descripcion: "",
-                sage: "",
+                palets: null,
+                saldo: null,
                 historico: [],
                 activo: true
             }
@@ -91,16 +93,26 @@ function DatosMod1(props) {
     const registrarFila = (productoRetornado) => {
         const objeto = {
             descripcion: productoRetornado.descripcion,
-            sage: productoRetornado.sage,
+            especialObjetivos: {
+                palets: productoRetornado.palets,
+                saldo: productoRetornado.saldo,
+            },
             activo: productoRetornado.activo
         };
         let arrayHistorico = [...productoRetornado.historico];
-        arrayHistorico.push({ activo: productoRetornado.activo, fecha: new Date() });
+        arrayHistorico.push({
+            objetivos: {
+                palets: productoRetornado.palets,
+                saldo: productoRetornado.saldo,
+            },
+            activo: productoRetornado.activo,
+            fecha: new Date()
+        });
         objeto.historico = arrayHistorico;
-        objeto.familia = "clientes";
+        objeto.familia = "objetivos";
         if (!productoRetornado._id) {
             dispatch(addProducto(objeto)).then(({ payload }) => {
-                dispatch(getProductos({ familia: 'clientes', min: false })).then(({ payload }) => {
+                dispatch(getProductos({ familia: 'objetivos', min: false })).then(({ payload }) => {
                     gestionaProductos(payload);
                 });
             });
@@ -110,7 +122,7 @@ function DatosMod1(props) {
                 producto: objeto
             };
             dispatch(updateProducto(datosActualizar)).then(({ payload }) => {
-                dispatch(getProductos({ familia: 'clientes', min: false })).then(({ payload }) => {
+                dispatch(getProductos({ familia: 'objetivos', min: false })).then(({ payload }) => {
                     gestionaProductos(payload);
                 });
             });
@@ -123,7 +135,7 @@ function DatosMod1(props) {
             dispatch(dialogAsegurar(nombre, 1)).then(({ payload }) => {
                 if (payload) {
                     dispatch(deleteProducto(id)).then(({ payload }) => {
-                        dispatch(getProductos({ familia: 'clientes', min: false })).then(({ payload }) => {
+                        dispatch(getProductos({ familia: 'objetivos', min: false })).then(({ payload }) => {
                             gestionaProductos(payload);
                         });
                     });
@@ -161,7 +173,7 @@ function DatosMod1(props) {
                             )}
                             <div>
                                 <Typography className="text-2xl font-extrabold tracking-tight leading-tight">
-                                    Concepto: Clientes
+                                    Concepto: Objetivos
                                 </Typography>
                                 <div className="mt-2 font-medium">
                                     <Typography>Registro en base de datos para cálculos.</Typography>
@@ -196,6 +208,7 @@ function DatosMod1(props) {
                                 startIcon={<FuseSvgIcon size={20}>heroicons-outline:plus-circle</FuseSvgIcon>}
                                 size="small"
                                 className="-mt-8 mr-8 px-16 mb-16"
+                                disabled={true}
                             >
                                 Añadir fila
                             </Button>
@@ -210,7 +223,7 @@ function DatosMod1(props) {
                             <div ref={contenedor}>
                                 {productosControllers.map((producto, index) => {
                                     return (
-                                        <FilaMod1
+                                        <FilaMod8
                                             key={'prod' + index}
                                             index={index}
                                             producto={producto}
@@ -232,4 +245,4 @@ function DatosMod1(props) {
     )
 }
 
-export default DatosMod1;
+export default DatosMod8;

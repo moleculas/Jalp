@@ -34,8 +34,12 @@ export const updateProducto = async (req, res) => {
             {
                 new: true,
             }
+        ).select(
+            {
+                createdAt: 0,
+                updatedAt: 0,
+            }
         );
-        await updatedProducto.save();
         return res.json(updatedProducto);
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -80,7 +84,9 @@ export const getProductos = async (req, res) => {
                             largo: producto.largo,
                             ancho: producto.ancho,
                             grueso: producto.grueso,
-                            tipoPedido: producto.tipoPedido
+                            proveedor: producto.proveedor,
+                            precioUnitario: producto.precioUnitario,
+                            familia: producto.especialMaderas.familia
                         });
                     };
                 });
@@ -99,8 +105,8 @@ export const getProductos = async (req, res) => {
                 productos.map((producto) => {
                     if (producto.activo) {
                         productosARetornar.push({
-                            descripcion: producto.descripcion,
-                            precioProductoProveedor: producto.precioProductoProveedor
+                            _id: producto._id,
+                            codigo: producto.codigo
                         });
                     };
                 });
@@ -111,7 +117,7 @@ export const getProductos = async (req, res) => {
                         productosARetornar.push({
                             _id: producto._id,
                             especialTransportes: producto.especialTransportes,
-                            precioUnitario: producto.precioUnitario,
+                            precioUnitario: producto.precioUnitario
                         });
                     };
                 });
@@ -126,6 +132,16 @@ export const getProductos = async (req, res) => {
                     };
                 });
             };
+            if (familia === "objetivos") {
+                productos.map((producto) => {
+                    if (producto.activo) {
+                        productosARetornar.push({
+                            descripcion: producto.descripcion,
+                            especialObjetivos: producto.especialObjetivos
+                        });
+                    };
+                });
+            };
             return res.json(productosARetornar);
         } else {
             return res.json(productos);
@@ -136,14 +152,37 @@ export const getProductos = async (req, res) => {
 };
 
 export const getProducto = async (req, res) => {
-    const { id } = req.params;
+    const { id, nombre, familia } = JSON.parse(req.body.datos);
     try {
-        const producto = await Producto.findById(id, {
-            createdAt: 0,
-            updatedAt: 0,
-            historico: 0,
-            _id: 0,            
-        });
+        let producto;
+        if (id) {
+            producto = await Producto.findById(id, {
+                createdAt: 0,
+                updatedAt: 0,
+                historico: 0,
+                _id: 0,
+                familia: 0,
+            });
+        };
+        if (nombre) {
+            producto = await Producto.findOne(
+                {
+                    descripcion: nombre,
+                    familia,
+                    activo: true
+                },
+                {
+                    createdAt: 0,
+                    updatedAt: 0,
+                    historico: 0,
+                    _id: 0,
+                    precioUnitario: 0,
+                    familia: 0,
+                    activo: 0,
+                    sage: 0
+                }
+            );
+        };
         if (!producto) return res.sendStatus(404);
         return res.json(producto);
     } catch (error) {

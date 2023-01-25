@@ -115,6 +115,11 @@ export const actualizarUsuario = async (req, res) => {
             {
                 new: true,
             }
+        ).select(
+            {
+                createdAt: 0,
+                updatedAt: 0,                   
+            }
         );
         const oldUpdatedUsuarioChat = await UsuarioChat.findOne({ usuario: usuario.id });
         const updatedUsuarioChat = await UsuarioChat.findByIdAndUpdate(
@@ -128,6 +133,11 @@ export const actualizarUsuario = async (req, res) => {
             },
             {
                 new: true,
+            }
+        ).select(
+            {
+                createdAt: 0,
+                updatedAt: 0,                   
             }
         );
         await updatedUsuarioChat.save();

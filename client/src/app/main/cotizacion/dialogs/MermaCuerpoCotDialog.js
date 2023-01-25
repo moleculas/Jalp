@@ -84,7 +84,7 @@ function MermaCuerpoCotDialog(props) {
                     onClick: () => clickCelda(cell, table),
                     sx: {
                         '&:hover': {
-                            backgroundColor: '#ebebeb',
+                            backgroundColor: '#e5e9ec',
                         },
                         paddingLeft: '24px',
                         backgroundColor: 'white',
@@ -122,7 +122,7 @@ function MermaCuerpoCotDialog(props) {
                     onClick: () => clickCelda(cell, table),
                     sx: {
                         '&:hover': {
-                            backgroundColor: '#ebebeb',
+                            backgroundColor: '#e5e9ec',
                         },
                         backgroundColor: 'white',
                     },

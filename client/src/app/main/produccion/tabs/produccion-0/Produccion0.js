@@ -16,9 +16,12 @@ import {
     setDatosProduccionInicialProductos
 } from 'app/redux/produccion/produccionSlice';
 import { decMesActual } from 'app/logica/produccion/logicaProduccion';
+import { selectObjSocket } from 'app/redux/socketSlice';
+import { showMessage } from 'app/redux/fuse/messageSlice';
 
 function Produccion0() {
     const dispatch = useDispatch();
+    const socket = useSelector(selectObjSocket);
     const container = {
         show: {
             transition: {
@@ -48,16 +51,50 @@ function Produccion0() {
     //useEffect    
 
     useEffect(() => {
-        dispatch(setDatosProduccionInicialProductos(null));
+        vaciarDatos();
     }, []);
 
     useEffect(() => {
-        if (!datosProduccionInicialProductos) {
-            dispatch(getProduccionInicial({ mes, anyo, productos: PRODUCTOS }));
+        //comunicación socket
+        const receiveComunicacion = (comunicacion) => {
+            if ((socket.id.slice(8) !== comunicacion.from) && (
+                (
+                    comunicacion.body.tabla === "updateProduccionInicial"
+                )
+            )) {
+                vaciarDatos().then(({ payload }) => {
+                    if (payload) {
+                        iniciarPantalla();
+                        dispatch(showMessage({ message: "Datos actualizados con éxito.", variant: "success" }));
+                    };
+                });
+            };
         };
-    }, [datosProduccionInicialProductos]);
+        socket.on("comunicacion", receiveComunicacion);
+        return () => {
+            socket.off("comunicacion", receiveComunicacion);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (mes) {
+            iniciarPantalla();
+        };
+    }, [mes]);
 
     //funciones 
+
+    const vaciarDatos = () => {
+        return new Promise((resolve, reject) => {
+            dispatch(setDatosProduccionInicialProductos(null));
+            resolve({ payload: true });
+            reject(new Error('Algo salió mal'));
+        });
+    };
+
+    const iniciarPantalla = () => {
+        dispatch(getProduccionInicial({ mes, anyo, productos: PRODUCTOS }));
+    };
 
     return (
         <motion.div

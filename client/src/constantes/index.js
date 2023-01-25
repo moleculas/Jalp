@@ -1,7 +1,8 @@
 let rutaApi, rutaServer
 if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
     rutaApi = "http://localhost:3100/api";
-    rutaServer = window.location.protocol + "//" + window.location.host + "/";
+    //rutaServer = window.location.protocol + "//" + window.location.host + "/";
+    rutaServer = "http://localhost:3100";
 } else {
     rutaApi = "/api";
     rutaServer = window.location.protocol + "//" + window.location.host + "/";
@@ -36,9 +37,9 @@ const productos = [
     { producto: "1070x90x21", familia: "palet", unidades: 2 },
     { producto: "1140x90x21", familia: "palet", unidades: 4 },
     { producto: "1003x98x21", familia: "palet", unidades: 4 },
-    { producto: "135x72", familia: "taco", unidades: 1 },
-    { producto: "103x72", familia: "taco", unidades: 1 },
-    { producto: "103x94", familia: "taco", unidades: 1 },
+    { producto: "2500x135x72", familia: "taco", unidades: 1 },
+    { producto: "2420x103x72", familia: "taco", unidades: 1 },
+    { producto: "2500x103x94", familia: "taco", unidades: 1 },
     { producto: "1150x135x21", familia: "patin", unidades: 1 },
     { producto: "1150x78x21", familia: "patin", unidades: 2 }
 ];

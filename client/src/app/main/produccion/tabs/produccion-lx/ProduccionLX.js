@@ -31,9 +31,12 @@ import {
     calculoSemanaAnyoActual,
     TabPanel
 } from 'app/logica/produccion/logicaProduccion';
+import { selectObjSocket } from 'app/redux/socketSlice';
+import { showMessage } from 'app/redux/fuse/messageSlice';
 
 function ProduccionLX() {
     const dispatch = useDispatch();
+    const socket = useSelector(selectObjSocket);
     const semanasAnyo = useSelector(selectSemanasAnyo);
     const container = {
         show: {
@@ -52,7 +55,7 @@ function ProduccionLX() {
     };
     const datosProduccionLX = useSelector(selectDatosProduccionLX);
     const { mes, anyo, mesNumero } = dispatch(decMesActual());
-    const [periodo, setPeriodo] = useState(1);
+    const [periodoSelect, setPeriodoSelect] = useState(1);
     const [semanasCorrespondientesPeriodo, setSemanasCorrespondientesPeriodo] = useState(null);
     const [datosProduccionLXGrafico, setDatosProduccionLXGrafico] = useState(null);
     const [tabValue, setTabValue] = useState({});
@@ -62,7 +65,28 @@ function ProduccionLX() {
     //useEffect    
 
     useEffect(() => {
-        dispatch(setDatosProduccionLX(null));
+        vaciarDatos();
+    }, []);
+
+    useEffect(() => {
+        //comunicación socket
+        const receiveComunicacion = (comunicacion) => {
+            if ((socket.id.slice(8) !== comunicacion.from) && (
+                (
+                    comunicacion.body.tabla === "updateProduccionLX"
+                )
+            )) {
+                vaciarDatos().then(({ payload }) => {
+                    if (payload) {
+                        dispatch(showMessage({ message: "Datos actualizados con éxito.", variant: "success" }));
+                    };
+                });
+            };
+        };
+        socket.on("comunicacion", receiveComunicacion);
+        return () => {
+            socket.off("comunicacion", receiveComunicacion);
+        };
     }, []);
 
     useEffect(() => {
@@ -87,7 +111,7 @@ function ProduccionLX() {
     }, [semanasCorrespondientesPeriodo]);
 
     useEffect(() => {
-        if (datosProduccionLX && semanasCorrespondientesPeriodo) {            
+        if (datosProduccionLX && semanasCorrespondientesPeriodo) {           
             let indexSemana = semanasCorrespondientesPeriodo.findIndex(semana => semana.numeroSemana === semanaActual);
             indexSemana < 0 && (indexSemana = 0);
             const groupedObject = _.groupBy(datosProduccionLX, dato => dato[0].semana.mes);
@@ -99,19 +123,28 @@ function ProduccionLX() {
             };
             setDatosAgrupadosMeses(arrayAgrupado);
             setTabValue(objetoTabs);
-            if (datosProduccionLX.length === semanasCorrespondientesPeriodo.length) {               
+            if (datosProduccionLX.length === semanasCorrespondientesPeriodo.length) {
                 const arrayProduccionGrafico = [];
                 semanasCorrespondientesPeriodo.map((semana, index) => {
                     if (semana.mes === mes) {
                         arrayProduccionGrafico.push(datosProduccionLX[index][1].filter(item => item.semana === Number(semana.numeroSemana)));
                     };
-                });               
+                });
                 setDatosProduccionLXGrafico(arrayProduccionGrafico);
             };
         };
     }, [datosProduccionLX]);
 
     //funciones 
+
+    const vaciarDatos = () => {
+        return new Promise((resolve, reject) => {
+            dispatch(setDatosProduccionLX(null));
+            setSemanasCorrespondientesPeriodo(null);
+            resolve({ payload: true });
+            reject(new Error('Algo salió mal'));
+        });
+    };
 
     const handleChangeTab = (event, value, key) => {
         let objetoTabs = { ...tabValue };
@@ -120,7 +153,7 @@ function ProduccionLX() {
     };
 
     const handleChangeSelect = (e) => {
-        setPeriodo(e.target.value);
+        setPeriodoSelect(e.target.value);
         setSemanasCorrespondientesPeriodo(dispatch(calculoSemanasPeriodo(e.target.value)));
     };
 
@@ -154,7 +187,7 @@ function ProduccionLX() {
                             <InputLabel>Consulta</InputLabel>
                             <Select
                                 label="Consulta"
-                                value={periodo}
+                                value={periodoSelect}
                                 onChange={handleChangeSelect}
                             >
                                 <MenuItem value={1}>Mensual</MenuItem>
@@ -169,7 +202,7 @@ function ProduccionLX() {
                     <div className="w-full col-span-2">
                         <motion.div variants={item1} className="w-full flex flex-col">
                             {datosAgrupadosMeses && (
-                                datosAgrupadosMeses.map((mes, indexMes) => {
+                                datosAgrupadosMeses.map((itemMes, indexMes) => {
                                     return (
                                         <Paper
                                             className="rounded-2xl flex grow mb-24"
@@ -178,8 +211,8 @@ function ProduccionLX() {
                                         >
                                             <Tabs
                                                 orientation="vertical"
-                                                value={tabValue[mes[0][0].semana.mes]}
-                                                onChange={(event, value, key) => handleChangeTab(event, value, mes[0][0].semana.mes)}
+                                                value={tabValue[itemMes[0][0].semana.mes]}
+                                                onChange={(event, value, key) => handleChangeTab(event, value, itemMes[0][0].semana.mes)}
                                                 className="border-r-1 pt-64"
                                                 sx={{ minWidth: 130 }}
                                                 textColor="inherit"
@@ -187,16 +220,16 @@ function ProduccionLX() {
                                                 TabIndicatorProps={{
                                                     children: (
                                                         <Box
-                                                            sx={{ bgcolor: 'text.disabled' }}
-                                                            className="w-full h-full opacity-20"
+                                                            sx={{ bgcolor: '#e5e9ec' }}
+                                                            className="w-full h-full"
                                                         />
                                                     ),
                                                 }}
                                             >
-                                                {mes.map((producto, index) => {
+                                                {itemMes.map((producto, index) => {
                                                     return (
                                                         <Tab
-                                                            className="text-14 font-semibold flex items-start pl-24"
+                                                            className="text-14 font-semibold flex items-start pl-24 z-10"
                                                             key={"tab" + index}
                                                             label={`Semana ${producto[0].semana.semana}`}
                                                             disableRipple
@@ -204,11 +237,11 @@ function ProduccionLX() {
                                                     )
                                                 })}
                                             </Tabs>
-                                            {mes.map((producto, index) => {
+                                            {itemMes.map((producto, index) => {
                                                 return (
                                                     <TabPanel
                                                         key={"tabPanel" + index}
-                                                        value={tabValue[mes[0][0].semana.mes]}
+                                                        value={tabValue[itemMes[0][0].semana.mes]}
                                                         index={index}
                                                         className="w-full"
                                                         sx={{ height: 488 }}
@@ -217,6 +250,7 @@ function ProduccionLX() {
                                                             datos={producto[1]}
                                                             semana={producto[0].semana}
                                                             anyo={anyo}
+                                                            mes={mes}
                                                         />
                                                     </TabPanel>
                                                 )
@@ -238,7 +272,7 @@ function ProduccionLX() {
                         </motion.div>
                     )}
                 </div>
-            </div>       
+            </div>
         </motion.div>
     );
 }

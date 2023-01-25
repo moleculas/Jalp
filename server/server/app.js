@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import http from "http";
+import { Server as SocketServer } from "socket.io";
 import fileUpload from "express-fileupload";
 import postsRoutes from "./routes/posts.routes";
 import indexRoutes from "./routes/index.routes";
@@ -14,12 +16,17 @@ import filesRoutes from "./routes/files.routes";
 import actividadRoutes from "./routes/actividad.routes";
 import escandalloRoutes from "./routes/escandallo.routes";
 import produccionRoutes from "./routes/produccion.routes";
-import objetivosRoutes from "./routes/objetivos.routes";
 import pedidoRoutes from "./routes/pedido.routes";
 import cotizacionRoutes from "./routes/cotizacion.routes";
 import productoRoutes from "./routes/producto.routes";
 
 const app = express();
+const server = http.createServer(app);
+const io = new SocketServer(server, {
+    cors: {
+        origin: "*",
+    },
+});
 
 //middleware
 app.use(cors());
@@ -48,9 +55,18 @@ app.use('/api/files', filesRoutes);
 app.use('/api/actividad', actividadRoutes);
 app.use('/api/escandallo', escandalloRoutes);
 app.use('/api/produccion', produccionRoutes);
-app.use('/api/objetivos', objetivosRoutes);
 app.use('/api/pedido', pedidoRoutes);
 app.use('/api/cotizacion', cotizacionRoutes);
 app.use('/api/producto', productoRoutes);
 
-export { app };
+//sockets
+io.on('connection', (socket) => {
+    socket.on("comunicacion", (body) => {
+        socket.broadcast.emit("comunicacion", {
+            body,
+            from: socket.id.slice(8),
+        });
+    });
+});
+
+export { app, server };

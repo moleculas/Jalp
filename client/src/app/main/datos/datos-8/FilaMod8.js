@@ -6,8 +6,9 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import ToggleButton from '@mui/material/ToggleButton';
+import InputAdornment from '@mui/material/InputAdornment';
 
-function FilaMod1(props) {
+function FilaMod8(props) {
     const { producto, registrarFila, borrarFila, index } = props;
     const [valoresProducto, setValoresProducto] = useState(null);
     const [disabledGrabar, setDisabledGrabar] = useState(true);
@@ -20,7 +21,8 @@ function FilaMod1(props) {
             setValoresProducto({
                 _id: producto._id,
                 descripcion: producto.descripcion,
-                sage: producto.sage,
+                palets: producto.palets,
+                saldo: producto.saldo,
                 historico: producto.historico,
                 activo: producto.activo
             });
@@ -31,7 +33,8 @@ function FilaMod1(props) {
         if (
             valoresProducto &&
             valoresProducto.descripcion &&
-            valoresProducto.sage
+            valoresProducto.palets &&
+            valoresProducto.saldo
         ) {
             setDisabledGrabar(false);
         } else {
@@ -44,6 +47,7 @@ function FilaMod1(props) {
 
     const handleChange = (event, tipo) => {
         let valor = event.target.value;
+        (tipo === "palets" || tipo === "saldo") && (valor = Number(event.target.value));
         setValoresProducto({ ...valoresProducto, [tipo]: valor });
         producto._id && (setDisabledModificado(false));
     };
@@ -61,18 +65,33 @@ function FilaMod1(props) {
         valoresProducto && (
             <Box className="flex flex-col md:flex-row items-center w-full space-x-0 sm:space-x-8 space-y-16 sm:space-y-0 mb-20">
                 <TextField
-                    label="Descripción"
+                    label="Producto"
                     value={valoresProducto.descripcion}
                     onChange={(event) => handleChange(event, 'descripcion')}
                     variant="outlined"
-                    className="w-full md:w-[50%] xl:w-[100%]"
+                    className="w-full md:w-[50%] xl:w-[50%]"
+                    InputProps={{
+                        readOnly: true,
+                      }}
+                />                
+                <TextField
+                    label="Palets"
+                    value={valoresProducto.palets || ""}
+                    onChange={(event) => handleChange(event, 'palets')}
+                    variant="outlined"
+                    className="w-full md:w-[50%] xl:w-[25%]"
+                    type="number"
                 />
                 <TextField
-                    label="SAGE"
-                    value={valoresProducto.sage}
-                    onChange={(event) => handleChange(event, 'sage')}
+                    label="Saldo"
+                    value={valoresProducto.saldo || ""}
+                    onChange={(event) => handleChange(event, 'saldo')}
                     variant="outlined"
-                    className="w-full md:w-[50%] xl:w-[50%]"
+                    className="w-full md:w-[50%] xl:w-[25%]"
+                    type="number"
+                    InputProps={{
+                        endAdornment: <InputAdornment position="end">€</InputAdornment>,
+                    }}
                 />
                 <div className="flex items-center">
                     <Tooltip
@@ -113,4 +132,4 @@ function FilaMod1(props) {
     )
 }
 
-export default FilaMod1;
+export default FilaMod8;

@@ -1,14 +1,14 @@
 import { useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import Timeline from '@mui/lab/Timeline';
-import ProveedoresTimelineItem from './ProveedoresTimelineItem';
+import ObjetivosTimelineItem from './ObjetivosTimelineItem';
 import { motion } from 'framer-motion';
 import Typography from '@mui/material/Typography';
 
 //importacion acciones
 import { selectProductos } from 'app/redux/produccion/productoSlice';
 
-function SidebarHistorico6() {
+function SidebarHistorico7() {
     const productos = useSelector(selectProductos);
     const container = {
         show: {
@@ -65,17 +65,17 @@ function SidebarHistorico6() {
                         }}
                     >
                         {itemsTimeline.map((item, index) => (
-                            <ProveedoresTimelineItem
+                            <ObjetivosTimelineItem
                                 last={itemsTimeline.length === index + 1}
                                 item={item}
                                 key={item._id}
                             />
                         ))}
                     </Timeline>
-                </motion.div>  
+                </motion.div>        
             </motion.div>
         )
     );
 }
 
-export default SidebarHistorico6;
+export default SidebarHistorico7;

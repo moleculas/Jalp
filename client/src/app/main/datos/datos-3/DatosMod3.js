@@ -1,6 +1,6 @@
 import Typography from '@mui/material/Typography';
 import { useDispatch, useSelector } from 'react-redux';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { IconButton } from '@mui/material';
 import _ from '@lodash';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
@@ -17,17 +17,20 @@ import {
     addProducto,
     updateProducto,
     deleteProducto,
-    setProductos
+    setProductos,
+    getProductosPayload
 } from 'app/redux/produccion/productoSlice';
 import {
-    removeArrayByIndex
+    removeArrayByIndex,
+    dialogAsegurar
 } from 'app/logica/produccion/logicaProduccion';
+import { showMessage } from 'app/redux/fuse/messageSlice';
 
 function DatosMod3(props) {
     const { leftSidebarToggle, rightSidebarToggle, rightSidebarOpen } = props;
     const dispatch = useDispatch();
     const productos = useSelector(selectProductos);
-    const [productosControllers, setProductosControllers] = useState([]);
+    const [proveedores, setProveedores] = useState([]);
     const container = {
         show: {
             transition: {
@@ -39,6 +42,8 @@ function DatosMod3(props) {
         hidden: { opacity: 0, y: 20 },
         show: { opacity: 1, y: 0, transition: { delay: 0.3 } },
     };
+    const [productosControllers, setProductosControllers] = useState([]);
+    const contenedor = useRef(null);
 
     //useEffect   
 
@@ -46,8 +51,11 @@ function DatosMod3(props) {
         rightSidebarOpen && (rightSidebarToggle());
         dispatch(setProductos(null));
         setProductosControllers([]);
-        dispatch(getProductos({ familia: 'maderas', min: false })).then(({ payload }) => {
-            gestionaProductos(payload);
+        dispatch(getProductosPayload({ familia: 'proveedores', min: true })).then(({ payload }) => {
+            setProveedores(payload);
+            dispatch(getProductos({ familia: 'maderas', min: false })).then(({ payload }) => {
+                gestionaProductos(payload);
+            });
         });
     }, []);
 
@@ -61,49 +69,69 @@ function DatosMod3(props) {
                     _id: producto._id,
                     descripcion: producto.descripcion,
                     sage: producto.sage,
-                    tipoPedido: producto.tipoPedido,
+                    proveedor: producto.proveedor,
+                    precioUnitario: producto.precioUnitario,
                     largo: producto.largo,
                     ancho: producto.ancho,
                     grueso: producto.grueso,
+                    familia: producto.especialMaderas.familia,
                     historico: producto.historico,
                     activo: producto.activo
                 };
                 arrayProductos.push(objetoProducto);
             });
+            //arrayProductos.sort((a, b) => (b.largo * b.ancho * b.grueso) - (a.largo * a.ancho * a.grueso));
             setProductosControllers(arrayProductos);
         };
     };
 
     const anadirFila = () => {
-        const arrayProductos = [...productosControllers];
-        let objetoProducto = {
-            _id: null,
-            descripcion: "",
-            sage: "",
-            tipoPedido: [],
-            largo: null,
-            ancho: null,
-            grueso: null,
-            historico: [],
-            activo: true
-        };
-        arrayProductos.push(objetoProducto);
-        setProductosControllers(arrayProductos);
+        setProductosControllers((producto) => [
+            ...producto,
+            {
+                _id: null,
+                descripcion: "",
+                sage: "",
+                proveedor: [],
+                precioUnitario: null,
+                largo: null,
+                ancho: null,
+                grueso: null,
+                familia: "",
+                historico: [],
+                activo: true
+            }
+        ]);
+        setTimeout(() => {
+            contenedor.current?.lastElementChild?.scrollIntoView();
+        }, 250);
     };
 
     const registrarFila = (productoRetornado) => {
+        if (!productoRetornado._id) {
+            const resultadoBusqueda = productosControllers.find(obj => obj.largo === productoRetornado.largo && obj.ancho === productoRetornado.ancho && obj.grueso === productoRetornado.grueso);
+            if (resultadoBusqueda !== undefined) {
+                dispatch(showMessage({ message: "Ya existe un producto registrado con estos parámetros.", variant: "error", autoHideDuration: 6000 }));
+                return
+            };
+        };
         const objeto = {
             descripcion: productoRetornado.descripcion,
             sage: productoRetornado.sage,
-            tipoPedido: productoRetornado.tipoPedido,
+            proveedor: productoRetornado.proveedor,
+            precioUnitario: productoRetornado.precioUnitario,
             largo: productoRetornado.largo,
             ancho: productoRetornado.ancho,
             grueso: productoRetornado.grueso,
+            especialMaderas: {
+                familia: productoRetornado.familia,
+            },
             activo: productoRetornado.activo
         };
         let arrayHistorico = [...productoRetornado.historico];
         arrayHistorico.push({
             activo: productoRetornado.activo,
+            precioUnitario: productoRetornado.precioUnitario,
             fecha: new Date()
         });
         objeto.historico = arrayHistorico;
@@ -127,19 +155,27 @@ function DatosMod3(props) {
         };
     };
 
-    const borrarFila = (id, index) => {
+    const borrarFila = async (id, index) => {
         if (id) {
-            dispatch(deleteProducto(id)).then(({ payload }) => {
-                dispatch(getProductos({ familia: 'maderas', min: false })).then(({ payload }) => {
-                    gestionaProductos(payload);
-                });
+            const nombre = productosControllers[productosControllers.findIndex(prod => prod._id === id)].descripcion;
+            dispatch(dialogAsegurar(nombre, 1)).then(({ payload }) => {
+                if (payload) {
+                    dispatch(deleteProducto(id)).then(({ payload }) => {
+                        dispatch(getProductos({ familia: 'maderas', min: false })).then(({ payload }) => {
+                            gestionaProductos(payload);
+                        });
+                    });
+                    const myArray = removeArrayByIndex(productosControllers, index);
+                    setProductosControllers(myArray);
+                };
             });
+        } else {
+            const myArray = removeArrayByIndex(productosControllers, index);
+            setProductosControllers(myArray);
         };
-        const myArray = removeArrayByIndex(productosControllers, index);
-        setProductosControllers(myArray);
     };
 
-    if (!productos) {
+    if (!productos && !proveedores) {
         return null
     };
 
@@ -189,7 +225,7 @@ function DatosMod3(props) {
                     </div>
                 </div>
                 <motion.div variants={item1} className="w-full">
-                    <Paper className="flex flex-col shadow rounded-2xl overflow-hidden pl-24 pr-24 sm:pr-8 pt-24 pb-4">
+                    <Paper className="flex flex-col shadow rounded-2xl overflow-hidden pl-24 pr-24 sm:pr-8 pt-24 pb-24">
                         <div className="flex justify-end">
                             <Button
                                 onClick={anadirFila}
@@ -209,21 +245,24 @@ function DatosMod3(props) {
                                 </Typography>
                             </div>
                         ) : (
-                            productosControllers.map((producto, index) => {
-                                return (
-                                    <FilaMod3
-                                        key={'prod' + index}
-                                        index={index}
-                                        producto={producto}
-                                        registrarFila={(productoRetornado) => {
-                                            registrarFila(productoRetornado)
-                                        }}
-                                        borrarFila={(id, index) => {
-                                            borrarFila(id, index)
-                                        }}
-                                    />
-                                )
-                            })
+                            <div ref={contenedor}>
+                                {productosControllers.map((producto, index) => {
+                                    return (
+                                        <FilaMod3
+                                            key={'prod' + index}
+                                            index={index}
+                                            producto={producto}
+                                            proveedores={proveedores}
+                                            registrarFila={(productoRetornado) => {
+                                                registrarFila(productoRetornado)
+                                            }}
+                                            borrarFila={(id, index) => {
+                                                borrarFila(id, index)
+                                            }}
+                                        />
+                                    )
+                                })}
+                            </div>
                         )}
                     </Paper>
                 </motion.div>

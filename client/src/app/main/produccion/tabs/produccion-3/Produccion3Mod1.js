@@ -26,7 +26,10 @@ import {
     setDatosProduccionTabla,
     setDatosProduccionInicial,
     setDatosProduccionPalet,
-    setDatosProduccionSaldo
+    setDatosProduccionSaldo,
+    getColumnas,
+    selectDatosColumnasVisibilidad,
+    setDatosColumnasVisibilidad
 } from 'app/redux/produccion/produccionSlice';
 import { selectMesActual, selectSemanasAnyo } from 'app/redux/produccion/inicioSlice';
 import {
@@ -35,20 +38,23 @@ import {
     decMesActual
 } from 'app/logica/produccion/logicaProduccion';
 import {
-    selectObjetivos,
-    getObjetivos
-} from 'app/redux/produccion/objetivosSlice';
+    getProducto,
+    getProductosPayload
+} from 'app/redux/produccion/productoSlice';
+import { selectObjSocket } from 'app/redux/socketSlice';
+import { showMessage } from 'app/redux/fuse/messageSlice';
 
 function Produccion3Mod1(props) {
     const { leftSidebarToggle } = props;
     const dispatch = useDispatch();
+    const socket = useSelector(selectObjSocket);
     const semanasAnyo = useSelector(selectSemanasAnyo);
     const mesActual = useSelector(selectMesActual);
     const datosProduccionInicial = useSelector(selectDatosProduccionInicial);
     const datosProduccionTabla = useSelector(selectDatosProduccionTabla);
     const datosProduccionPalet = useSelector(selectDatosProduccionPalet);
     const datosProduccionSaldo = useSelector(selectDatosProduccionSaldo);
-    const objetivos = useSelector(selectObjetivos);
+    const datosColumnasVisibilidad = useSelector(selectDatosColumnasVisibilidad);
     const container = {
         show: {
             transition: {
@@ -69,7 +75,7 @@ function Produccion3Mod1(props) {
         show: { opacity: 1, y: 0, transition: { delay: 0.7 } },
     };
     const [semanasCorrespondientesPeriodo, setSemanasCorrespondientesPeriodo] = useState(null);
-    const [periodo, setPeriodo] = useState(1);
+    const [periodoSelect, setPeriodoSelect] = useState(1);
     const [objetivosProducto, setObjetivosProducto] = useState(null);
     const referencia = 6;
     const producto = {
@@ -78,14 +84,54 @@ function Produccion3Mod1(props) {
         unidades: PRODUCTOS[referencia].unidades
     };
     const { mes, anyo } = dispatch(decMesActual());
+    const [datosColumnasConfig, setDatosColumnasConfig] = useState(null);
+    const [medidas, setMedidas] = useState(null);
 
     //useEffect   
 
     useEffect(() => {
-        dispatch(setDatosProduccionTabla(null));
-        dispatch(setDatosProduccionInicial(null));
-        dispatch(setDatosProduccionPalet(null));
-        dispatch(setDatosProduccionSaldo(null));
+        vaciarDatos().then(({ payload }) => {
+            if (payload) {
+                iniciarPantalla();
+            };
+        });
+    }, []);
+
+    useEffect(() => {
+        //comunicación socket
+        const receiveComunicacion = (comunicacion) => {
+            if ((socket.id.slice(8) !== comunicacion.from) && (
+                (
+                    comunicacion.body.tabla === "updateProduccionTabla" &&
+                    comunicacion.body.item === "palets"
+                ) ||
+                (
+                    comunicacion.body.tabla === "updateProduccionTabla" &&
+                    comunicacion.body.item !== "palets" &&
+                    comunicacion.body.pantalla === producto.producto
+                ) ||
+                (
+                    comunicacion.body.tabla === "updateProduccionInicial" &&
+                    comunicacion.body.item === "saldoInicial"
+                ) ||
+                (
+                    comunicacion.body.tabla === "updateProduccionInicial" &&
+                    comunicacion.body.item === "stockInicial" &&
+                    comunicacion.body.pantalla === producto.producto
+                )
+            )) {
+                vaciarDatos().then(({ payload }) => {
+                    if (payload) {
+                        iniciarPantalla();
+                        dispatch(showMessage({ message: "Datos actualizados con éxito.", variant: "success" }));
+                    };
+                });
+            };
+        };
+        socket.on("comunicacion", receiveComunicacion);
+        return () => {
+            socket.off("comunicacion", receiveComunicacion);
+        };
     }, []);
 
     useEffect(() => {
@@ -110,20 +156,60 @@ function Produccion3Mod1(props) {
         };
     }, [semanasCorrespondientesPeriodo]);
 
-    useEffect(() => {
-        if (!objetivos) {
-            dispatch(getObjetivos());
-        } else {
-            const arrayObjetivosProducto = objetivos.filter(objetivo => objetivo.producto === producto.producto);
-            const objObjetivosProducto = { palets: arrayObjetivosProducto[0].palets, saldo: arrayObjetivosProducto[0].saldo };
-            setObjetivosProducto(objObjetivosProducto);
-        };
-    }, [objetivos]);
-
     //funciones
 
+    const vaciarDatos = () => {
+        return new Promise((resolve, reject) => {
+            dispatch(setDatosProduccionTabla(null));
+            dispatch(setDatosProduccionInicial(null));
+            dispatch(setDatosProduccionPalet(null));
+            dispatch(setDatosProduccionSaldo(null));
+            dispatch(setDatosColumnasVisibilidad(null));
+            setSemanasCorrespondientesPeriodo(null);
+            resolve({ payload: true });
+            reject(new Error('Algo salió mal'));
+        });
+    };
+
+    const iniciarPantalla = () => {
+        dispatch(getProductosPayload({ familia: 'objetivos', min: true })).then(({ payload }) => {
+            const arrayObjetivosProducto = payload.filter(objetivo => objetivo.descripcion === producto.producto);
+            const objObjetivosProducto = { palets: arrayObjetivosProducto[0].especialObjetivos.palets, saldo: arrayObjetivosProducto[0].especialObjetivos.saldo };
+            setObjetivosProducto(objObjetivosProducto);
+            dispatch(getProducto({ id: null, nombre: producto.producto, familia: "maderas" })).then(({ payload }) => {
+                setMedidas({ largo: payload.largo, ancho: payload.ancho, grueso: payload.grueso });
+                const proveedoresIds = payload.proveedor;
+                dispatch(getProductosPayload({ familia: 'proveedores', min: true })).then(({ payload }) => {
+                    const proveedores = payload.filter(proveedor => proveedoresIds.includes(proveedor._id));
+                    const arrColumnas = [
+                        { nombre: 'Periodo', tipo: 'texto' },
+                        // { nombre: 'MP U.F', tipo: 'texto' },
+                        { nombre: 'Palets', tipo: 'texto' },//primero input
+                        { nombre: 'Saldo', tipo: 'texto' }
+                    ];
+                    const arrDatosVisibilidadColumnas = [];
+                    proveedores.map((proveedor, index) => {
+                        const objProveedor = {
+                            _id: proveedor._id,
+                            nombre: proveedor.codigo,
+                            tipo: 'input'
+                        };
+                        arrDatosVisibilidadColumnas.push({ proveedor: proveedor._id, visible: true })
+                        arrColumnas.splice(index + 1, 0, objProveedor);
+                    });
+                    const datosColumnas = {
+                        pantalla: producto.producto,
+                        columnas: arrDatosVisibilidadColumnas
+                    };
+                    dispatch(getColumnas(datosColumnas));
+                    setDatosColumnasConfig(arrColumnas);
+                });
+            });
+        });
+    };
+
     const handleChangeSelect = (e) => {
-        setPeriodo(e.target.value);
+        setPeriodoSelect(e.target.value);
         setSemanasCorrespondientesPeriodo(dispatch(calculoSemanasPeriodo(e.target.value)));
     };
 
@@ -133,7 +219,9 @@ function Produccion3Mod1(props) {
         !datosProduccionTabla ||
         !datosProduccionPalet ||
         !datosProduccionSaldo ||
-        !objetivosProducto
+        !objetivosProducto ||
+        !datosColumnasConfig ||
+        !datosColumnasVisibilidad
     ) {
         return null;
     };
@@ -145,7 +233,9 @@ function Produccion3Mod1(props) {
             datosProduccionTabla &&
             datosProduccionPalet &&
             datosProduccionSaldo &&
-            objetivosProducto
+            objetivosProducto &&
+            datosColumnasConfig &&
+            datosColumnasVisibilidad
         ) && (
             <motion.div
                 className="p-24 w-full"
@@ -177,7 +267,7 @@ function Produccion3Mod1(props) {
                                 <InputLabel htmlFor="max-width">Consulta</InputLabel>
                                 <Select
                                     label="Consulta"
-                                    value={periodo}
+                                    value={periodoSelect}
                                     onChange={handleChangeSelect}
                                 >
                                     <MenuItem value={1}>Mensual</MenuItem>
@@ -206,6 +296,8 @@ function Produccion3Mod1(props) {
                                     datosInicial={datosProduccionInicial}
                                     datosSaldo={datosProduccionSaldo}
                                     producto={producto}
+                                    mes={mes}
+                                    anyo={anyo}
                                 />
                             </motion.div>
                         </div>
@@ -213,19 +305,15 @@ function Produccion3Mod1(props) {
                     <div className="w-full flex flex-col mt-24">
                         <motion.div variants={item3}>
                             <PanelProduccion1
-                                columnas={[
-                                    { nombre: 'Periodo', tipo: 'texto' },
-                                    { nombre: 'Serfocat', tipo: 'input' },
-                                    { nombre: 'Milieu', tipo: 'input' },
-                                    { nombre: 'Milieu-sala', tipo: 'input' },
-                                    { nombre: 'Palets', tipo: 'texto' },//primero input
-                                    { nombre: 'Saldo', tipo: 'texto' },
-                                ]}
+                                datosColumnasConfig={datosColumnasConfig}
+                                datosColumnasVisibilidad={datosColumnasVisibilidad}
                                 semanas={semanasCorrespondientesPeriodo}
                                 datosTabla={datosProduccionTabla}
                                 datosPalet={datosProduccionPalet}
                                 producto={producto}
                                 mes={mes}
+                                anyo={anyo}
+                                medidas={medidas}
                             />
                         </motion.div>
                     </div>

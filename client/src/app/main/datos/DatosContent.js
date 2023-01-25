@@ -12,6 +12,7 @@ import DatosMod4 from './datos-4/DatosMod4';
 import DatosMod5 from './datos-5/DatosMod5';
 import DatosMod6 from './datos-6/DatosMod6';
 import DatosMod7 from './datos-7/DatosMod7';
+import DatosMod8 from './datos-8/DatosMod8';
 import SidebarHistorico1 from './datos-1/SidebarHistorico1';
 import SidebarHistorico2 from './datos-2/SidebarHistorico2';
 import SidebarHistorico3 from './datos-3/SidebarHistorico3';
@@ -19,6 +20,7 @@ import SidebarHistorico4 from './datos-4/SidebarHistorico4';
 import SidebarHistorico5 from './datos-5/SidebarHistorico5';
 import SidebarHistorico6 from './datos-6/SidebarHistorico6';
 import SidebarHistorico7 from './datos-7/SidebarHistorico7';
+import SidebarHistorico8 from './datos-8/SidebarHistorico8';
 
 const Root = styled(FusePageSimple)(({ theme }) => ({
     '& .FusePageSimple-sidebarContent': {
@@ -98,7 +100,7 @@ function DatosContent() {
                             rightSidebarOpen={rightSidebarOpen}
                         />
                     )}
-                     {ruta.includes("mod-6") && (
+                    {ruta.includes("mod-6") && (
                         <DatosMod6
                             leftSidebarToggle={(ev) => {
                                 setLeftSidebarOpen(!leftSidebarOpen);
@@ -111,6 +113,17 @@ function DatosContent() {
                     )}
                     {ruta.includes("mod-7") && (
                         <DatosMod7
+                            leftSidebarToggle={(ev) => {
+                                setLeftSidebarOpen(!leftSidebarOpen);
+                            }}
+                            rightSidebarToggle={(ev) => {
+                                setRightSidebarOpen(!rightSidebarOpen);
+                            }}
+                            rightSidebarOpen={rightSidebarOpen}
+                        />
+                    )}
+                    {ruta.includes("mod-8") && (
+                        <DatosMod8
                             leftSidebarToggle={(ev) => {
                                 setLeftSidebarOpen(!leftSidebarOpen);
                             }}
@@ -154,6 +167,9 @@ function DatosContent() {
                     )}
                     {ruta.includes("mod-7") && (
                         <SidebarHistorico7 />
+                    )}
+                     {ruta.includes("mod-8") && (
+                        <SidebarHistorico8 />
                     )}
                 </>
             }

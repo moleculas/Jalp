@@ -5,11 +5,23 @@ const ProductoSchema = new mongoose.Schema(
         descripcion: {
             type: String,
         },
+        codigo: {
+            type: String,
+        },
         familia: {
             type: String,
-            enum: ['clavos', 'costesHoraTrabajador', 'clientes', 'maderas', 'costesProcesos', 'proveedores', 'transportes'],
+            enum: [
+                'clavos',
+                'costesHoraTrabajador',
+                'clientes',
+                'maderas',
+                'costesProcesos',
+                'proveedores',
+                'transportes',
+                'objetivos'
+            ],
         },
-        tipoPedido: {
+        proveedor: {
             type: [String],
             default: undefined
         },
@@ -32,9 +44,6 @@ const ProductoSchema = new mongoose.Schema(
         precioUnitario: {
             type: Number,
         },
-        precioProductoProveedor: {
-            type: Number,
-        },
         historico: {
             type: [{
                 precioUnitario: {
@@ -55,6 +64,14 @@ const ProductoSchema = new mongoose.Schema(
                 vehiculo: {
                     type: String,
                     enum: ['camion', 'trailer', 'trenCarretera'],
+                },
+                objetivos: {
+                    palets: {
+                        type: Number
+                    },
+                    saldo: {
+                        type: Number
+                    },
                 },
             }]
         },
@@ -85,6 +102,20 @@ const ProductoSchema = new mongoose.Schema(
             },
             unidadesVehiculo: {
                 type: Number
+            },
+        },
+        especialObjetivos: {
+            palets: {
+                type: Number
+            },
+            saldo: {
+                type: Number
+            },
+        },
+        especialMaderas: {
+            familia: {
+                type: String,
+                enum: ['palet', 'taco', 'patin', ''],
             },
         },
     },

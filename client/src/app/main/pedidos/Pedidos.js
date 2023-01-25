@@ -13,7 +13,7 @@ const Root = styled(FusePageSimple)(({ theme }) => ({
     boxShadow: `inset 0 0 0 1px  ${theme.palette.divider}`,
   },
   '& .FusePageSimple-content': {
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: theme.palette.background.default,   
   },
 }));
 

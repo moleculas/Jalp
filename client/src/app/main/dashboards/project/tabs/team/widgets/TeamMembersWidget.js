@@ -29,9 +29,11 @@ function TeamMembersWidget(props) {
   //useEffect
 
   useEffect(() => {
-    if (usuarios.length === 0) {
-      dispatch(obtenerUsuarios(false));
-    } else {
+    dispatch(obtenerUsuarios(false));
+  }, []);
+
+  useEffect(() => {
+    if (usuarios?.length > 0) {
       gestionarUsuarios();
     };
   }, [usuarios]);
@@ -51,6 +53,10 @@ function TeamMembersWidget(props) {
       usuariosArray.push(objetoUsuario);
     });
     setMembers(usuariosArray);
+  };
+
+  if (!usuarios) {
+    return null
   };
 
   return (

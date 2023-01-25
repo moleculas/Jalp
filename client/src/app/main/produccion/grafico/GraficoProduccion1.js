@@ -14,7 +14,7 @@ import clsx from 'clsx';
 import { formateado } from 'app/logica/produccion/logicaProduccion';
 
 function GraficoProduccion1(props) {
-    const { datosTabla, datosPalet, producto, semanas, objetivos, mes } = props;
+    const { datosTabla, datosPalet, producto, semanas, objetivos, mes, anyo } = props;
     const theme = useTheme();
     const [tabValue, setTabValue] = useState(0);
     let titleTabs;
@@ -162,7 +162,7 @@ function GraficoProduccion1(props) {
             <Paper className="flex flex-col flex-auto shadow rounded-2xl overflow-hidden">
                 <div className="flex items-start justify-between mx-24 mt-16 mb-0">
                     <Typography className="text-lg font-medium tracking-tight leading-6 truncate">
-                        Gráfico producción
+                        {`Gráfico producción mes: ${_.capitalize(mes)} - ${anyo}`}
                     </Typography>
                     <div className="ml-8 -mb-4">
                         <Tabs

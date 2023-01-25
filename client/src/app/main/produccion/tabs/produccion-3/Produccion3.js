@@ -10,6 +10,7 @@ import history from '@history';
 const Root = styled(FusePageSimple)(({ theme }) => ({
     '& .FusePageSimple-sidebarContent': {
         backgroundColor: theme.palette.background.default,
+        overflowX: "hidden"
     },
 }));
 

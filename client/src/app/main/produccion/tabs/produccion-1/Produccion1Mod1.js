@@ -26,29 +26,34 @@ import {
     setDatosProduccionTabla,
     setDatosProduccionInicial,
     setDatosProduccionPalet,
-    setDatosProduccionSaldo
+    setDatosProduccionSaldo,  
+    setDatosColumnasVisibilidad,
+    selectMesSeleccionadoIniciales,
+    setMesSeleccionadoIniciales
 } from 'app/redux/produccion/produccionSlice';
-import { selectMesActual, selectSemanasAnyo } from 'app/redux/produccion/inicioSlice';
+import { selectSemanasAnyo } from 'app/redux/produccion/inicioSlice';
 import {
     calculoSemanasAnyo,
     calculoSemanasPeriodo,
     decMesActual
 } from 'app/logica/produccion/logicaProduccion';
 import {
-    selectObjetivos,
-    getObjetivos
-} from 'app/redux/produccion/objetivosSlice';
+    getProducto,
+    getProductosPayload
+} from 'app/redux/produccion/productoSlice';
+import { selectObjSocket } from 'app/redux/socketSlice';
+import { showMessage } from 'app/redux/fuse/messageSlice';
 
 function Produccion1Mod1(props) {
     const { leftSidebarToggle } = props;
     const dispatch = useDispatch();
+    const socket = useSelector(selectObjSocket);
     const semanasAnyo = useSelector(selectSemanasAnyo);
-    const mesActual = useSelector(selectMesActual);
     const datosProduccionInicial = useSelector(selectDatosProduccionInicial);
     const datosProduccionTabla = useSelector(selectDatosProduccionTabla);
     const datosProduccionPalet = useSelector(selectDatosProduccionPalet);
     const datosProduccionSaldo = useSelector(selectDatosProduccionSaldo);
-    const objetivos = useSelector(selectObjetivos);
+    const mesSeleccionadoIniciales = useSelector(selectMesSeleccionadoIniciales);
     const container = {
         show: {
             transition: {
@@ -69,7 +74,7 @@ function Produccion1Mod1(props) {
         show: { opacity: 1, y: 0, transition: { delay: 0.7 } },
     };
     const [semanasCorrespondientesPeriodo, setSemanasCorrespondientesPeriodo] = useState(null);
-    const [periodo, setPeriodo] = useState(1);
+    const [periodoSelect, setPeriodoSelect] = useState(1);
     const [objetivosProducto, setObjetivosProducto] = useState(null);
     const referencia = 0;
     const producto = {
@@ -78,18 +83,62 @@ function Produccion1Mod1(props) {
         unidades: PRODUCTOS[referencia].unidades
     };
     const { mes, anyo } = dispatch(decMesActual());
+    const [datosColumnasConfig, setDatosColumnasConfig] = useState(null);
+    const [medidas, setMedidas] = useState(null);
+    const [datosAgrupadosMeses, setDatosAgrupadosMeses] = useState(null);
+    const [datosVisibilidad, setDatosVisibilidad] = useState(null);
 
     //useEffect   
 
     useEffect(() => {
-        dispatch(setDatosProduccionTabla(null));
-        dispatch(setDatosProduccionInicial(null));
-        dispatch(setDatosProduccionPalet(null));
-        dispatch(setDatosProduccionSaldo(null));
+        vaciarDatos().then(({ payload }) => {
+            if (payload) {
+                iniciarPantalla();
+            };
+        });
     }, []);
 
     useEffect(() => {
-        if (!semanasAnyo) {          
+        //comunicación socket
+        const receiveComunicacion = (comunicacion) => {
+            if ((socket.id.slice(8) !== comunicacion.from) && (
+                (
+                    comunicacion.body.tabla === "updateProduccionTabla" &&
+                    comunicacion.body.item === "palets"
+                ) ||
+                (
+                    comunicacion.body.tabla === "updateProduccionTabla" &&
+                    comunicacion.body.item !== "palets" &&
+                    comunicacion.body.pantalla === producto.producto
+                ) ||
+                (
+                    comunicacion.body.tabla === "updateProduccionInicial" &&
+                    comunicacion.body.item === "saldoInicial"
+                ) ||
+                (
+                    comunicacion.body.tabla === "updateProduccionInicial" &&
+                    comunicacion.body.item === "stockInicial" &&
+                    comunicacion.body.pantalla === producto.producto
+                )
+            )) {
+                vaciarDatos().then(({ payload }) => {
+                    if (payload) {
+                        iniciarPantalla();
+                        dispatch(showMessage({ message: "Datos actualizados con éxito.", variant: "success" }));
+                    };
+                });
+            };
+        };
+        socket.on("comunicacion", receiveComunicacion);
+        return () => {
+            socket.off("comunicacion", receiveComunicacion);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!semanasAnyo) {           
+            dispatch(setMesSeleccionadoIniciales(mes));
+            setDatosAgrupadosMeses(null);
             setSemanasCorrespondientesPeriodo(null);
             dispatch(calculoSemanasAnyo());
         };
@@ -111,41 +160,113 @@ function Produccion1Mod1(props) {
     }, [semanasCorrespondientesPeriodo]);
 
     useEffect(() => {
-        if (!objetivos) {
-            dispatch(getObjetivos());
-        } else {
-            const arrayObjetivosProducto = objetivos.filter(objetivo => objetivo.producto === producto.producto);
-            const objObjetivosProducto = { palets: arrayObjetivosProducto[0].palets, saldo: arrayObjetivosProducto[0].saldo };
-            setObjetivosProducto(objObjetivosProducto);
+        if (
+            datosProduccionInicial &&
+            datosProduccionTabla &&
+            datosProduccionPalet &&
+            datosProduccionSaldo &&
+            semanasCorrespondientesPeriodo
+        ) {
+            const groupInicial = datosProduccionInicial.reduce((acc, curr) => {
+                (acc[curr.mes] = acc[curr.mes] || []).push(curr);
+                return acc;
+            }, {});
+            const groupTabla = datosProduccionTabla.reduce((acc, curr) => {
+                (acc[curr.mes] = acc[curr.mes] || []).push(curr);
+                return acc;
+            }, {});
+            const groupPalet = datosProduccionPalet.reduce((acc, curr) => {
+                (acc[curr.mes] = acc[curr.mes] || []).push(curr);
+                return acc;
+            }, {});
+            const groupSaldo = datosProduccionSaldo.reduce((acc, curr) => {
+                (acc[curr.mes] = acc[curr.mes] || []).push(curr);
+                return acc;
+            }, {});
+            const groupSemanas = semanasCorrespondientesPeriodo.reduce((acc, curr) => {
+                (acc[curr.mes] = acc[curr.mes] || []).push(curr);
+                return acc;
+            }, {});
+            setDatosAgrupadosMeses({
+                inicial: groupInicial,
+                tabla: groupTabla,
+                palet: groupPalet,
+                saldo: groupSaldo,
+                semanas: groupSemanas
+            });
         };
-    }, [objetivos]);
+    }, [datosProduccionInicial, datosProduccionTabla, datosProduccionPalet, datosProduccionSaldo]);
 
     //funciones
 
+    const vaciarDatos = () => {
+        return new Promise((resolve, reject) => {
+            dispatch(setDatosProduccionTabla(null));
+            dispatch(setDatosProduccionInicial(null));
+            dispatch(setDatosProduccionPalet(null));
+            dispatch(setDatosProduccionSaldo(null));
+            dispatch(setDatosColumnasVisibilidad(null));
+            setSemanasCorrespondientesPeriodo(null);
+            dispatch(setMesSeleccionadoIniciales(null));
+            resolve({ payload: true });
+            reject(new Error('Algo salió mal'));
+        });
+    };
+
+    const iniciarPantalla = () => {   
+        dispatch(setMesSeleccionadoIniciales(mes));
+        dispatch(getProductosPayload({ familia: 'objetivos', min: true })).then(({ payload }) => {
+            const arrayObjetivosProducto = payload.filter(objetivo => objetivo.descripcion === producto.producto);
+            const objObjetivosProducto = { palets: arrayObjetivosProducto[0].especialObjetivos.palets, saldo: arrayObjetivosProducto[0].especialObjetivos.saldo };
+            setObjetivosProducto(objObjetivosProducto);
+            dispatch(getProducto({ id: null, nombre: producto.producto, familia: "maderas" })).then(({ payload }) => {
+                setMedidas({ largo: payload.largo, ancho: payload.ancho, grueso: payload.grueso });
+                const proveedoresIds = payload.proveedor;
+                dispatch(getProductosPayload({ familia: 'proveedores', min: true })).then(({ payload }) => {
+                    const proveedores = payload.filter(proveedor => proveedoresIds.includes(proveedor._id));
+                    const arrColumnas = [
+                        { nombre: 'Periodo', tipo: 'texto' },
+                        { nombre: 'MP U.F', tipo: 'texto' },
+                        { nombre: 'Palets', tipo: 'input' },//primero input
+                        { nombre: 'Saldo', tipo: 'texto' }
+                    ];
+                    const arrDatosVisibilidadColumnas = [];
+                    proveedores.map((proveedor, index) => {
+                        const objProveedor = {
+                            _id: proveedor._id,
+                            nombre: proveedor.codigo,
+                            tipo: 'input'
+                        };
+                        arrDatosVisibilidadColumnas.push({ proveedor: proveedor._id, visible: true })
+                        arrColumnas.splice(index + 1, 0, objProveedor);
+                    });
+                    setDatosVisibilidad(arrDatosVisibilidadColumnas);     
+                    setDatosColumnasConfig(arrColumnas);
+                });
+            });
+        });
+    };
+
     const handleChangeSelect = (e) => {
-        setPeriodo(e.target.value);
+        setPeriodoSelect(e.target.value);
         setSemanasCorrespondientesPeriodo(dispatch(calculoSemanasPeriodo(e.target.value)));
     };
 
     if (
-        !semanasCorrespondientesPeriodo ||
-        !datosProduccionInicial ||
-        !datosProduccionTabla ||
-        !datosProduccionPalet ||
-        !datosProduccionSaldo ||
-        !objetivosProducto
+        !datosAgrupadosMeses &&
+        !objetivosProducto &&
+        !datosColumnasConfig &&
+        !datosVisibilidad
     ) {
         return null;
     };
 
     return (
         (
-            semanasCorrespondientesPeriodo &&
-            datosProduccionInicial &&
-            datosProduccionTabla &&
-            datosProduccionPalet &&
-            datosProduccionSaldo &&
-            objetivosProducto
+            datosAgrupadosMeses &&
+            objetivosProducto &&
+            datosColumnasConfig &&
+            datosVisibilidad
         ) && (
             <motion.div
                 className="p-24 w-full"
@@ -177,7 +298,7 @@ function Produccion1Mod1(props) {
                                 <InputLabel htmlFor="max-width">Consulta</InputLabel>
                                 <Select
                                     label="Consulta"
-                                    value={periodo}
+                                    value={periodoSelect}
                                     onChange={handleChangeSelect}
                                 >
                                     <MenuItem value={1}>Mensual</MenuItem>
@@ -192,47 +313,48 @@ function Produccion1Mod1(props) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-24">
                             <motion.div variants={item1}>
                                 <GraficoProduccion1
-                                    datosTabla={datosProduccionTabla}
-                                    datosPalet={datosProduccionPalet}
+                                    datosTabla={datosAgrupadosMeses.tabla[mesSeleccionadoIniciales]}
+                                    datosPalet={datosAgrupadosMeses.palet[mesSeleccionadoIniciales]}
                                     producto={producto}
-                                    semanas={semanasCorrespondientesPeriodo}
+                                    semanas={datosAgrupadosMeses.semanas[mesSeleccionadoIniciales]}
                                     objetivos={objetivosProducto}
-                                    mes={mes}
+                                    mes={mesSeleccionadoIniciales}
+                                    anyo={anyo}
                                 />
                             </motion.div>
                             <motion.div variants={item2}>
                                 <PanelInicialProduccion1
-                                    mesActualLetra={mesActual.letra}
-                                    datosInicial={datosProduccionInicial}
-                                    datosSaldo={datosProduccionSaldo}
+                                    datosInicial={datosAgrupadosMeses.inicial[mesSeleccionadoIniciales]}
+                                    datosSaldo={datosAgrupadosMeses.saldo[mesSeleccionadoIniciales]}
                                     producto={producto}
+                                    mes={mesSeleccionadoIniciales}
+                                    anyo={anyo}
                                 />
                             </motion.div>
                         </div>
                     </div>
                     <div className="w-full flex flex-col mt-24">
                         <motion.div variants={item3}>
-                            <PanelProduccion1
-                                columnas={[
-                                    { nombre: 'Periodo', tipo: 'texto' },
-                                    { nombre: 'Serfocat', tipo: 'input' },
-                                    { nombre: 'Masova', tipo: 'input' },
-                                    { nombre: 'Faucher', tipo: 'input' },
-                                    { nombre: 'Sala', tipo: 'input' },
-                                    { nombre: 'MP U.F', tipo: 'texto' },
-                                    { nombre: 'Palets', tipo: 'input' },//primero input
-                                    { nombre: 'Saldo', tipo: 'texto' },
-                                ]}
-                                semanas={semanasCorrespondientesPeriodo}
-                                datosTabla={datosProduccionTabla}
-                                datosPalet={datosProduccionPalet}
-                                producto={producto}
-                                mes={mes}
-                            />
+                            {Object.entries(datosAgrupadosMeses.tabla).map(function ([key, value]) {
+                                return (
+                                    <PanelProduccion1
+                                        key={"panelTabla-" + key}
+                                        datosColumnasConfig={datosColumnasConfig}
+                                        datosVisibilidad={datosVisibilidad}
+                                        semanas={datosAgrupadosMeses.semanas[key]}
+                                        datosTabla={datosAgrupadosMeses.tabla[key]}
+                                        datosPalet={datosAgrupadosMeses.palet[key]}
+                                        producto={producto}
+                                        mes={key}
+                                        anyo={anyo}
+                                        medidas={medidas}
+                                    />
+                                )
+                            })}
                         </motion.div>
                     </div>
                 </div>
-            </motion.div>
+            </motion.div>        
         )
     );
 }

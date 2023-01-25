@@ -72,7 +72,7 @@ function SidebarHistorico3() {
                             />
                         ))}
                     </Timeline>
-                </motion.div>        
+                </motion.div>                   
             </motion.div>
         )
     );

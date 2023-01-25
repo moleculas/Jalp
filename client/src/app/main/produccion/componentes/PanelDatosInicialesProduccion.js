@@ -1,5 +1,5 @@
 import Paper from '@mui/material/Paper';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import _ from '@lodash';
 import MaterialReactTable from 'material-react-table';
@@ -16,12 +16,14 @@ import {
     updateProduccionInicial,
     getProduccionInicial
 } from 'app/redux/produccion/produccionSlice';
+import { selectObjSocket } from 'app/redux/socketSlice';
 
 function PanelDatosInicialesProduccion(props) {
     const { datos, familia, productos, mes, anyo } = props;
     const dispatch = useDispatch();
+    const socket = useSelector(selectObjSocket);
     const [tableData, setTableData] = useState(null);
-    const [changedData, setChangedData] = useState(false);
+    const [changedData, setChangedData] = useState({ estado: false, item: null });
 
     //useEffect  
 
@@ -50,10 +52,14 @@ function PanelDatosInicialesProduccion(props) {
         setTableData(arrayDatos);
     };
 
-    const calculosTabla = (tabla, indice, update) => {
+    const calculosTabla = (tabla, indice, update, item) => {
         const arrayTabla = [];
         let objetoFila = null;
         let objetoActualizar = {};
+        let itemFila, itemConcepto;
+        if (item) {
+            [itemFila, itemConcepto] = item.split("_");
+        };
         tabla.map((fila, index) => {
             objetoFila = { ...fila };
             if (index === indice) {
@@ -73,33 +79,44 @@ function PanelDatosInicialesProduccion(props) {
                 idSaldo,
                 stockInicial: objetoActualizar.stockInicial,
                 saldoInicial: objetoActualizar.saldoInicial,
+                mes,
+                anyo,
+                producto: objetoActualizar.producto,
+                familia,
                 mensaje: true
             };
             dispatch(updateProduccionInicial(datosInicialUpdate)).then(() => {
                 dispatch(getProduccionInicial({ mes, anyo, productos }));
+                if (item) {
+                    socket.emit("comunicacion", {
+                        tabla: "updateProduccionInicial",
+                        pantalla: objetoActualizar.producto,
+                        item: itemConcepto
+                    });
+                };
             });
         };
     };
 
     const handleChangeCell = (cell, event) => {
-        setChangedData(true);
+        setChangedData({ estado: true, item: cell.id });
         const tabla = [...tableData];
         const rowIndex = Number(cell.row.id);
         const columna = cell.column.id;
         let valor = event.target.value;
         !valor && (valor = 0);
         tabla[rowIndex][columna] = valor;
-        calculosTabla(tabla, rowIndex, false);
+        calculosTabla(tabla, rowIndex, false, null);
     };
 
     const handleExitCell = (cell) => {
         const tabla = [...tableData];
         const rowIndex = Number(cell.row.id);
         if (changedData) {
-            calculosTabla(tabla, rowIndex, true);
-            setChangedData(false);
+            calculosTabla(tabla, rowIndex, true, changedData.item);
+            setChangedData({ estado: false, item: null });
         } else {
-            if (!cell.getValue()) {                
+            if (!cell.getValue()) {
                 const columna = cell.column.id;
                 tabla[rowIndex][columna] = 0;
                 setTableData(tabla);
@@ -134,7 +151,15 @@ function PanelDatosInicialesProduccion(props) {
     return (
         <TableContainer component={Paper} className="rounded-2xl relative flex flex-col flex-auto w-full overflow-hidden">
             <MaterialReactTable
-                {...dispatch(generarPropsTabla(false, false, 'Datos iniciales producción ', 'Configuración datos Stock y Saldo para cáculos mensuales.', null, "Familia productos: " + _.upperCase(familia), false))}
+                {...dispatch(generarPropsTabla(
+                    false,
+                    false,
+                    `Datos iniciales producción mes: ${_.capitalize(mes)} - ${anyo}`,
+                    'Configuración datos Stock y Saldo para cáculos mensuales.',
+                    null,
+                    `Familia productos: ${_.upperCase(familia)}`,
+                    false
+                ))}
                 columns={[
                     {
                         header: 'Producto',
@@ -172,11 +197,11 @@ function PanelDatosInicialesProduccion(props) {
                             type: 'number',
                             autoFocus: true
                         },
-                        muiTableBodyCellProps: ({ cell, table }) => ({                    
+                        muiTableBodyCellProps: ({ cell, table }) => ({
                             onClick: () => clickCelda(cell, table),
                             sx: {
                                 '&:hover': {
-                                    backgroundColor: '#ebebeb',
+                                    backgroundColor: '#e5e9ec',
                                 },
                                 backgroundColor: 'white',
                             },
@@ -243,11 +268,11 @@ function PanelDatosInicialesProduccion(props) {
                             type: 'number',
                             autoFocus: true
                         },
-                        muiTableBodyCellProps: ({ cell, table }) => ({                    
+                        muiTableBodyCellProps: ({ cell, table }) => ({
                             onClick: () => clickCelda(cell, table),
                             sx: {
                                 '&:hover': {
-                                    backgroundColor: '#ebebeb',
+                                    backgroundColor: '#e5e9ec',
                                 },
                                 backgroundColor: 'white',
                             },

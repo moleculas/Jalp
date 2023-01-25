@@ -138,7 +138,7 @@ function CabeceraCotizacion(props) {
                     onClick: () => clickCelda(cell, table),
                     sx: {
                         '&:hover': {
-                            backgroundColor: '#ebebeb',
+                            backgroundColor: '#e5e9ec',
                         },
                         backgroundColor: 'white',
                     },
@@ -174,7 +174,7 @@ function CabeceraCotizacion(props) {
                     onClick: () => clickCelda(cell, table),
                     sx: {
                         '&:hover': {
-                            backgroundColor: '#ebebeb',
+                            backgroundColor: '#e5e9ec',
                         },
                         backgroundColor: 'white',
                     },
@@ -280,7 +280,7 @@ function CabeceraCotizacion(props) {
             if (cell.id === "0_of" && tabla[0].of) {
                 dispatch(getOf(tabla[0].of)).then(({ payload }) => {
                     if (payload.respuesta) {
-                        dispatch(showMessage({ message: "Ya hay una OF registrada con ese número.", variant: "error" }));
+                        dispatch(showMessage({ message: "Ya hay una OF registrada con ese número.", variant: "error", autoHideDuration: 6000 }));
                         tabla[0].of = '';
                     };
                     calculosTabla(tabla, true);

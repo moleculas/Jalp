@@ -6,7 +6,7 @@ import { showMessage } from 'app/redux/fuse/messageSlice';
 
 export const addProducto = createAsyncThunk(
     'produccionSeccion/producto/addProducto',
-    async (objetoProducto, { getState, dispatch }) => {     
+    async (objetoProducto, { getState, dispatch }) => {
         const formData = new FormData();
         const losDatos = objetoProducto;
         formData.append("datos", JSON.stringify(losDatos));
@@ -37,7 +37,7 @@ export const deleteProducto = createAsyncThunk(
 
 export const updateProducto = createAsyncThunk(
     'produccionSeccion/producto/updateProducto',
-    async (datosActualizar, { getState, dispatch }) => {      
+    async (datosActualizar, { getState, dispatch }) => {
         const formData = new FormData();
         const losDatos = datosActualizar.producto;
         formData.append("datos", JSON.stringify(losDatos));
@@ -68,11 +68,30 @@ export const getProductos = createAsyncThunk(
         };
     });
 
+export const getProductosPayload = createAsyncThunk(
+    'produccionSeccion/producto/getProductosPayload',
+    async (consulta, { getState, dispatch }) => {
+        const formData = new FormData();
+        const losDatos = consulta;
+        formData.append("datos", JSON.stringify(losDatos));
+        try {
+            const response = await axios.post('/producto/obtener', formData);
+            const data = await response.data;
+            return data;
+        } catch (err) {
+            dispatch(showMessage({ message: err.response.data.message, variant: "error" }));
+            return;
+        };
+    });
+
 export const getProducto = createAsyncThunk(
     'produccionSeccion/producto/getProducto',
-    async (id, { getState, dispatch }) => {
+    async (objetoItem, { getState, dispatch }) => {
+        const formData = new FormData();
+        const losDatos = objetoItem;
+        formData.append("datos", JSON.stringify(losDatos));
         try {
-            const response = await axios.get('/producto/' + id);
+            const response = await axios.post('/producto/obtenerItem', formData);
             const data = await response.data;
             return data;
         } catch (err) {
@@ -94,7 +113,7 @@ const productoSlice = createSlice({
         },
     },
     extraReducers: {
-        [getProductos.fulfilled]: (state, action) => {           
+        [getProductos.fulfilled]: (state, action) => {
             state.productos = action.payload;
         },
     },

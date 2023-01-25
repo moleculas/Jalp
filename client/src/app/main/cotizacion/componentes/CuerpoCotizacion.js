@@ -30,6 +30,7 @@ import {
     calculosTablaCuerpo,
     actualizarTablaCuerpo
 } from 'app/logica/produccion/logicaCotizacion';
+import { showMessage } from 'app/redux/fuse/messageSlice';
 
 function CuerpoCotizacion(props) {
     const { cotizacionCuerpo, cotizacionCabecera } = props;
@@ -40,8 +41,8 @@ function CuerpoCotizacion(props) {
     const [tableData, setTableData] = useState(null);
     const [changedData, setChangedData] = useState(false);
     const actualizandoCotizacion = useSelector(selectActualizandoCotizacion);
-    const registraIntervencionDialog = useSelector(selectRegistraIntervencionDialog);   
-
+    const registraIntervencionDialog = useSelector(selectRegistraIntervencionDialog);
+   
     //useEffect  
 
     useEffect(() => {
@@ -114,7 +115,7 @@ function CuerpoCotizacion(props) {
                     onClick: () => clickCelda(cell, table),
                     sx: {
                         '&:hover': {
-                            backgroundColor: '#ebebeb',
+                            backgroundColor: '#e5e9ec',
                         },
                         backgroundColor: 'white',
                     },
@@ -151,7 +152,7 @@ function CuerpoCotizacion(props) {
                     },
                     sx: {
                         '&:hover': {
-                            backgroundColor: '#ebebeb'
+                            backgroundColor: '#e5e9ec'
                         },
                         backgroundColor: 'white',
                         cursor: 'pointer',
@@ -210,16 +211,20 @@ function CuerpoCotizacion(props) {
                 enableEditing: false,
                 muiTableBodyCellProps: ({ cell, table }) => ({
                     onClick: () => {
-                        dispatch(openNoteDialog('proveedores'));
-                        dispatch(setDialogIndex(Number(cell.row.id)));
+                        if (cell.row.original.medidas !== "0 x 0 x 0") {
+                            dispatch(openNoteDialog('proveedores'));
+                            dispatch(setDialogIndex(Number(cell.row.id)));
+                        } else {
+                            dispatch(showMessage({ message: "Falta rellenar los datos Medidas.", variant: "warning", autoHideDuration: 6000 }));
+                        };
                     },
                     sx: {
                         '&:hover': {
-                            backgroundColor: '#ebebeb'
+                            backgroundColor: cell.row.original.medidas !== "0 x 0 x 0" ? "#e5e9ec" : "white",
                         },
                         backgroundColor: 'white',
-                        cursor: 'pointer',
-                        color: '#111827'
+                        cursor: cell.row.original.medidas !== "0 x 0 x 0" ? "pointer" : "default",
+                        color: cell.row.original.medidas !== "0 x 0 x 0" ? "#111827" : "#959CA9"
                     },
                 }),
                 Header: ({ column }) => (
@@ -253,7 +258,7 @@ function CuerpoCotizacion(props) {
                     },
                     sx: {
                         '&:hover': {
-                            backgroundColor: '#ebebeb'
+                            backgroundColor: '#e5e9ec'
                         },
                         backgroundColor: 'white',
                         cursor: 'pointer',
@@ -354,7 +359,7 @@ function CuerpoCotizacion(props) {
 
     const generarDatos = () => {
         const arrayDatos = [];
-        let objetoDatos;        
+        let objetoDatos;
         if (actualizandoCotizacion.estado) {
             cotizacionCuerpo.filasCuerpo.forEach((fila) => {
                 objetoDatos = {
@@ -512,6 +517,9 @@ function CuerpoCotizacion(props) {
                 columns={tableColumns}
                 data={tableData}
                 muiTableBodyCellProps={({ cell }) => ({
+                    onClick: (event) => {
+                        console.log(cell)
+                    },
                     onChange: (event) => {
                         handleChangeCell(cell, event);
                     },
@@ -546,14 +554,12 @@ function CuerpoCotizacion(props) {
                 muiTableBodyProps={{
                     sx: {
                         '&::after': {
-                            content: '"Totales"',
-                            width: '100%',
-                            borderTop: '1px solid #e2e8f0',
-                            position: 'absolute',
+                            content: '"Totales"', 
                             paddingLeft: '24px',
                             paddingTop: '8px',
                             fontSize: '12px',
-                            fontWeight: 'bold'
+                            fontWeight: 'bold',  
+                            position: 'absolute'        
                         },
                     }
                 }}

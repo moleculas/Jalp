@@ -1,6 +1,6 @@
 import Typography from '@mui/material/Typography';
 import { useDispatch, useSelector } from 'react-redux';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { IconButton } from '@mui/material';
 import _ from '@lodash';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
@@ -20,7 +20,8 @@ import {
     setProductos
 } from 'app/redux/produccion/productoSlice';
 import {
-    removeArrayByIndex
+    removeArrayByIndex,
+    dialogAsegurar
 } from 'app/logica/produccion/logicaProduccion';
 
 function DatosMod5(props) {
@@ -39,6 +40,7 @@ function DatosMod5(props) {
         hidden: { opacity: 0, y: 20 },
         show: { opacity: 1, y: 0, transition: { delay: 0.3 } },
     };
+    const contenedor = useRef(null);
 
     //useEffect   
 
@@ -72,17 +74,20 @@ function DatosMod5(props) {
     };
 
     const anadirFila = () => {
-        const arrayProductos = [...productosControllers];
-        let objetoProducto = {
-            _id: null,
-            descripcion: "",
-            categoria: "",
-            precioUnitario: null,
-            historico: [],
-            activo: true
-        };
-        arrayProductos.push(objetoProducto);
-        setProductosControllers(arrayProductos);
+        setProductosControllers((producto) => [
+            ...producto,
+            {
+                _id: null,
+                descripcion: "",
+                categoria: "",
+                precioUnitario: null,
+                historico: [],
+                activo: true
+            }
+        ]);
+        setTimeout(() => {
+            contenedor.current?.lastElementChild?.scrollIntoView();
+        }, 250);
     };
 
     const registrarFila = (productoRetornado) => {
@@ -120,16 +125,24 @@ function DatosMod5(props) {
         };
     };
 
-    const borrarFila = (id, index) => {
+    const borrarFila = async (id, index) => {
         if (id) {
-            dispatch(deleteProducto(id)).then(({ payload }) => {
-                dispatch(getProductos({ familia: 'costesProcesos', min: false })).then(({ payload }) => {
-                    gestionaProductos(payload);
-                });
+            const nombre = productosControllers[productosControllers.findIndex(prod => prod._id === id)].descripcion;
+            dispatch(dialogAsegurar(nombre, 1)).then(({ payload }) => {
+                if (payload) {
+                    dispatch(deleteProducto(id)).then(({ payload }) => {
+                        dispatch(getProductos({ familia: 'costesProcesos', min: false })).then(({ payload }) => {
+                            gestionaProductos(payload);
+                        });
+                    });
+                    const myArray = removeArrayByIndex(productosControllers, index);
+                    setProductosControllers(myArray);
+                };
             });
+        } else {
+            const myArray = removeArrayByIndex(productosControllers, index);
+            setProductosControllers(myArray);
         };
-        const myArray = removeArrayByIndex(productosControllers, index);
-        setProductosControllers(myArray);
     };
 
     if (!productos) {
@@ -202,21 +215,23 @@ function DatosMod5(props) {
                                 </Typography>
                             </div>
                         ) : (
-                            productosControllers.map((producto, index) => {
-                                return (
-                                    <FilaMod5
-                                        key={'prod' + index}
-                                        index={index}
-                                        producto={producto}
-                                        registrarFila={(productoRetornado) => {
-                                            registrarFila(productoRetornado)
-                                        }}
-                                        borrarFila={(id, index) => {
-                                            borrarFila(id, index)
-                                        }}
-                                    />
-                                )
-                            })
+                            <div ref={contenedor}>
+                                {productosControllers.map((producto, index) => {
+                                    return (
+                                        <FilaMod5
+                                            key={'prod' + index}
+                                            index={index}
+                                            producto={producto}
+                                            registrarFila={(productoRetornado) => {
+                                                registrarFila(productoRetornado)
+                                            }}
+                                            borrarFila={(id, index) => {
+                                                borrarFila(id, index)
+                                            }}
+                                        />
+                                    )
+                                })}
+                            </div>
                         )}
                     </Paper>
                 </motion.div>

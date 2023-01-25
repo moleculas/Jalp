@@ -3,6 +3,8 @@ import ProduccionInicial from "../models/ProduccionInicial";
 import ProduccionPalet from "../models/ProduccionPalet";
 import ProduccionSaldo from "../models/ProduccionSaldo";
 import ProduccionLX from "../models/ProduccionLX";
+import Columna from "../models/Columna";
+import Pedido from "../models/Pedido";
 
 export const getProduccionLX = async (req, res) => {
     const { periodo, productos } = JSON.parse(req.body.datos);
@@ -23,28 +25,18 @@ export const getProduccionLX = async (req, res) => {
                         updatedAt: 0
                     }
                 );
-                let newProduccionLX;
-                if (!produccionLX) {
-                    newProduccionLX = new ProduccionLX({
-                        semana: periodo[i].semana,
-                        mes: periodo[i].mes,
-                        anyo: periodo[i].anyo,
-                        producto: productos[j].producto,
-                    });
-                    await newProduccionLX.save();
-                };
                 if (produccionLX) {
                     arrayProduccionLX.push(produccionLX);
                 } else {
                     const newProduccionLXARetornar = {
-                        _id: newProduccionLX._id,
-                        semana: newProduccionLX.semana,
-                        mes: newProduccionLX.mes,
-                        anyo: newProduccionLX.anyo,
-                        producto: newProduccionLX.producto,
-                        cargas: newProduccionLX.cargas,
-                        config: newProduccionLX.config,
-                        cantidad: newProduccionLX.cantidad
+                        _id: null,
+                        semana: periodo[i].semana,
+                        mes: periodo[i].mes,
+                        anyo: periodo[i].anyo,
+                        producto: productos[j].producto,
+                        cargas: 0,
+                        config: 0,
+                        cantidad: 0
                     };
                     arrayProduccionLX.push(newProduccionLXARetornar);
                 };
@@ -58,34 +50,43 @@ export const getProduccionLX = async (req, res) => {
 };
 
 export const updateProduccionLX = async (req, res) => {
-    const { linea } = JSON.parse(req.body.datos);
+    const { linea, semana, mes, anyo, producto } = JSON.parse(req.body.datos);
     try {
-        const updatedProduccionLX = await ProduccionLX.findByIdAndUpdate(
-            linea._id,
-            {
-                $set: {
-                    cargas: linea.cargas,
-                    config: linea.config,
-                    cantidad: linea.cantidad
+        if (!linea._id) {
+            const elSet = {
+                semana,
+                mes,
+                anyo,
+                producto,
+                cargas: linea.cargas,
+                config: linea.config,
+                cantidad: linea.cantidad
+            };
+            const newProduccionLX = new ProduccionLX(elSet);
+            await newProduccionLX.save();
+            return res.json(newProduccionLX);
+        } else {
+            const updatedProduccionLX = await ProduccionLX.findByIdAndUpdate(
+                linea._id,
+                {
+                    $set: {
+                        cargas: linea.cargas,
+                        config: linea.config,
+                        cantidad: linea.cantidad
+                    }
+                },
+                {
+                    new: true,
                 }
-            },
-            {
-                new: true,
-            }
-        );
-        if (!updatedProduccionLX) return res.sendStatus(404);
-        await updatedProduccionLX.save();
-        const updatedProduccionLXARetornar = {
-            _id: updatedProduccionLX._id,
-            semana: updatedProduccionLX.semana,
-            mes: updatedProduccionLX.mes,
-            anyo: updatedProduccionLX.anyo,
-            producto: updatedProduccionLX.producto,
-            cargas: updatedProduccionLX.cargas,
-            config: updatedProduccionLX.config,
-            cantidad: updatedProduccionLX.cantidad
+            ).select(
+                {
+                    createdAt: 0,
+                    updatedAt: 0,
+                }
+            );
+            if (!updatedProduccionLX) return res.sendStatus(404);
+            return res.json(updatedProduccionLX);
         };
-        return res.json(updatedProduccionLXARetornar);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     };
@@ -95,7 +96,7 @@ export const getProduccionInicial = async (req, res) => {
     const { mes, anyo, productos } = JSON.parse(req.body.datos);
     try {
         const objetoProduccion = { inicial: [], saldo: [] };
-        let id = "";
+        let id = null;
         for (let i = 0; i < productos.length; i++) {
             const produccionInicial = await ProduccionInicial.findOne(
                 {
@@ -108,16 +109,6 @@ export const getProduccionInicial = async (req, res) => {
                     updatedAt: 0
                 }
             );
-            let newProduccionInicial;
-            if (!produccionInicial) {
-                newProduccionInicial = new ProduccionInicial({
-                    producto: productos[i].producto,
-                    familia: productos[i].familia,
-                    mes,
-                    anyo
-                });
-                await newProduccionInicial.save();
-            };
             const produccionSaldo = await ProduccionSaldo.findOne(
                 {
                     mes,
@@ -128,24 +119,16 @@ export const getProduccionInicial = async (req, res) => {
                     updatedAt: 0,
                 }
             );
-            let newProduccionSaldo;
-            if (!produccionSaldo) {
-                newProduccionSaldo = new ProduccionSaldo({
-                    mes,
-                    anyo
-                });
-                await newProduccionSaldo.save();
-            };
             if (produccionInicial) {
                 objetoProduccion.inicial.push(produccionInicial);
             } else {
                 const newProduccionInicialARetornar = {
-                    _id: newProduccionInicial._id,
-                    mes: newProduccionInicial.mes,
-                    anyo: newProduccionInicial.anyo,
-                    stockInicial: newProduccionInicial.stockInicial,
-                    producto: newProduccionInicial.producto,
-                    familia: newProduccionInicial.familia,
+                    _id: null,
+                    mes,
+                    anyo,
+                    stockInicial: 0,
+                    producto: productos[i].producto,
+                    familia: productos[i].familia
                 };
                 objetoProduccion.inicial.push(newProduccionInicialARetornar);
             };
@@ -155,16 +138,13 @@ export const getProduccionInicial = async (req, res) => {
                 };
                 id = produccionSaldo._id.toString();
             } else {
-                if (id !== newProduccionSaldo._id.toString()) {
-                    const newProduccionSaldoARetornar = {
-                        _id: newProduccionSaldo._id,
-                        mes: newProduccionSaldo.mes,
-                        anyo: newProduccionSaldo.anyo,
-                        saldoInicial: newProduccionSaldo.saldoInicial
-                    };
-                    objetoProduccion.saldo.push(newProduccionSaldoARetornar);
+                const newProduccionSaldoARetornar = {
+                    _id: null,
+                    mes,
+                    anyo,
+                    saldoInicial: 0
                 };
-                id = newProduccionSaldo._id.toString();
+                objetoProduccion.saldo.push(newProduccionSaldoARetornar);
             };
         };
         return res.json(objetoProduccion);
@@ -175,37 +155,67 @@ export const getProduccionInicial = async (req, res) => {
 };
 
 export const updateProduccionInicial = async (req, res) => {
-    const { idInicial, idSaldo, stockInicial, saldoInicial } = JSON.parse(req.body.datos);
-    const objetoProduccionInicial = { inicial: null, saldo: null };
+    const { idInicial, idSaldo, stockInicial, saldoInicial, mes, anyo, producto, familia } = JSON.parse(req.body.datos);
+    const objetoProduccionInicial = { inicial: [], saldo: [] };
     try {
-        const updatedProduccionInicial = await ProduccionInicial.findByIdAndUpdate(
-            idInicial,
-            {
-                $set: {
-                    stockInicial
+        if (!idInicial) {
+            const newProduccionInicial = new ProduccionInicial({
+                mes,
+                anyo,
+                stockInicial,
+                producto,
+                familia
+            });
+            await newProduccionInicial.save();
+            objetoProduccionInicial.inicial.push(newProduccionInicial);
+        } else {
+            const updatedProduccionInicial = await ProduccionInicial.findByIdAndUpdate(
+                idInicial,
+                {
+                    $set: {
+                        stockInicial
+                    }
+                },
+                {
+                    new: true,
                 }
-            },
-            {
-                new: true,
-            }
-        );
-        if (!updatedProduccionInicial) return res.sendStatus(404);
-        await updatedProduccionInicial.save();
-        objetoProduccionInicial.inicial = updatedProduccionInicial;
-        const updatedProduccionSaldo = await ProduccionSaldo.findByIdAndUpdate(
-            idSaldo,
-            {
-                $set: {
-                    saldoInicial
+            ).select(
+                {
+                    createdAt: 0,
+                    updatedAt: 0,
                 }
-            },
-            {
-                new: true,
-            }
-        );
-        if (!updatedProduccionSaldo) return res.sendStatus(404);
-        await updatedProduccionSaldo.save();
-        objetoProduccionInicial.saldo = updatedProduccionSaldo;
+            );
+            if (!updatedProduccionInicial) return res.sendStatus(404);
+            objetoProduccionInicial.inicial.push(updatedProduccionInicial);
+        };
+        if (!idSaldo) {
+            const newProduccionSaldo = new ProduccionSaldo({
+                mes,
+                anyo,
+                saldoInicial
+            });
+            await newProduccionSaldo.save();
+            objetoProduccionInicial.saldo.push(newProduccionSaldo);
+        } else {
+            const updatedProduccionSaldo = await ProduccionSaldo.findByIdAndUpdate(
+                idSaldo,
+                {
+                    $set: {
+                        saldoInicial
+                    }
+                },
+                {
+                    new: true,
+                }
+            ).select(
+                {
+                    createdAt: 0,
+                    updatedAt: 0,                   
+                }
+            );
+            if (!updatedProduccionSaldo) return res.sendStatus(404);           
+            objetoProduccionInicial.saldo.push(updatedProduccionSaldo);
+        };
         return res.json(objetoProduccionInicial);
     } catch (error) {
         console.log(error)
@@ -216,15 +226,64 @@ export const updateProduccionInicial = async (req, res) => {
 export const getProduccion = async (req, res) => {
     const { periodo, mes, anyo, producto } = JSON.parse(req.body.datos);
     try {
-        const objetoProduccion = { inicial: null, tabla: [], palet: [], saldo: null };
+        const objetoProduccion = { inicial: [], tabla: [], palet: [], saldo: [] };
         let mesIterado = null;
         const semanas = periodo.map(semana => semana.semana);
         for (let i = 0; i < semanas.length; i++) {
+            if (mesIterado !== periodo[i].mes) {
+                const produccionInicial = await ProduccionInicial.findOne(
+                    {
+                        mes: periodo[i].mes,
+                        anyo: periodo[i].anyo,
+                        producto: periodo[i].producto,
+                    },
+                    {
+                        createdAt: 0,
+                        updatedAt: 0,
+                        familia: 0,
+                        producto: 0
+                    }
+                );
+                if (produccionInicial) {
+                    objetoProduccion.inicial.push(produccionInicial);
+                } else {
+                    const newProduccionInicialARetornar = {
+                        _id: null,
+                        mes: periodo[i].mes,
+                        anyo: periodo[i].anyo,
+                        stockInicial: 0
+                    };
+                    objetoProduccion.inicial.push(newProduccionInicialARetornar);
+                };
+                const produccionSaldo = await ProduccionSaldo.findOne(
+                    {
+                        mes: periodo[i].mes,
+                        anyo: periodo[i].anyo
+                    },
+                    {
+                        createdAt: 0,
+                        updatedAt: 0,
+                        producto: 0
+                    }
+                );
+                if (produccionSaldo) {
+                    objetoProduccion.saldo.push(produccionSaldo);
+                } else {
+                    const newProduccionSaldoARetornar = {
+                        _id: null,
+                        mes: periodo[i].mes,
+                        anyo: periodo[i].anyo,
+                        saldoInicial: 0
+                    };
+                    objetoProduccion.saldo.push(newProduccionSaldoARetornar);
+                };
+                mesIterado = periodo[i].mes;
+            };
             const produccionTabla = await ProduccionTabla.findOne(
                 {
                     semana: semanas[i],
                     anyo,
-                    producto
+                    producto,
                 },
                 {
                     createdAt: 0,
@@ -233,165 +292,38 @@ export const getProduccion = async (req, res) => {
                     producto: 0
                 }
             );
-            if (!produccionTabla) {
-                const newProduccionTabla = new ProduccionTabla({
-                    producto: periodo[i].producto,
-                    familia: periodo[i].familia,
+            if (produccionTabla) {
+                objetoProduccion.tabla.push(produccionTabla);
+            } else {
+                const newProduccionTablaARetornar = {
+                    _id: null,
+                    semana: periodo[i].semana,
+                    mes: periodo[i].mes,
+                    anyo: periodo[i].anyo,
+                    proveedores: []
+                };
+                objetoProduccion.tabla.push(newProduccionTablaARetornar);
+            };
+            const produccionPalet = await ProduccionPalet.findOne(
+                {
+                    semana: semanas[i],
+                    anyo
+                },
+                {
+                    createdAt: 0,
+                    updatedAt: 0,
+                }
+            );
+            if (produccionPalet) {
+                objetoProduccion.palet.push(produccionPalet);
+            } else {
+                const newProduccionPaletARetornar = {
+                    _id: null,
                     semana: periodo[i].semana,
                     mes: periodo[i].mes,
                     anyo: periodo[i].anyo
-                });
-                await newProduccionTabla.save();
-                const produccionPalet = await ProduccionPalet.findOne(
-                    {
-                        semana: semanas[i],
-                        anyo
-                    },
-                    {
-                        createdAt: 0,
-                        updatedAt: 0,
-                    }
-                );
-                let newProduccionPalet;
-                if (!produccionPalet) {
-                    newProduccionPalet = new ProduccionPalet({
-                        semana: periodo[i].semana,
-                        mes: periodo[i].mes,
-                        anyo: periodo[i].anyo
-                    });
-                    await newProduccionPalet.save();
                 };
-                if (mesIterado !== periodo[i].mes) {
-                    const produccionInicial = await ProduccionInicial.findOne(
-                        {
-                            mes: periodo[i].mes,
-                            anyo: periodo[i].anyo,
-                            producto: periodo[i].producto,
-                        },
-                        {
-                            createdAt: 0,
-                            updatedAt: 0,
-                            familia: 0,
-                            producto: 0
-                        }
-                    );
-                    let newProduccionInicial;
-                    if (!produccionInicial) {
-                        newProduccionInicial = new ProduccionInicial({
-                            producto: periodo[i].producto,
-                            familia: periodo[i].familia,
-                            mes: periodo[i].mes,
-                            anyo: periodo[i].anyo
-                        });
-                        await newProduccionInicial.save();
-                    };
-                    const produccionSaldo = await ProduccionSaldo.findOne(
-                        {
-                            mes: periodo[i].mes,
-                            anyo: periodo[i].anyo
-                        },
-                        {
-                            createdAt: 0,
-                            updatedAt: 0,
-                            producto: 0
-                        }
-                    );
-                    let newProduccionSaldo;
-                    if (!produccionSaldo) {
-                        newProduccionSaldo = new ProduccionSaldo({
-                            mes: periodo[i].mes,
-                            anyo: periodo[i].anyo,
-                        });
-                        await newProduccionSaldo.save();
-                    };
-                    mesIterado = periodo[i].mes;
-                    if (mesIterado === mes) {
-                        if (produccionInicial) {
-                            objetoProduccion.inicial = produccionInicial;
-                        } else {
-                            const newProduccionInicialARetornar = {
-                                _id: newProduccionInicial._id,
-                                mes: newProduccionInicial.mes,
-                                anyo: newProduccionInicial.anyo,
-                                stockInicial: newProduccionInicial.stockInicial
-                            };
-                            objetoProduccion.inicial = newProduccionInicialARetornar;
-                        };
-                        if (produccionSaldo) {
-                            objetoProduccion.saldo = produccionSaldo;
-                        } else {
-                            const newProduccionSaldoARetornar = {
-                                _id: newProduccionSaldo._id,
-                                mes: newProduccionSaldo.mes,
-                                anyo: newProduccionSaldo.anyo,
-                                saldoInicial: newProduccionSaldo.saldoInicial
-                            };
-                            objetoProduccion.saldo = newProduccionSaldoARetornar;
-                        };
-                    };
-                };
-                if (produccionPalet) {
-                    objetoProduccion.palet.push(produccionPalet);
-                } else {
-                    const newProduccionPaletARetornar = {
-                        _id: newProduccionPalet._id,
-                        semana: newProduccionPalet.semana,
-                        mes: newProduccionPalet.mes,
-                        anyo: newProduccionPalet.anyo
-                    };
-                    objetoProduccion.palet.push(newProduccionPaletARetornar);
-                };
-                const newProduccionTablaARetornar = {
-                    _id: newProduccionTabla._id,
-                    semana: newProduccionTabla.semana,
-                    mes: newProduccionTabla.mes,
-                    anyo: newProduccionTabla.anyo
-                };
-                objetoProduccion.tabla.push(newProduccionTablaARetornar);
-            } else {
-                objetoProduccion.tabla.push(produccionTabla);
-                const produccionPalet = await ProduccionPalet.findOne(
-                    {
-                        semana: semanas[i],
-                        anyo
-                    },
-                    {
-                        createdAt: 0,
-                        updatedAt: 0,
-                    }
-                );
-                objetoProduccion.palet.push(produccionPalet);
-                if ((mes === periodo[i].mes) && !objetoProduccion.inicial) {
-                    const produccionInicial = await ProduccionInicial.findOne(
-                        {
-                            mes,
-                            anyo,
-                            producto
-                        },
-                        {
-                            createdAt: 0,
-                            updatedAt: 0,
-                            familia: 0,
-                            producto: 0
-                        }
-                    );
-                    objetoProduccion.inicial = produccionInicial;
-                };
-                if ((mes === periodo[i].mes) && !objetoProduccion.saldo) {
-                    const produccionSaldo = await ProduccionSaldo.findOne(
-                        {
-                            mes,
-                            anyo,
-                        },
-                        {
-                            createdAt: 0,
-                            updatedAt: 0,
-                            producto: 0,
-                            familia: 0,
-                        }
-                    );
-                    objetoProduccion.saldo = produccionSaldo;
-                };
+                objetoProduccion.palet.push(newProduccionPaletARetornar);
             };
         };
         return res.json(objetoProduccion);
@@ -414,64 +346,215 @@ export const addProduccion = async (req, res) => {
     };
 };
 
-const retornaSetArray = (array, i) => {
-    const elSet = {};
-    Number(array[i].serfocat) > 0 && (elSet['serfocat'] = array[i].serfocat);
-    Number(array[i].masova) > 0 && (elSet['masova'] = array[i].masova);
-    Number(array[i].milieu) > 0 && (elSet['milieu'] = array[i].milieu);
-    Number(array[i].milieu_sala) > 0 && (elSet['milieu_sala'] = array[i].milieu_sala);
-    Number(array[i].arias) > 0 && (elSet['arias'] = array[i].arias);
-    Number(array[i].losan) > 0 && (elSet['losan'] = array[i].losan);
-    Number(array[i].faucher) > 0 && (elSet['faucher'] = array[i].faucher);
-    Number(array[i].sala) > 0 && (elSet['sala'] = array[i].sala);
-    Number(array[i].llorente) > 0 && (elSet['llorente'] = array[i].llorente);
-    Number(array[i].p_marcos) > 0 && (elSet['p_marcos'] = array[i].p_marcos);
-    Number(array[i].roncal) > 0 && (elSet['roncal'] = array[i].roncal);
-    Number(array[i].alonso) > 0 && (elSet['alonso'] = array[i].alonso);
-    Number(array[i].ramon) > 0 && (elSet['ramon'] = array[i].ramon);
-    Number(array[i].mp_u_f) > 0 && (elSet['mp_u_f'] = array[i].mp_u_f);
-    Number(array[i].saldo) > 0 && (elSet['saldo'] = array[i].saldo);
-    return elSet;
-};
-
 export const updateProduccionTabla = async (req, res) => {
-    const { datosTabla, datosPalet } = JSON.parse(req.body.datos);
+    const { datosTabla, datosPalet, mes, anyo, producto, familia, updPedido } = JSON.parse(req.body.datos);
     const objetoProduccion = { tabla: [], palet: [] };
     try {
+        //actualizar producción
         const semanasTabla = datosTabla.map(semana => semana._id);
         const semanasPalet = datosPalet.map(semana => semana._id);
         for (let i = 0; i < semanasTabla.length; i++) {
-            const elSet = retornaSetArray(datosTabla, i);
-            const updatedProduccionTabla = await ProduccionTabla.findByIdAndUpdate(
+            if (!semanasTabla[i]) {
+                let elSetTabla = {
+                    proveedores: datosTabla[i].proveedores,
+                    producto,
+                    familia,
+                    semana: datosTabla[i].semana,
+                    mes,
+                    anyo
+                };
+                const newProduccionTabla = new ProduccionTabla(elSetTabla);
+                await newProduccionTabla.save();
+                objetoProduccion.tabla.push(newProduccionTabla);
+            } else {
+                const updatedProduccionTabla = await ProduccionTabla.findByIdAndUpdate(
+                    {
+                        _id: semanasTabla[i]
+                    },
+                    {
+                        $set: elSetTabla
+                    },
+                    {
+                        new: true,
+                    }
+                ).select(
+                    {
+                        createdAt: 0,
+                        updatedAt: 0,                   
+                    }
+                );
+                if (!updatedProduccionTabla) return res.sendStatus(404);
+                objetoProduccion.tabla.push(updatedProduccionTabla);
+            };
+            if (!semanasPalet[i]) {
+                let elSetPalet = {
+                    palets: datosPalet[i].palets,
+                    semana: datosPalet[i].semana,
+                    mes,
+                    anyo
+                };
+                const newProduccionPalet = new ProduccionPalet(elSetPalet);
+                await newProduccionPalet.save();
+                objetoProduccion.palet.push(newProduccionPalet);
+            } else {
+                const updatedProduccionPalet = await ProduccionPalet.findByIdAndUpdate(
+                    {
+                        _id: semanasPalet[i]
+                    },
+                    {
+                        $set: { palets: datosPalet[i].palets }
+                    },
+                    {
+                        new: true,
+                    }
+                ).select(
+                    {
+                        createdAt: 0,
+                        updatedAt: 0,                   
+                    }
+                );
+                if (!updatedProduccionPalet) return res.sendStatus(404);
+                objetoProduccion.palet.push(updatedProduccionPalet);
+            };
+        };
+        //actualizar pedido
+        if (updPedido.estado) {
+            const existePedido = await Pedido.findOne(
                 {
-                    _id: semanasTabla[i]
+                    semana: updPedido.obj.semana,
+                    anyo,
+                    proveedor: updPedido.obj.proveedor
                 },
                 {
-                    $set: elSet
-                },
-                {
-                    new: true,
+                    createdAt: 0,
+                    updatedAt: 0,
                 }
             );
-            if (!updatedProduccionTabla) return res.sendStatus(404);
-            objetoProduccion.tabla.push(updatedProduccionTabla);
-            const updatedProduccionPalet = await ProduccionPalet.findByIdAndUpdate(
-                {
-                    _id: semanasPalet[i]
-                },
-                {
-                    $set: { palets: datosPalet[i].palets }
-                },
-                {
-                    new: true,
-                }
-            );
-            if (!updatedProduccionPalet) return res.sendStatus(404);
-            objetoProduccion.palet.push(updatedProduccionPalet);
+            if (existePedido) {
+                const arrLineasPedido = existePedido.linea;
+                const index = arrLineasPedido.findIndex(linea => linea.producto === updPedido.obj.fila.producto);
+                if (updPedido.obj.fila.unidades > 0) {
+                    arrLineasPedido[index] = updPedido.obj.fila;
+                } else {
+                    arrLineasPedido.splice(index, 1);
+                };
+                const updatedPedido = await Pedido.findByIdAndUpdate(
+                    {
+                        _id: existePedido._id.toString()
+                    },
+                    {
+                        $set: {
+                            linea: arrLineasPedido,
+                        }
+                    },
+                    {
+                        new: true,
+                    }
+                ).select(
+                    {
+                        createdAt: 0,
+                        updatedAt: 0,                   
+                    }
+                );
+                if (!updatedPedido) return res.sendStatus(404);              
+            } else {
+                const newPedido = new Pedido({
+                    proveedor: updPedido.obj.proveedor,
+                    semana: updPedido.obj.semana,
+                    mes,
+                    anyo,
+                    linea: [updPedido.obj.fila]
+                });
+                await newPedido.save();
+            };
         };
         return res.json(objetoProduccion);
     } catch (error) {
         console.log(error)
+        return res.status(500).json({ message: error.message });
+    };
+};
+
+export const getColumnas = async (req, res) => {
+    const { pantalla, columnas, mes, anyo } = JSON.parse(req.body.datos);
+    try {
+        const existeColumna = await Columna.findOne(
+            {
+                pantalla,
+                mes,
+                anyo
+            },
+            {
+                createdAt: 0,
+                updatedAt: 0,
+                pantalla: 0,
+            }
+        );
+        if (!existeColumna) {
+            const newColumna = new Columna(
+                {
+                    pantalla,
+                    columnas,
+                    mes,
+                    anyo
+                }
+            );
+            await newColumna.save();
+            return res.json(newColumna);
+        } else {
+            const arrColumnas = existeColumna.columnas;
+            if (arrColumnas.length !== columnas.length) {
+                const updatedColumna = await Columna.findByIdAndUpdate(
+                    {
+                        _id: existeColumna._id.toString()
+                    },
+                    {
+                        $set: { columnas }
+                    },
+                    {
+                        new: true,
+                    },
+                ).select(
+                    {
+                        createdAt: 0,
+                        updatedAt: 0,                   
+                    }
+                );
+                if (!updatedColumna) return res.sendStatus(404);
+                return res.json(updatedColumna);
+            } else {
+                if (!existeColumna) return res.sendStatus(404);
+                return res.json(existeColumna);
+            };
+        };
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    };
+};
+
+export const updateColumnas = async (req, res) => {
+    const { _id, columnas } = JSON.parse(req.body.datos);
+    try {
+        const updatedColumna = await Columna.findByIdAndUpdate(
+            {
+                _id
+            },
+            {
+                $set: { columnas }
+            },
+            {
+                new: true,
+            }
+        ).select(
+            {
+                createdAt: 0,
+                updatedAt: 0,
+                pantalla: 0
+            }
+        );
+        if (!updatedColumna) return res.sendStatus(404);
+        return res.json(updatedColumna);
+    } catch (error) {
         return res.status(500).json({ message: error.message });
     };
 };

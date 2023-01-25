@@ -25,7 +25,10 @@ import {
     selectActualizandoCotizacion,
 } from 'app/redux/produccion/cotizacionSlice';
 import { openDialogPdf } from 'app/redux/fuse/pdfSlice';
-import { StyledMenu } from 'app/logica/produccion/logicaProduccion';
+import {
+    StyledMenu,
+    dialogAsegurar
+} from 'app/logica/produccion/logicaProduccion';
 
 function CotizacionContent() {
     const dispatch = useDispatch();
@@ -134,7 +137,7 @@ function CotizacionContent() {
         objetoCotizacion.precio_venta = cotizacionLateralInf.precio_venta;
         objetoCotizacion.mc = cotizacionLateralInf.mc;
         objetoCotizacion.mc_porcentaje = cotizacionLateralInf.mc_porcentaje;
-        objetoCotizacion.precio = cotizacionLateralInf.precio;      
+        objetoCotizacion.precio = cotizacionLateralInf.precio;
         if (actualizacion) {
             const datosActualizar = { objeto: objetoCotizacion, id: actualizandoCotizacion.id };
             dispatch(vaciarDatosGeneral());
@@ -146,9 +149,15 @@ function CotizacionContent() {
     };
 
     const deleteCotizacionBtn = (id) => {
-        vaciarDatos();
-        handleCloseMenu();
-        dispatch(deleteCotizacion(id));
+        dispatch(dialogAsegurar(cotizacionCabecera.descripcion, 1)).then(({ payload }) => {
+            if (payload) {
+                vaciarDatos();
+                handleCloseMenu();
+                dispatch(deleteCotizacion(id));
+            } else {
+                handleCloseMenu();
+            };
+        });
     };
 
     const handleClickMenu = (event) => {

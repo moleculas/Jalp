@@ -1,7 +1,7 @@
-import { app } from "./app";
+import { server } from "./app";
 import { connectDB } from "./db.js";
 import { PORT } from "./config.js";
 
 connectDB();
-app.listen(PORT);
+server.listen(PORT);
 console.log("Servidor funcionando en puerto:", PORT);

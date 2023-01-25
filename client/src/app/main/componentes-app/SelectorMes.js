@@ -12,7 +12,9 @@ import {
     setDatosProduccionPalet,
     setDatosProduccionSaldo,
     setDatosProduccionLX,
-    setDatosProduccionLXMesAnterior
+    setDatosProduccionLXMesAnterior,
+    setDatosProduccionInicialProductos,
+    setDatosProduccionInicialProductosMesAnterior
 } from 'app/redux/produccion/produccionSlice';
 import { setPedido } from 'src/app/redux/produccion/pedidoSlice';
 import { setProductos } from 'app/redux/produccion/productoSlice';
@@ -40,6 +42,8 @@ function SelectorMes(props) {
         dispatch(setDatosProduccionSaldo(null));
         dispatch(setProductos(null));
         dispatch(setPedido(null));
+        dispatch(setDatosProduccionInicialProductos(null));
+        dispatch(setDatosProduccionInicialProductosMesAnterior(null));
     };
 
     return (

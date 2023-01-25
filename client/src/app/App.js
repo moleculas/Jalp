@@ -2,11 +2,10 @@ import BrowserRouter from '@fuse/core/BrowserRouter';
 import FuseLayout from '@fuse/core/FuseLayout';
 import FuseTheme from '@fuse/core/FuseTheme';
 import { SnackbarProvider } from 'notistack';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import createCache from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
 import { selectCurrentLanguageDirection } from 'app/redux/i18nSlice';
-import { selectUser } from 'app/redux/userSlice';
 import themeLayouts from 'app/theme-layouts/themeLayouts';
 import { selectMainTheme } from 'app/redux/fuse/settingsSlice';
 import FuseAuthorization from '@fuse/core/FuseAuthorization';
@@ -14,7 +13,16 @@ import settingsConfig from 'app/configs/settingsConfig';
 import withAppProviders from './withAppProviders';
 import { AuthProvider } from './auth/AuthContext';
 import axios from 'axios';
-import { RUTA_API } from 'constantes';
+import { RUTA_API, RUTA_SERVER } from 'constantes';
+import io from "socket.io-client";
+import { useEffect } from 'react';
+
+//importacion acciones
+import { selectUser } from 'app/redux/userSlice';
+import {
+  setSocket,
+  selectObjSocket
+} from 'app/redux/socketSlice';
 
 /**
  * Axios HTTP Request defaults
@@ -33,9 +41,19 @@ const emotionCacheOptions = {
 };
 
 const App = () => {
+  const dispatch = useDispatch();
   const user = useSelector(selectUser);
   const langDirection = useSelector(selectCurrentLanguageDirection);
   const mainTheme = useSelector(selectMainTheme);
+  const socket = useSelector(selectObjSocket);
+
+  //useEffect
+
+  useEffect(() => {
+    if (!socket) {
+        dispatch(setSocket(io(RUTA_SERVER)));
+    };
+}, []);
 
   return (
     <CacheProvider value={createCache(emotionCacheOptions[langDirection])}>
@@ -61,7 +79,7 @@ const App = () => {
             </FuseAuthorization>
           </BrowserRouter>
         </AuthProvider>
-      </FuseTheme>
+      </FuseTheme>    
     </CacheProvider>
   );
 };

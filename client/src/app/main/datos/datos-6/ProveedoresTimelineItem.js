@@ -37,10 +37,7 @@ function ProveedoresTimelineItem({ item, last }) {
                 >
                     {item.historico.slice(0).reverse().map((cambio, index) => {
                         return (
-                            <div key={'historico-' + index} className="flex flex-col mt-8 sm:mt-4 text-md leading-5">
-                                <Typography className="text-14">
-                                    {`Precio producto: ${cambio.precioProductoProveedor.toLocaleString()} €`}
-                                </Typography>
+                            <div key={'historico-' + index} className="flex flex-col mt-8 sm:mt-4 text-md leading-5">                               
                                 <div>
                                     <Typography className="text-13" color="text.secondary" component="span">
                                         {`Mod: ${format(new Date(cambio.fecha), "d/MM/y", { locale: es })}`}

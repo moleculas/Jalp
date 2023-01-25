@@ -40,6 +40,10 @@ const DatosConfig = {
       path: 'datos/mod-7',
       element: <Datos />,
     },
+    {
+      path: 'datos/mod-8',
+      element: <Datos />,
+    },
   ],
 };
 
